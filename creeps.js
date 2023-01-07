@@ -19,7 +19,7 @@ var creeps = {
     for (let name in Game.creeps) {
       const creep = Game.creeps[name];
       // 
-      if (creep.memory.role == 'harvester' || creep.memory.role == 'transporter') {
+      if (creep.memory.role == 'harvester' || creep.memory.role == 'transporter' || creep.memory.role == 'repairer') {
         roleHarvester.run(creep, ROOM);
       }
       if (creep.memory.role == 'upgrader') {
@@ -67,25 +67,36 @@ var creeps = {
     if (spawns.length == 0) {
       return;
     }
-    // 有几个收集器就创建几个矿工
-    if (ROOM.containerNum > 0 && (creepsGroupLen['5model矿工爬爬'] || 0) < ROOM.containerNum) {
+    // 有一个收集器创建一个
+    if (ROOM.containerNum > 0 && (CreepNameGroup['5model修理工爬爬'] || 0) < (ROOM.containerNum + 1) / 2) {
+      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['5modelRepairer'], '5model修理工爬爬_' + Game.time, { memory: { role: 'repairer' } });
+      if (spawnCreepResult == OK) {
+        console.log("【生成反馈】5model修理工爬爬：" + '生成5model修理工爬爬成功');
+      } else {
+        console.log("【生成反馈】5model修理工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelRepairer'], ROOM)));
+      }
+      // 停止下面的生成，此处优先级高
+      return false
+    }
+    // 有三个以上收集器就创建三个矿工， 暂时防止出问题
+    if (ROOM.containerNum > 2 && (CreepNameGroup['5model矿工爬爬'] || 0) < ROOM.containerNum) {
       const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['5modelHarvester'], '5model矿工爬爬_' + Game.time, { memory: { role: 'harvester' } });
       if (spawnCreepResult == OK) {
-        console.log("【生成反馈】：" + '生成5model矿工爬爬成功');
+        console.log("【生成反馈】5model矿工爬爬：" + '生成5model矿工爬爬成功');
       } else {
-        console.log("【生成反馈】：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
+        console.log("【生成反馈】5model矿工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
       }
       // 停止下面的生成，此处优先级高
       return false
     }
 
     // 创建对应运输工
-    if (ROOM.containerNum > 0 && (creepsGroupLen['5model运输爬爬'] || 0) < ROOM.containerNum) {
+    if (ROOM.containerNum > 3 && (CreepNameGroup['5model运输爬爬'] || 0) < ROOM.containerNum) {
       const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['5modelTransporter'], '5model运输爬爬_' + Game.time, { memory: { role: 'transporter' } });
       if (spawnCreepResult == OK) {
-        console.log("【生成反馈】：" + '生成5model矿工爬爬成功');
+        console.log("【生成反馈】5model运输爬爬：" + '生成5model运输爬爬成功');
       } else {
-        console.log("【生成反馈】：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
+        console.log("【生成反馈】5model运输爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
       }
       // 停止下面的生成，此处优先级高
       return false
@@ -98,23 +109,23 @@ var creeps = {
       if (!CreepLength.harvester || CreepLength.harvester < 3) {
         const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model矿工爬爬_' + Game.time, { memory: { role: 'harvester' } });
         if (spawnCreepResult == OK) {
-          console.log("【生成反馈】：" + '生成5model矿工爬爬成功');
+          console.log("【生成反馈】3model矿工爬爬：" + '生成3model矿工爬爬成功');
         } else {
-          console.log("【生成反馈】：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
+          console.log("【生成反馈】3model矿工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
         }
       } else if (!CreepLength.upgrader || CreepLength.upgrader < 3) {
         const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model升级爬爬_' + Game.time, { memory: { role: 'upgrader' } });
         if (spawnCreepResult == OK) {
-          console.log("【生成反馈】：" + '生成5model矿工爬爬成功');
+          console.log("【生成反馈】3model升级爬爬：" + '生成3model升级爬爬成功');
         } else {
-          console.log("【生成反馈】：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
+          console.log("【生成反馈】3model升级爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
         }
       } else if ((!CreepLength.builder || CreepLength.builder < 3) && ConstructionSites.length > 0) {
         const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model建造爬爬_' + Game.time, { memory: { role: 'builder' } });
         if (spawnCreepResult == OK) {
-          console.log("【生成反馈】：" + '生成5model矿工爬爬成功');
+          console.log("【生成反馈】3model建造爬爬：" + '生成3model建造爬爬成功');
         } else {
-          console.log("【生成反馈】：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
+          console.log("【生成反馈】3model建造爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['5modelHarvester'], ROOM)));
         }
       }
     }

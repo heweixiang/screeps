@@ -30,6 +30,8 @@ const config = {
     baseCreep: [WORK, CARRY, MOVE],
     // 采集工具人
     '5modelHarvester': [WORK, WORK, WORK, MOVE, MOVE],
+    // 修理工具人
+    '5modelRepairer': [WORK, CARRY, CARRY, MOVE, MOVE],
     // 运输工具人
     '5modelTransporter': [CARRY, CARRY, CARRY, MOVE, MOVE],
     // 奶妈
