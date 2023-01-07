@@ -9,8 +9,6 @@ module.exports.loop = function () {
   if(Memory.Info == undefined){
     Memory.Info = {};
   }
-  // 获取RCL等级并存入Game.Info
-  Memory.Info.RCL = Game.spawns['Spawn1'].room.controller.level;
   // 用于公共静态配置
   if(Game.Config == undefined){
     Game.Config = Config;
