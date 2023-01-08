@@ -8,6 +8,9 @@ const Building = {
     // 自动给每个矿绑定一个container，如果没有container则自动建造，并在memory绑定矿
     this.createContainer(ROOM);
     // 如果GCL到了8再考虑link挖
+
+    // 构建道路
+    this.createRoad(ROOM);
   },
   // 创建绑定矿的container
   createContainer: function (ROOM) {
@@ -19,38 +22,10 @@ const Building = {
         return structure.structureType == STRUCTURE_CONTAINER;
       }
     });
-    // 获取当前房间的link
-    // const links = ROOM.find(FIND_STRUCTURES, {
-    //   filter: (structure) => {
-    //     return structure.structureType == STRUCTURE_LINK;
-    //   }
-    // });
-    // 查找当前房间还没有绑定container的矿
-    for (let i = 0; i < sources.length; i++) {
-      const source = sources[i];
-
-      if(!source.containerId) {
-        // 搜索3*3范围内的container
-        const container = source.pos.findInRange(containers, 1);
-        console.log('container: ', container);
-
-      }
-
-
-
-
-
-      // 遍历container，如果container.memory.sourceId == source.id，则跳过
-      let flag = false;
-      for (let j = 0; j < containers.length; j++) {
-        const container = containers[j];
-        if (container.memory.sourceId == source.id) {
-          flag = true;
-          break;
-        }
-      }
-      // 如果没有被绑定，则绑定
-      if (!flag) {
+    if (sources.length > containers.length) {
+      // 查找当前房间还没有绑定container的矿
+      for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
         // 获取矿的周围3*3的空地.
         const sourceAround = ROOM.lookForAtArea(LOOK_TERRAIN, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true)
         // 在空地中找到第一个可用的位置
@@ -60,7 +35,6 @@ const Building = {
             // 在该位置创建container并绑定矿
             ROOM.createConstructionSite(pos.x, pos.y, STRUCTURE_CONTAINER);
             // 获取刚刚创建的container
-            const newContainer = ROOM.lookForAt(LOOK_STRUCTURES, pos.x, pos.y)[0];
             break;
           }
         }
@@ -102,12 +76,38 @@ const Building = {
       }
     }
   },
-  // 获取该房间spanwn位置
-  getSpawnPosition: function () {
-    // ...
+  // 构建道路， 该行为较为复杂，需要考虑到房间内的所有建筑，以及房间内的所有矿，以及房间内的所有container
+  createRoad: function (ROOM) {
+    // 首先建立spawn到所有container的道路
+    // 获取当前房间的spawn
+    const spawns = ROOM.find(FIND_MY_SPAWNS);
+    // 获取当前房间的container
+    const containers = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_CONTAINER;
+      }
+    });
+    // 遍历containers，为每个container创建一条道路
+    for (let i = 0; i < containers.length; i++) {
+      const container = containers[i];
+      // 获取spawn到container的路径
+      const path = ROOM.findPath(spawns[0].pos, container.pos);
+      // 遍历路径，为每个路径点创建一条道路
+      for (let j = 0; j < path.length; j++) {
+        const pathItem = path[j];
+        ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+      }
+    }
+    // 建立spawn1到RCL的道路
+    // 获取当前房间的RCL位置
+    const RCLPos = ROOM.controller.pos;
+    // 获取spawn到RCL的路径
+    const path = ROOM.findPath(spawns[0].pos, RCLPos);
+    // 遍历路径，为每个路径点创建一条道路
+    for (let j = 0; j < path.length; j++) {
+      const pathItem = path[j];
+      ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+    }
   }
-
-
-
 }
 module.exports = Building
