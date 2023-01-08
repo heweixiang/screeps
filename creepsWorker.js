@@ -54,7 +54,7 @@ const creepsWorker = (ROOM, spawns, creeps) => {
     }
     // creep.name 去除末尾数值和TouchFish_
     const name = creep.name.replace(/\d+$/, '').replace('TouchFish_', '');
-    if(typeof creepGroup[name] === 'undefined') {
+    if (typeof creepGroup[name] === 'undefined') {
       creepGroup[name] = 1;
     } else {
       creepGroup[name]++;
@@ -63,7 +63,7 @@ const creepsWorker = (ROOM, spawns, creeps) => {
   let creepCount = '爬爬数量：';
   for (const key in creepGroup) {
     creepCount += `${key}：${creepGroup[key]}，`;
-    
+
   }
   console.log(creepCount);
   // 2、采集者
@@ -97,6 +97,9 @@ function Transport(creep) {
     const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if (targets.length) {
       if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+        creep.say('🚧建造');
+        // 取消标记
+        creep.memory.sourceId = ''
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
@@ -112,6 +115,8 @@ function Upgrade(creep) {
     Harvest(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     creep.say('🚧升级');
+    // 取消标记
+    creep.memory.sourceId = ''
     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
   }
 }
