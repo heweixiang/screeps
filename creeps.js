@@ -53,15 +53,22 @@ function createCreeps(ROOM, spawns, creeps) {
 
 // RCL2
 function LV2GenerateCreeps(ROOM, spawns, creeps) {
-  const spawn = spawns[0];
-  // 获取当前建造者数量
-  const builders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_BUILD);
-  // 如果建造者数量小于2，生成建造者
-  if (builders.length < 5) {
-    spawn.spawnCreep([WORK, CARRY, MOVE], 'TouchFish_建造' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } });
-  }
   // 保留LV1时的设定，优先满足LV1时的需求
-  LV1GenerateCreeps(ROOM, spawns, creeps);
+  const LV1CreateResult = LV1GenerateCreeps(ROOM, spawns, creeps);
+  if (LV1CreateResult === 'no-create') {
+    const spawn = spawns[0];
+    // 获取当前建造者数量
+    const builders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_BUILD);
+    // 如果建造者数量小于2，生成建造者
+    if (builders.length < 5) {
+      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_建造' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } });
+      if (SpawnCreateResult === OK) {
+        console.log('RCL2_生成建造爬爬成功');
+      } else {
+        console.log('RCL2_生成建爬爬失败');
+      }
+    }
+  }
 }
 
 // 优先保证RCL1时，综合工 * 3 （两个升级，一个采集）
@@ -73,19 +80,43 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
   const upgraders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_UPGRADE);
   // 保证有一个采集者
   if (harvesters.length < 1) {
-    spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+    const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+    if (SpawnCreateResult === OK) {
+      console.log('RCL1_生成采集爬爬成功');
+    } else {
+      console.log('RCL1_生成采集爬爬失败');
+    }
+    return 'create'
   } else if (upgraders.length < 2) {
     // 保证有两个升级者
-    spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
+    const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
+    if (SpawnCreateResult === OK) {
+      console.log('RCL1_生成升级爬爬成功');
+    } else {
+      console.log('RCL1_生成升级爬爬失败');
+    }
+    return 'create'
   } else if (creeps.length < 8) {
     if (harvesters.length < 4) {
       // 保证有五个采集者
-      spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+      if (SpawnCreateResult === OK) {
+        console.log('RCL1_生成采集爬爬成功');
+      } else {
+        console.log('RCL1_生成采集爬爬失败');
+      }
     } else {
       // 保证有6个综合工
-      spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
+      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
+      if (SpawnCreateResult === OK) {
+        console.log('RCL1_生成升级爬爬成功');
+      } else {
+        console.log('RCL1_生成升级爬爬失败');
+      }
     }
+    return 'create'
   }
+  return 'no-create'
 }
 
 // 输出当前房间状态
