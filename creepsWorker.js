@@ -98,8 +98,6 @@ function Transport(creep) {
     if (targets.length) {
       if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.say('🚧建造');
-        // 取消标记
-        creep.memory.sourceId = ''
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
@@ -115,8 +113,6 @@ function Upgrade(creep) {
     Harvest(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     creep.say('🚧升级');
-    // 取消标记
-    creep.memory.sourceId = ''
     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
   }
 }
@@ -125,8 +121,6 @@ function Harvest(creep) {
   // 如果creep的carry满了
   if (creep.carry.energy === creep.carryCapacity) {
     creep.say('🔄存储');
-    // 取消标记
-    creep.memory.sourceId = ''
     // 寻找空的extension或者spawn
     const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: (structure) => {

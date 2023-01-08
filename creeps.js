@@ -78,6 +78,8 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
   const harvesters = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_HARVEST);
   // 升级者 behavior = BEHAVIOR_UPGRADE
   const upgraders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_UPGRADE);
+  // 获取矿物数量
+  const sources = ROOM.find(FIND_SOURCES);
   // 保证有一个采集者
   if (harvesters.length < 1) {
     // 此处使用最基础的生成防止一个爬爬都没有
@@ -98,8 +100,8 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
       console.log('RCL1_生成升级爬爬失败');
     }
     return 'create'
-  } else if (creeps.length < 8) {
-    if (harvesters.length < 4) {
+  } else if (creeps.length < sources.length * 2 + 2) {
+    if (harvesters.length < (sources.length * 2 + 2) / 2) {
       // 保证有五个采集者
       const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
       if (SpawnCreateResult === OK) {
