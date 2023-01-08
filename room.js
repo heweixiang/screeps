@@ -15,7 +15,6 @@ const room = {
     const AvailableEnergy = ROOM.energyAvailable;
     console.log(`--------- ${ROOM} Level：${RCL} ---------`);
     console.log('AvailableEnergy：', AvailableEnergy);
-    console.log("代码更新既时测试")
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
       filter: (structure) => {
