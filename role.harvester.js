@@ -197,7 +197,7 @@ var roleHarvester = {
       if (creep.store.getCapacity() === null) {
         // 获取当前标记的container
         const container = Game.getObjectById(creep.memory.container);
-        if (!creep.moveTo(container)) {
+        if (!creep.moveTo(container) && creep.store.getFreeCapacity() > 0) {
           // 获取所有的creep
           const creeps = creep.room.find(FIND_MY_CREEPS);
           // 寻找附近的container，过滤被creep.memory.container存储的container
@@ -221,11 +221,10 @@ var roleHarvester = {
           // 开始查找附近矿物
           const sources = creep.pos.findClosestByRange(FIND_SOURCES);
           if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
-            // 采集了就标记开始采集，工具人不需要移动
-            creep.memory.isHarvesting = true;
             creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
             creep.say('🔄挖矿');
           }
+          return
         }
       }
       // 优先捡起散落能量

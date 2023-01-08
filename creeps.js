@@ -79,7 +79,7 @@ var creeps = {
       return false
     }
     // 有三个以上收集器就创建三个矿工， 暂时防止出问题
-    if (ROOM.containerNum > 2 && (CreepNameGroup['6model矿工爬爬'] || 0) < ROOM.containerNum) {
+    if (ROOM.containerNum > 1 && (CreepNameGroup['6model矿工爬爬'] || 0) < ROOM.containerNum) {
       const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['6modelHarvester'], '6model矿工爬爬_' + Game.time, { memory: { role: 'harvester' } });
       if (spawnCreepResult == OK) {
         console.log("【生成反馈】6model矿工爬爬：" + '生成6model矿工爬爬成功');

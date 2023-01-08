@@ -1200,11 +1200,7 @@ function betterMoveTo(firstArg, secondArg, opts) {
   }
 
   if (typeof firstArg == 'object') {
-    try {
-      toPos = firstArg.pos || firstArg;
-    } catch (error) {
-      // error ...
-    }
+    toPos = firstArg.pos || firstArg;
     ops = secondArg || {};
   } else {
     toPos = { x: firstArg, y: secondArg, roomName: this.room.name };
