@@ -76,7 +76,7 @@ var creeps = {
         console.log("【生成反馈】6model修理工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelRepairer'], ROOM)));
       }
       // 停止下面的生成，此处优先级高
-      return false
+      // return false
     }
     // 有三个以上收集器就创建三个矿工， 暂时防止出问题
     if (ROOM.containerNum > 1 && (CreepNameGroup['6model矿工爬爬'] || 0) < ROOM.containerNum) {
@@ -87,7 +87,7 @@ var creeps = {
         console.log("【生成反馈】6model矿工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
       }
       // 停止下面的生成，此处优先级高
-      return false
+      // return false
     }
 
     // 创建对应运输工
@@ -99,7 +99,7 @@ var creeps = {
         console.log("【生成反馈】6model运输爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
       }
       // 停止下面的生成，此处优先级高
-      return false
+      // return false
     }
 
     // 下面是新手区保命用的代码，初始三矿工，三升级，三建筑

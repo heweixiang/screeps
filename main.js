@@ -3,7 +3,7 @@
 const Tools = require('tools');
 const Config = require('config');
 // 引入ROOM管理
-const Room = require('room');
+const RoomManager = require('room');
 module.exports.loop = function () {
   // 用于各个模块之间通信
   if(Memory.Info == undefined){
@@ -22,7 +22,7 @@ module.exports.loop = function () {
   for (let i in Game.rooms) {
     // 获取房间
     const ROOM = Game.rooms[i];
-    Room.roomManager(ROOM);
+    RoomManager.roomManager(ROOM);
   }
 
   // 预留防止spawn防止方法

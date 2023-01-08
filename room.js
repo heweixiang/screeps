@@ -3,8 +3,10 @@
  */
 // 引入循环生成Creeps
 const Creeps = require('creeps');
+// 引入BuildingManager
+const Building = require('building');
 
-var room = {
+const room = {
   // 该行由tick重复调用
   roomManager(ROOM) {
     // ROOM controller level
@@ -20,6 +22,8 @@ var room = {
       }
     }).length;
     ROOM.containerNum = containerNum
+    // 处理Building
+    Building.BuildingManager(ROOM);
     // 处理Creeps
     Creeps.main(ROOM);
   }

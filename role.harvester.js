@@ -1,3 +1,8 @@
+/**
+ * 首先各司其职>如果有空闲的creep就向下执行>如果没有空闲的creep就不动
+ */
+
+
 var roleHarvester = {
 
   /** @param {Creep} creep **/
@@ -10,7 +15,7 @@ var roleHarvester = {
       this.repairer(creep, ROOM);
     } else {
       // 普通挖矿
-      this.mining(creep, ROOM);
+      this.worker(creep, ROOM);
     }
   },
   // 高级运输者
@@ -178,8 +183,43 @@ var roleHarvester = {
       }
     }
   },
+  // 矿工模式
+  worker(creep, ROOM) {
+    // 如果是单纯的矿工
+    if(creep.store.getCapacity() === null){
+      this.mining(creep, ROOM);
+      return 
+    } else {
+      this.mining(creep, ROOM);
+    }
+    
+  },
   // 挖矿模式
   mining: function (creep, ROOM) {
+    // 挖矿分两种，一种是挖矿工，一种是智能工
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // 如果没有能量且有CARRY模块
     if (creep.store.getFreeCapacity() > 0 || creep.store.getCapacity() === null) {
       // 找到旷去挖

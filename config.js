@@ -16,16 +16,59 @@ const config = {
   },
   // creeps配置
   creep: {
-    /**
-    "move": 50,
-    "work": 100,
-    "attack": 80,
-    "carry": 50,
-    "heal": 250,
-    "ranged_attack": 150,
-    "tough": 10,
-    "claim": 600
-     */
+    move: 50,
+    work: 100,
+    carry: 50,
+    attack: 80,
+    ranged_attack: 150,
+    heal: 250,
+    claim: 600,
+    tough: 10,
+    // 1、综合工/修理工/建筑工/升级工/预备工
+    generateInitialWorker: (ROOM) => {
+      // 计算当前房间的能量容量
+      const energyCapacity = ROOM.energyCapacityAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 工作模块、移动模块 的修理工
+      for (let i = 0; i < Math.floor(energyCapacity / (this.work * 2 + this.move)); i++) {
+        body.push(WORK)
+        body.push(WORK)
+        body.push(MOVE)
+      }
+      return body
+    },
+    // 2、采集者
+    generateHarvester: (ROOM) => {
+      // 计算当前房间的能量容量
+      const energyCapacity = ROOM.energyCapacityAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 工作模块、移动模块 的采集者
+      for (let i = 0; i < Math.floor(energyCapacity / (this.work * 2 + this.move)); i++) {
+        body.push(WORK)
+        body.push(WORK)
+        body.push(MOVE)
+      }
+      return body
+    },
+    // 3、运输者
+    generateTransporter: (ROOM) => {
+      // 计算当前房间的能量容量
+      const energyCapacity = ROOM.energyCapacityAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 运输模块、移动模块 的运输者
+      for (let i = 0; i < Math.floor(energyCapacity / (this.carry * 2 + this.move)); i++) {
+        body.push(CARRY)
+        body.push(CARRY)
+        body.push(MOVE)
+      }
+      return body
+    },
+    // 4、战斗工
+    // 5、探索工
+    // 6、治疗工
     // 普通通用工具人
     baseCreep: [WORK, CARRY, MOVE],
     // 采集工具人
@@ -38,5 +81,7 @@ const config = {
     '6modelHealer': [HEAL, HEAL, HEAL, HEAL, MOVE, MOVE],
   }
 }
+
+
 
 module.exports = config;
