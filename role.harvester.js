@@ -102,21 +102,32 @@ var roleHarvester = {
           return (structure.structureType === STRUCTURE_STORAGE) && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
         }
       });
-      // 如果有container
-      if (container) {
+      // 寻找附近的能量矿
+      const sources = creep.pos.findClosestByRange(FIND_SOURCES);
+      // 寻找散落的能量
+      const dropped = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+      if (dropped) {
+        if (creep.pickup(dropped) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(dropped, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      } else if (container) {
         // 如果container在附近
         if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           // 移动到container附近
           creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
-      } else {
-        // 如果有storage
-        if (storage) {
-          // 如果storage在附近
-          if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            // 移动到storage附近
-            creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffaa00' } });
-          }
+      } else if (storage) {
+        // 如果storage在附近
+        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // 移动到storage附近
+          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      } else if (sources) {
+        // 啥也没有就自己去挖
+        // 如果能量在附近
+        if (creep.harvest(sources) === ERR_NOT_IN_RANGE) {
+          // 移动到能量附近
+          creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
       }
     } else {
@@ -142,22 +153,37 @@ var roleHarvester = {
             return (structure.structureType === STRUCTURE_EXTENSION) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
           }
         });
-        if (storage) {
+        // 寻找有空隙的spawn
+        const spawn = creep.pos.findClosestByRange(FIND_MY_SPAWNS, {
+          filter: (structure) => {
+            return structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+          }
+        });
+        // 优先存入spawn
+        if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // 移动到spawn附近
+          creep.moveTo(spawn, { visualizePathStyle: { stroke: '#ffffff' } });
+          creep.say('🚧存储');
+        } else if (storage) {
           // 如果storage在附近
           if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             // 移动到storage附近
             creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff' } });
             creep.say('🚧存储');
           }
+        } else if (extension) {
+          // 如果extension在附近
+          if (creep.transfer(extension, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            // 移动到extension附近
+            creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffffff' } });
+            creep.say('🚧存储');
+          }
         } else {
-          // 如果有extension
-          if (extension) {
-            // 如果extension在附近
-            if (creep.transfer(extension, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-              // 移动到extension附近
-              creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffffff' } });
-              creep.say('🚧存储');
-            }
+          // 如果没有extension，就去升级
+          const controller = creep.room.controller;
+          if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+            creep.say('🚧升级');
           }
         }
       }
@@ -176,16 +202,49 @@ var roleHarvester = {
           return (structure.structureType === STRUCTURE_CONTAINER) && structure.store.getFreeCapacity(RESOURCE_ENERGY) - 2000 > 0;
         }
       });
-      // 普通矿工优先去container，填补过渡中途出现的漏洞空隙
-      if (container) {
+      // 寻找散落的能量
+      const droppedEnergy = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+      // 高级矿工，运挖分离
+      if (creep.store.getCapacity() === null) {
+        // 获取所有的creep
+        const creeps = creep.room.find(FIND_MY_CREEPS);
+        // 寻找附近的container，过滤被creep.memory.container存储的container
+        const container = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return (structure.structureType === STRUCTURE_CONTAINER) && !creeps.some((creep) => creep.memory.container === structure.id);
+          }
+        });
+        // 标记第一个找到的container
+        if (container) {
+          creep.memory.container = container.id;
+        }
+        // 如果在container附近
+        if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // 移动到container附近
+          creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
+          creep.say('🚧采集');
+          return
+        }
+        // 开始查找附近矿物
+        const sources = creep.pos.findClosestByRange(FIND_SOURCES);
+        if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
+          creep.say('🔄挖矿');
+        }
+      }
+      // 优先捡起散落能量
+      if (droppedEnergy) {
+        if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
+          // 移动到能量附近
+          creep.moveTo(droppedEnergy, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      } else if (container) {
+        // 普通矿工优先去container，填补过渡中途出现的漏洞空隙
         // 如果container在附近
         if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           // 移动到container附近
           creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
-      } else if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
-        creep.say('🔄挖矿');
       }
     } else {
       // 如果有需要修理的建筑
