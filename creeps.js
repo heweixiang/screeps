@@ -60,7 +60,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     // 获取当前建造者数量
     const builders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_BUILD);
     // 如果建造者数量小于2，生成建造者
-    if (builders.length < 5) {
+    if (builders.length < 2) {
       const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_建造' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } });
       if (SpawnCreateResult === OK) {
         console.log('RCL2_生成建造爬爬成功');
