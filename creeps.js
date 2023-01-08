@@ -1,132 +1,103 @@
 /**
  * 该文件用于生成处理creeps，接收loop调用
  */
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
+const creepsWorker = require('creepsWorker');
 
-var creeps = {
-  // 该行由tick重复调用
-  main(ROOM) {
-    // 所有spawn状态
-    const spawns = Game.spawns;
-    // 该房间的spawn孵化状态
-    let HatchingState = '孵化状态：';
-    for (const spawn in spawns) {
-      HatchingState = HatchingState + "【" + spawn + (!!spawns[spawn].spawning ? '-孵化中' : '-空闲') + "】"
-    }
-    console.log(HatchingState);
-    for (let name in Game.creeps) {
-      const creep = Game.creeps[name];
-      // 
-      if (creep.memory.role == 'harvester' || creep.memory.role == 'transporter' || creep.memory.role == 'repairer') {
-        roleHarvester.run(creep, ROOM);
-      }
-      if (creep.memory.role == 'upgrader') {
-        roleUpgrader.run(creep, ROOM);
-      }
-      if (creep.memory.role == 'builder') {
-        roleBuilder.run(creep, ROOM);
-      }
-    }
-    // 生成creep
-    this.createCreep(ROOM);
-  },
+const creeps = (ROOM) => {
+  // 获取当前房间空闲spawn
+  const spawns = ROOM.find(FIND_MY_SPAWNS).filter(spawn => !spawn.spawning);
+  // 获取当前房间的creeps
+  const creeps = ROOM.find(FIND_MY_CREEPS);
+  logRoomSpawnState(ROOM);
   // 生成creep
-  createCreep(ROOM) {
-    let CreepLength = {}
-    let CreepNameGroup = {}
-    // 统计各种creep数量
-    for (let name in Game.creeps) {
-      let creep = Game.creeps[name];
-      if (CreepLength[creep.memory.role]) {
-        CreepLength[creep.memory.role]++
-      } else {
-        CreepLength[creep.memory.role] = 1
-      }
-      // 正则去除末尾数字
-      const splitName = creep.name.replace(/\d+$/g, '').replace(/_/g, '').replace(/TouchFish-/g, '');
-      if (CreepNameGroup[splitName] == undefined) {
-        CreepNameGroup[splitName] = 1
-      } else {
-        CreepNameGroup[splitName]++
-      }
-    }
-    // 获取建筑工地数量
-    const ConstructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
-    // 输出各种creep数量
-    let creepsGroupLen = '';
-    for (const key in CreepNameGroup) {
-      creepsGroupLen = creepsGroupLen + "【" + key + ":" + CreepNameGroup[key] + "】"
-    }
-    console.log('creepsGroupLen: ', creepsGroupLen);
+  createCreeps(ROOM, spawns, creeps);
+  // this.createCreep(ROOM);
+  // 处理creep工作
+  creepsWorker(ROOM, spawns, creeps);
+}
 
-    // 获取当前房间空闲spawn
-    const spawns = ROOM.find(FIND_MY_SPAWNS);
-    // 当前房间没有空闲ROOM跳过生成
-    if (spawns.length == 0) {
-      return;
-    }
-    // 有一个收集器创建一个
-    if (ROOM.containerNum > 0 && (CreepNameGroup['6model修理工爬爬'] || 0) < (ROOM.containerNum + 1) / 2) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['6modelRepairer'], '6model修理工爬爬_' + Game.time, { memory: { role: 'repairer' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】6model修理工爬爬：" + '生成6model修理工爬爬成功');
-      } else {
-        console.log("【生成反馈】6model修理工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelRepairer'], ROOM)));
-      }
-      // 停止下面的生成，此处优先级高
-      // return false
-    }
-    // 有三个以上收集器就创建三个矿工， 暂时防止出问题
-    if (ROOM.containerNum > 1 && (CreepNameGroup['6model矿工爬爬'] || 0) < ROOM.containerNum) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['6modelHarvester'], '6model矿工爬爬_' + Game.time, { memory: { role: 'harvester' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】6model矿工爬爬：" + '生成6model矿工爬爬成功');
-      } else {
-        console.log("【生成反馈】6model矿工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
-      }
-      // 停止下面的生成，此处优先级高
-      // return false
-    }
+// 矿工：只能一辈子在Container上挖矿不可移动
+const ROLE_WORKER = 'ROLE_WORKER';
+// 运输者：一辈子东奔西走运输资源
+const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
+// 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
+const ROLE_HARVESTER = 'ROLE_HARVESTER';
+// 行为
+// 采集
+const BEHAVIOR_HARVEST = 'BEHAVIOR_HARVEST';
+// 运输
+const BEHAVIOR_TRANSPORT = 'BEHAVIOR_TRANSPORT';
+// 修理
+const BEHAVIOR_REPAIR = 'BEHAVIOR_REPAIR';
+// 升级
+const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
+// 建造
+const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
 
-    // 创建对应运输工
-    if (ROOM.containerNum > 3 && (CreepNameGroup['6model运输爬爬'] || 0) < ROOM.containerNum) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep['6modelTransporter'], '6model运输爬爬_' + Game.time, { memory: { role: 'transporter' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】6model运输爬爬：" + '生成6model运输爬爬成功');
-      } else {
-        console.log("【生成反馈】6model运输爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
-      }
-      // 停止下面的生成，此处优先级高
-      // return false
-    }
+function createCreeps(ROOM, spawns, creeps) {
+  // 如果没有空闲spawn不执行生成creep
+  if (!spawns.length) {
+    return;
+  }
+  // RCL1时，综合工 * 3 （两个升级，一个采集）
+  if (ROOM.controller.level === 1) {
+    LV1GenerateCreeps(ROOM, spawns, creeps);
+  }
+  // RCL过高时记得兼容低版本，比如当前没那么多钱造高级creep，就造低级creep
+  if (ROOM.controller.level === 2) {
+    LV2GenerateCreeps(ROOM, spawns, creeps);
+  }
 
-    // 下面是新手区保命用的代码，初始三矿工，三升级，三建筑
-    // 优先级： 大头兵 > 矿工 > 升级爬爬 > 建造爬爬
-    if (!CreepLength.harvester || CreepLength.harvester < 3) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model矿工爬爬_' + Game.time, { memory: { role: 'harvester' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】3model矿工爬爬：" + '生成3model矿工爬爬成功');
-      } else {
-        console.log("【生成反馈】3model矿工爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
-      }
-    } else if (!CreepLength.upgrader || CreepLength.upgrader < 3) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model升级爬爬_' + Game.time, { memory: { role: 'upgrader' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】3model升级爬爬：" + '生成3model升级爬爬成功');
-      } else {
-        console.log("【生成反馈】3model升级爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
-      }
-    } else if ((!CreepLength.builder || CreepLength.builder < 3) && ConstructionSites.length > 0) {
-      const spawnCreepResult = spawns[0].spawnCreep(Game.Config.creep.baseCreep, '3model建造爬爬_' + Game.time, { memory: { role: 'builder' } });
-      if (spawnCreepResult == OK) {
-        console.log("【生成反馈】3model建造爬爬：" + '生成3model建造爬爬成功');
-      } else {
-        console.log("【生成反馈】3model建造爬爬：" + JSON.stringify(Game.Tools.ComputerCreepCost(Game.Config.creep['6modelHarvester'], ROOM)));
-      }
+
+}
+
+// RCL2
+function LV2GenerateCreeps(ROOM, spawns, creeps) {
+  const spawn = spawns[0];
+  // 获取当前建造者数量
+  const builders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_BUILD);
+  // 如果建造者数量小于2，生成建造者
+  if (builders.length < 5) {
+    spawn.spawnCreep([WORK, CARRY, MOVE], 'TouchFish_建造' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } });
+  }
+  // 保留LV1时的设定，优先满足LV1时的需求
+  LV1GenerateCreeps(ROOM, spawns, creeps);
+}
+
+// 优先保证RCL1时，综合工 * 3 （两个升级，一个采集）
+function LV1GenerateCreeps(ROOM, spawns, creeps) {
+  const spawn = spawns[0];
+  // 采集者 behavior = BEHAVIOR_HARVEST
+  const harvesters = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_HARVEST);
+  // 升级者 behavior = BEHAVIOR_UPGRADE
+  const upgraders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_UPGRADE);
+  // 保证有一个采集者
+  if (harvesters.length < 1) {
+    spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+  } else if (upgraders.length < 2) {
+    // 保证有两个升级者
+    spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
+  } else if (creeps.length < 8) {
+    if (harvesters.length < 4) {
+      // 保证有五个采集者
+      spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
+    } else {
+      // 保证有6个综合工
+      spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
     }
   }
+}
+
+// 输出当前房间状态
+function logRoomSpawnState(ROOM) {
+  // 所有spawn状态
+  const spawns = ROOM.find(FIND_MY_SPAWNS);
+  // 该房间的spawn孵化状态
+  let HatchingState = '孵化状态：';
+  for (const spawn in spawns) {
+    HatchingState = HatchingState + "【Spawn" + spawn + (!!spawns[spawn].spawning ? '-孵化中' : '-空闲') + "】"
+  }
+  console.log(HatchingState);
 }
 
 module.exports = creeps;

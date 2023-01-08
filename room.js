@@ -25,7 +25,7 @@ const room = {
     // 处理Building
     Building.BuildingManager(ROOM);
     // 处理Creeps
-    Creeps.main(ROOM);
+    Creeps(ROOM);
   }
 }
 

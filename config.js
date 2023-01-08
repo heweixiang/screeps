@@ -2,6 +2,14 @@
  * 静态配置文件
  * Game.Config
  */
+const MOVE_ENERGY = 50
+const WORK_ENERGY = 100
+const CARRY_ENERGY = 50
+const ATTACK_ENERGY = 80
+const RANGED_ATTACK_ENERGY = 150
+const HEAL_ENERGY = 250
+const TOUGH_ENERGY = 10
+const CLAIM_ENERGY = 600
 
 const config = {
   RCL: {
@@ -16,14 +24,6 @@ const config = {
   },
   // creeps配置
   creep: {
-    move: 50,
-    work: 100,
-    carry: 50,
-    attack: 80,
-    ranged_attack: 150,
-    heal: 250,
-    claim: 600,
-    tough: 10,
     // 1、综合工/修理工/建筑工/升级工/预备工
     generateInitialWorker: (ROOM) => {
       // 计算当前房间的能量容量
@@ -31,9 +31,9 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 工作模块、移动模块 的修理工
-      for (let i = 0; i < Math.floor(energyCapacity / (this.work * 2 + this.move)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (WORK_ENERGY + CARRY_ENERGY + MOVE_ENERGY)); i++) {
         body.push(WORK)
-        body.push(WORK)
+        body.push(CARRY)
         body.push(MOVE)
       }
       return body
@@ -45,7 +45,7 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
-      for (let i = 0; i < Math.floor(energyCapacity / (this.work * 2 + this.move)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (WORK_ENERGY * 2 + MOVE_ENERGY)); i++) {
         body.push(WORK)
         body.push(WORK)
         body.push(MOVE)
@@ -59,7 +59,7 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 运输模块、移动模块 的运输者
-      for (let i = 0; i < Math.floor(energyCapacity / (this.carry * 2 + this.move)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (CARRY_ENERGY * 2 + MOVE_ENERGY)); i++) {
         body.push(CARRY)
         body.push(CARRY)
         body.push(MOVE)

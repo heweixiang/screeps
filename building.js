@@ -101,12 +101,16 @@ const Building = {
     // 建立spawn1到RCL的道路
     // 获取当前房间的RCL位置
     const RCLPos = ROOM.controller.pos;
-    // 获取spawn到RCL的路径
+    // 获取spawn1到RCL的路径
     const path = ROOM.findPath(spawns[0].pos, RCLPos);
-    // 遍历路径，为每个路径点创建一条道路
-    for (let j = 0; j < path.length; j++) {
-      const pathItem = path[j];
-      ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+    // 找到最近的路径点，如果没有创建道路，如果有则不创建
+    for (let i = 0; i < path.length; i++) {
+      const pathItem = path[i];
+      const structures = ROOM.lookForAt(LOOK_STRUCTURES, pathItem.x, pathItem.y);
+      if (structures.length == 0) {
+        ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+        break;
+      }
     }
   }
 }
