@@ -54,8 +54,8 @@ const creepsWorker = (ROOM, spawns, creeps) => {
     }
     // creep.name 去除末尾数值和TouchFish_
     const name = creep.name.replace(/\d+$/, '').replace('TouchFish_', '');
-    if (!creepGroup[name]) {
-      creepGroup[name] = 0;
+    if(typeof creepGroup[name] === 'undefined') {
+      creepGroup[name] = 1;
     } else {
       creepGroup[name]++;
     }
@@ -63,6 +63,7 @@ const creepsWorker = (ROOM, spawns, creeps) => {
   let creepCount = '爬爬数量：';
   for (const key in creepGroup) {
     creepCount += `${key}：${creepGroup[key]}，`;
+    
   }
   console.log(creepCount);
   // 2、采集者
