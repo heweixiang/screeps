@@ -106,28 +106,17 @@ var roleHarvester = {
       const sources = creep.pos.findClosestByRange(FIND_SOURCES);
       // 寻找散落的能量
       const dropped = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
-      if (dropped) {
-        if (creep.pickup(dropped) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(dropped, { visualizePathStyle: { stroke: '#ffaa00' } });
-        }
-      } else if (container) {
-        // 如果container在附近
-        if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          // 移动到container附近
-          creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
-        }
-      } else if (storage) {
-        // 如果storage在附近
-        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          // 移动到storage附近
-          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffaa00' } });
-        }
-      } else if (sources) {
-        // 啥也没有就自己去挖
+      // 对比container和storage的能量距离取最近
+      const source = creep.pos.findClosestByRange([container, dropped, sources, storage]);
+      if (source) {
         // 如果能量在附近
-        if (creep.harvest(sources) === ERR_NOT_IN_RANGE) {
+        if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           // 移动到能量附近
-          creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        } else if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        } else if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
       }
     } else {
@@ -206,7 +195,9 @@ var roleHarvester = {
       const droppedEnergy = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
       // 高级矿工，运挖分离
       if (creep.store.getCapacity() === null) {
-        if (!!creep.memory.isHarvesting) {
+        // 获取当前标记的container
+        const container = Game.getObjectById(creep.memory.container);
+        if (!creep.moveTo(container)) {
           // 获取所有的creep
           const creeps = creep.room.find(FIND_MY_CREEPS);
           // 寻找附近的container，过滤被creep.memory.container存储的container
@@ -219,21 +210,22 @@ var roleHarvester = {
           if (container) {
             creep.memory.container = container.id;
           }
-          // 如果在container附近
-          if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // 如果在container上面
+          if (creep.moveTo(container)) {
             // 移动到container附近
             creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
             creep.say('🚧采集');
             return
           }
-        }
-        // 开始查找附近矿物
-        const sources = creep.pos.findClosestByRange(FIND_SOURCES);
-        if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
-          // 采集了就标记开始采集，工具人不需要移动
-          creep.memory.isHarvesting = true;
-          creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
-          creep.say('🔄挖矿');
+        } else {
+          // 开始查找附近矿物
+          const sources = creep.pos.findClosestByRange(FIND_SOURCES);
+          if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
+            // 采集了就标记开始采集，工具人不需要移动
+            creep.memory.isHarvesting = true;
+            creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
+            creep.say('🔄挖矿');
+          }
         }
       }
       // 优先捡起散落能量

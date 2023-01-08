@@ -1,6 +1,6 @@
 // 建筑类
 const Building = {
-  // 创建exterior
+  // 创建exterior，必须建满exterior才能建立container
   createExterior: function () {
     // ...
   },
