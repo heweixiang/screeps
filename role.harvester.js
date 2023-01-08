@@ -159,12 +159,8 @@ var roleHarvester = {
             return structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
           }
         });
-        // 优先存入spawn
-        if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          // 移动到spawn附近
-          creep.moveTo(spawn, { visualizePathStyle: { stroke: '#ffffff' } });
-          creep.say('🚧存储');
-        } else if (storage) {
+
+        if (storage) {
           // 如果storage在附近
           if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             // 移动到storage附近
@@ -178,6 +174,10 @@ var roleHarvester = {
             creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffffff' } });
             creep.say('🚧存储');
           }
+        } else if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          // 移动到spawn附近
+          creep.moveTo(spawn, { visualizePathStyle: { stroke: '#ffffff' } });
+          creep.say('🚧存储');
         } else {
           // 如果没有extension，就去升级
           const controller = creep.room.controller;
@@ -206,28 +206,32 @@ var roleHarvester = {
       const droppedEnergy = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
       // 高级矿工，运挖分离
       if (creep.store.getCapacity() === null) {
-        // 获取所有的creep
-        const creeps = creep.room.find(FIND_MY_CREEPS);
-        // 寻找附近的container，过滤被creep.memory.container存储的container
-        const container = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (structure.structureType === STRUCTURE_CONTAINER) && !creeps.some((creep) => creep.memory.container === structure.id);
+        if (!!creep.memory.isHarvesting) {
+          // 获取所有的creep
+          const creeps = creep.room.find(FIND_MY_CREEPS);
+          // 寻找附近的container，过滤被creep.memory.container存储的container
+          const container = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return (structure.structureType === STRUCTURE_CONTAINER) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && !creeps.some((creep) => creep.memory.container === structure.id);
+            }
+          });
+          // 标记第一个找到的container
+          if (container) {
+            creep.memory.container = container.id;
           }
-        });
-        // 标记第一个找到的container
-        if (container) {
-          creep.memory.container = container.id;
-        }
-        // 如果在container附近
-        if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          // 移动到container附近
-          creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
-          creep.say('🚧采集');
-          return
+          // 如果在container附近
+          if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            // 移动到container附近
+            creep.moveTo(container, { visualizePathStyle: { stroke: '#ffaa00' } });
+            creep.say('🚧采集');
+            return
+          }
         }
         // 开始查找附近矿物
         const sources = creep.pos.findClosestByRange(FIND_SOURCES);
         if (creep.harvest(sources) == ERR_NOT_IN_RANGE) {
+          // 采集了就标记开始采集，工具人不需要移动
+          creep.memory.isHarvesting = true;
           creep.moveTo(sources, { visualizePathStyle: { stroke: '#ffaa00' } });
           creep.say('🔄挖矿');
         }
