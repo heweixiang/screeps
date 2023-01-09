@@ -125,11 +125,11 @@ function GenerateCreep(ROOM, spawn, body, name, config) {
       console.log(`生成爬爬成功【${nameZN}】，本次消耗 ${computedResult.NeedEnergy} 能量`);
       return true
     } else {
-      console.log(`生成爬爬失败【${nameZN}】，生成需要 ${computedResult.NeedEnergy} 能量,当前房间能量：${LackEnergy} ...`);
+      console.log(`生成爬爬失败【${nameZN}】，生成需要 ${computedResult.NeedEnergy} 能量,当前房间能量：${computedResult.LackEnergy} ...`);
       return false
     }
   } else if (computedResult.CanGenerate === false) {
-    console.log(`即将生成爬爬【${nameZN}】，预计还需要 ${computedResult.LackEnergy} 能量,当前房间能量：${AvailableEnergy} ...`);
+    console.log(`即将生成爬爬【${nameZN}】，预计还需要 ${computedResult.LackEnergy} 能量,当前房间能量：${computedResult.AvailableEnergy} ...`);
     return false
   }
 }

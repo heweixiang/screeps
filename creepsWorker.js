@@ -153,7 +153,6 @@ console.log('creep.carry.energy === creep.carryCapacity: ', creep.carry.energy =
         let count = 0;
         creepsList.forEach(creep => {
           if (creep.memory.sourceId === source.id) {
-          
             count++;
           }
         })
