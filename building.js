@@ -22,61 +22,62 @@ const Building = {
         return structure.structureType == STRUCTURE_CONTAINER;
       }
     });
+    // 确保每个矿绑定了一个
     if (sources.length > containers.length) {
       // 查找当前房间还没有绑定container的矿
       for (let i = 0; i < sources.length; i++) {
         const source = sources[i];
         // 查找资源X+1是否存在空地
-        let terrain = Game.map.getTerrainAt(source.pos.x + 1, source.pos.y, ROOM.name);
+        let terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x - 1, source.pos.y, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源Y+1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x, source.pos.y + 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x, source.pos.y + 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源Y-1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x, source.pos.y - 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x, source.pos.y - 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x, source.pos.y - 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X+1Y+1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x + 1, source.pos.y + 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y + 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1Y-1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x - 1, source.pos.y - 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y - 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y - 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1Y+1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x - 1, source.pos.y + 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y + 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X+1Y-1是否存在空地
-        terrain = Game.map.getTerrainAt(source.pos.x + 1, source.pos.y - 1, ROOM.name);
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y - 1);
         if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y - 1, STRUCTURE_CONTAINER);

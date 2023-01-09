@@ -44,6 +44,7 @@ const creepsWorker = (ROOM, spawns, creeps) => {
       case ROLE_WORKER:
         break;
       case ROLE_TRANSPORTER:
+        Transport(creep);
         break;
       // 综合工
       case ROLE_HARVESTER:
@@ -83,20 +84,89 @@ function RoleHarvesterWorker(ROOM, spawns, creep) {
     Harvest(creep);
   } else if (creep.memory.behavior === BEHAVIOR_UPGRADE) {
     Upgrade(creep);
-  } else if (creep.memory.behavior === BEHAVIOR_BUILD) {
+  } else if (creep.memory.behavior === BEHAVIOR_TRANSPORT) {
     Transport(creep);
+  } else if (creep.memory.behavior === BEHAVIOR_BUILD) {
+    Building(creep);
+  } else if (creep.memory.behavior === BEHAVIOR_REPAIR) {
+    Repair(creep);
+  }
+}
+
+function Repair(creep) {
+  // 如果creep的carry没有满
+  if (creep.carry.energy < creep.carryCapacity) {
+    HarvestSourceEnergy(creep);
+  } else {
+    // 寻找附近的需要修理的建筑
+    const targets = creep.room.find(FIND_STRUCTURES, {
+      filter: object => object.hits < object.hitsMax
+    });
+    if (targets.length) {
+      if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+        creep.say('🛠️');
+        creep.moveTo(targets[0]);
+      }
+    } else {
+      Transport(creep);
+    }
   }
 }
 
 function Transport(creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy < creep.carryCapacity) {
-    Harvest(creep);
+    HarvestSourceEnergy(creep);
   } else {
-    // 移除标记
-    if (creep.memeory && creep.memeory.sourceId) {
-      creep.memeory.sourceId = ''
+    // 寻找附exits或者spawn的建筑
+    const exitsOrSpawnBuildings = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) &&
+          structure.energy < structure.energyCapacity;
+      }
+    });
+    // 如果有exits建筑
+    if (exitsOrSpawnBuildings.length > 0) {
+      // 优先运输到exits建筑
+      if (creep.transfer(exitsOrSpawnBuildings[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🚚');
+        creep.moveTo(exitsOrSpawnBuildings[0], {
+          visualizePathStyle: {
+            stroke: '#ffffff'
+          }
+        });
+      }
+      return
     }
+    // 查找Storage
+    const storage = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_STORAGE;
+      }
+    });
+    // 如果有Storage
+    if (storage.length > 0) {
+      // 运输到Storage
+      if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🚚');
+        creep.moveTo(storage[0], {
+          visualizePathStyle: {
+            stroke: '#ffffff'
+          }
+        });
+      }
+      return
+    }
+    Building(creep);
+  }
+
+}
+
+function Building(creep) {
+  // 如果creep的carry没有满
+  if (creep.carry.energy < creep.carryCapacity) {
+    HarvestSourceEnergy(creep);
+  } else {
     // 寻找附近工地 
     const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if (targets.length) {
@@ -105,8 +175,17 @@ function Transport(creep) {
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
-      // 如果没有工地，就去升级
-      Upgrade(creep);
+      // 查找需要修理的建筑
+      const targets = creep.room.find(FIND_STRUCTURES, {
+        filter: object => object.hits < object.hitsMax
+      });
+      if (targets.length) {
+        // 修理
+        Repair(creep);
+      } else {
+        // 如果没有工地，和修理就去升级
+        Upgrade(creep);
+      }
     }
   }
 }
@@ -114,149 +193,172 @@ function Transport(creep) {
 function Upgrade(creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy < creep.carryCapacity) {
-    Harvest(creep);
+    HarvestSourceEnergy(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-    // 移除标记
-    if (creep.memeory && creep.memeory.sourceId) {
-      creep.memeory.sourceId = ''
-    }
-    creep.say('🚧升级');
+    creep.say('⏏️升级');
     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
   }
 }
 
-function Harvest(creep) {
-  // 如果creep的carry满了
-  if (creep.carry.energy === creep.carryCapacity) {
-    // 移除标记
-    if (creep.memeory && creep.memeory.sourceId) {
-      creep.memeory.sourceId = ''
+// 获取能量，不是采集
+function HarvestSourceEnergy(creep) {
+  // 找到最近的散落的能量
+  let source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+  if (source) {
+    if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍能量');
+      creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
-    creep.say('S存储');
-    // 寻找空的extension或者spawn
-    const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-      filter: (structure) => {
-        return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity;
+    return
+  }
+  // 找到最近的Container
+  source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return (structure.structureType === STRUCTURE_CONTAINER) && structure.store[RESOURCE_ENERGY] > 0;
+    }
+  });
+  if (source) {
+    if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍能量');
+      creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    return
+  }
+  // 找到最近的Storage
+  source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return (structure.structureType === STRUCTURE_STORAGE) && structure.store[RESOURCE_ENERGY] > 0;
+    }
+  });
+  if (source) {
+    if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍能量');
+      creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    return
+  }
+}
+
+// 纯采集者只上岗不下岗
+function Harvest(creep) {
+  // 获取当前标记的sourceId
+  const sourceId = creep.memory.sourceId;
+  // 获取上岗标记
+  const TakeUp = creep.memory.TakeUp;
+  // 如果有上岗标记
+  if (TakeUp) {
+    // 如果有sourceId
+    if (sourceId) {
+      // 获取source
+      const source = Game.getObjectById(sourceId);
+      // 当前source的能量剩余
+      const energy = source.energy;
+      // 如果当前source的能量剩余大于0
+      if (energy > 0) {
+        creep.harvest(source);
+      } else {
+        // 如果当前坐标是工地
+        if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
+          // 如果carry没有满
+          if (creep.carry.energy < creep.carryCapacity) {
+            // 获取脚下的能量
+            const energy = creep.pos.lookFor(LOOK_ENERGY);
+            // 如果脚下有能量
+            if (energy.length) {
+              // 拾取能量
+              creep.pickup(energy[0]);
+            } else {
+              // 建造
+              creep.build(creep.pos.lookFor(LOOK_CONSTRUCTION_SITES)[0]);
+            }
+          } else {
+            // 建造
+            creep.build(creep.pos.lookFor(LOOK_CONSTRUCTION_SITES)[0]);
+          }
+          // 如果是container
+        } else {
+          // 获取脚下的container
+          const container = creep.pos.lookFor(LOOK_STRUCTURES).filter(structure => structure.structureType === STRUCTURE_CONTAINER);
+          // 如果脚下有container
+          if (container.length) {
+            // 如果是container血量小于80%
+            if (container[0].hits < container[0].hitsMax * 0.8) {
+              // 从container中取出能量并且修理
+              creep.withdraw(container[0], RESOURCE_ENERGY);
+              creep.repair(container[0]);
+            }
+          }
+        }
       }
-    });
-    // 如果找到了
-    if (target) {
-      // 将能量运输到目标
-      if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target);
+      return
+    }
+  }
+
+  // 如果有标记
+  if (sourceId) {
+    const source = Game.getObjectById(sourceId);
+    // 如果source
+    if (source && source.energy > 0) {
+      // 找到source3*3范围内的container
+      const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_CONTAINER;
+        }
+      });
+      // 如果container存在
+      if (container.length) {
+        // 如果不是在container上
+        if (!creep.pos.isEqualTo(container[0].pos)) {
+          creep.say('⛑️上岗');
+          // 移动到container上
+          creep.moveTo(container[0], { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          // 标记上岗，悲催的一生开始了，且没法结束
+          creep.memory.TakeUp = true;
+          creep.harvest(source);
+        }
+      } else {
+        // 找到source3*3范围内的工地
+        const constructionSite = source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
+        // 如果工地存在
+        if (constructionSite.length) {
+          // 如果不是在工地上
+          if (!creep.pos.isEqualTo(constructionSite[0].pos)) {
+            // 移动到工地上
+            creep.moveTo(constructionSite[0], { visualizePathStyle: { stroke: '#ffffff' } });
+          } else {
+            // 标记上岗，悲催的一生开始了，且没法结束
+            creep.memory.TakeUp = true;
+            creep.harvest(source);
+          }
+        }
       }
     }
   } else {
-    creep.say('🔄采集');
-    // 如果creep的carry没满
-    // 查找所有的source中只被creep.memory中标记一次的source
-    // 有标记的直接去标记点
-    let source
-    if (creep.memeory && creep.memeory.sourceId) {
-      source = Game.getObjectById(creep.memory.sourceId);
-    } else {
-      source = creep.pos.findClosestByPath(FIND_SOURCES, {
-        filter: (source) => {
-          // 标记次数
-          let count = 0;
-          creepsList.forEach(creep => {
-            if (creep.memory.sourceId === source.id) {
-              count++;
-            }
-          })
-          return count < 3;
+    // 查找没有被标记的source
+    const source = creep.pos.findClosestByPath(FIND_SOURCES, {
+      filter: (source) => {
+        // 遍历creepsList查找是否被标记过
+        for (let i = 0; i < creepsList.length; i++) {
+          if (creepsList[i].memory.sourceId === source.id) {
+            return false
+          }
         }
-      });
-    }
-
-    // 找到附近的container，container无所谓一般不会堵车
-    const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0;
+        return true;
       }
     });
-    // 找到散落的能量
-    const energy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
-    // 对比container和energy的距离
-    if (container && energy) {
-      if (creep.pos.getRangeTo(container) < creep.pos.getRangeTo(energy)) {
-        // 如果container更近
-        // 如果creep不在container附近
-        if (creep.pos.getRangeTo(container) > 1) {
-          // 移动到container附近
-          creep.moveTo(container);
-        } else {
-          // 如果creep在container附近
-          // 从container中取出能量
-          creep.withdraw(container, RESOURCE_ENERGY);
-        }
-      } else {
-        // 如果energy更近
-        // 如果creep不在energy附近
-        if (creep.pos.getRangeTo(energy) > 1) {
-          // 移动到energy附近
-          creep.moveTo(energy);
-        } else {
-          // 如果creep在energy附近
-          // 从energy中取出能量
-          creep.pickup(energy);
-        }
-      }
-    } else if (container) {
-      // 如果只有container
-      // 如果creep不在container附近
-      if (creep.pos.getRangeTo(container) > 1) {
-        // 移动到container附近
-        creep.moveTo(container);
-      } else {
-        // 如果creep在container附近
-        // 从container中取出能量
-        creep.withdraw(container, RESOURCE_ENERGY);
-      }
-    } else if (energy) {
-      // 如果只有energy
-      // 如果creep不在energy附近
-      if (creep.pos.getRangeTo(energy) > 1) {
-        // 移动到energy附近
-        creep.moveTo(energy);
-      } else {
-        // 如果creep在energy附近
-        // 从energy中取出能量
-        creep.pickup(energy);
-      }
-    } else if ((creep.memory.sourceId === '' || creep.memory.sourceId === undefined) && source) {
-      // 先标记source
+    // 如果找到了
+    if (source) {
+      // 标记sourceId
       creep.memory.sourceId = source.id;
-      // 维护creepsList
-      creepsList = creepsList.map(x => {
-        if (x.id === creep.id) {
-          x.memory.sourceId = source.id;
-        }
-        return x;
-      })
-      // 如果container和energy都没有
-      // 如果creep不在source附近
-      if (creep.pos.getRangeTo(source) > 1) {
-        // 移动到source附近
-        creep.moveTo(source);
-      } else {
-        // 如果creep在source附近
-        // 从source中取出能量
-        creep.harvest(source);
-      }
-    } else {
-      // 如果creep不在source附近
-      if (creep.pos.getRangeTo(source) > 1) {
-        // 移动到source附近
-        creep.moveTo(source);
-      } else {
-        // 如果creep在source附近
-        // 从source中取出能量
-        creep.harvest(source);
-      }
+      // 维护 creepsList
+      creepsList.push(creep);
+      // 移动到source上
+      creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
   }
 }
+
 
 
 
