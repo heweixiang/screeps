@@ -110,7 +110,7 @@ function Repair(creep) {
         return 0;
       }
     });
-    // 按血量最少在最前面
+    // 按血量最少在最前面 
     targets = _.sortBy(targets, (target) => {
       return target.hits;
     });
