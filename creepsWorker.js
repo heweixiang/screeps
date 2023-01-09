@@ -148,7 +148,6 @@ function Harvest(creep) {
     }
   } else {
     creep.say('🔄采集');
-    creep.memory.sourceId = ""
     // 如果creep的carry没满
     // 查找所有的source中只被creep.memory中标记一次的source
     const source = creep.pos.findClosestByPath(FIND_SOURCES, {
