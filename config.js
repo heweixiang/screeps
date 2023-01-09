@@ -25,9 +25,11 @@ const config = {
   // creeps配置
   creep: {
     // 1、综合工/修理工/建筑工/升级工/预备工
-    generateInitialWorker: (ROOM) => {
+    generateInitialWorker: (ROOM, expedited = false) => {
       // 计算当前房间的能量容量
       const energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 工作模块、移动模块 的修理工
@@ -39,13 +41,16 @@ const config = {
       return body
     },
     // 2、采集者,采集者分配一个CARRY模块，用于建造和维护
-    generateHarvester: (ROOM) => {
+    generateHarvester: (ROOM, expedited = false) => {
       // 计算当前房间的能量容量
-      const energyCapacity = ROOM.energyCapacityAvailable
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
-      const body = []
+      const body = [CARRY]
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
-      for (let i = 0; i < Math.floor(energyCapacity / (WORK_ENERGY * 2 + MOVE_ENERGY)); i++) {
+      const workNum = Math.floor((energyCapacity - CARRY_ENERGY) / (WORK_ENERGY * 2 + MOVE_ENERGY))
+      for (let i = 0; i < workNum; i++) {
         body.push(WORK)
         body.push(WORK)
         body.push(MOVE)
@@ -53,9 +58,12 @@ const config = {
       return body
     },
     // 3、运输者
-    generateTransporter: (ROOM) => {
+    generateTransporter: (ROOM, expedited = false) => {
       // 计算当前房间的能量容量
-      const energyCapacity = ROOM.energyCapacityAvailable
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 运输模块、移动模块 的运输者
