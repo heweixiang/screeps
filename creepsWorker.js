@@ -110,6 +110,10 @@ function Repair(creep) {
         return 0;
       }
     });
+    // 按血量最少在最前面
+    targets = _.sortBy(targets, (target) => {
+      return target.hits;
+    });
 
     if (targets.length) {
       if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
