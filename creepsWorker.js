@@ -224,7 +224,7 @@ function Harvest(creep) {
         // 从energy中取出能量
         creep.pickup(energy);
       }
-    } else if (creep.memory.sourceId === '' || creep.memory.sourceId === undefined) {
+    } else if ((creep.memory.sourceId === '' || creep.memory.sourceId === undefined) && source) {
       // 先标记source
       creep.memory.sourceId = source.id;
       // 维护creepsList
