@@ -202,12 +202,34 @@ function Upgrade(creep) {
 
 // 获取能量，不是采集
 function HarvestSourceEnergy(creep) {
+  // 如果标记了能量
+  if (creep.memory.energyId) {
+    // 获取标记的能量
+    const source = Game.getObjectById(creep.memory.energyId);
+    // 如果能量存在且能量不为0
+    if (source && source.amount > 0) {
+      // 拾取能量
+      if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍能量');
+        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      } else if (creep.withdraw(source) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍能量');
+        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+      return
+    }
+    // 如果能量不存在或者能量为0，就删除标记
+    delete creep.memory.energyId;
+  }
+
   // 找到最近的散落的能量
   let source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
   if (source) {
     if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
       creep.say('🔍能量');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      // 标记该能量
+      creep.memory.energyId = source.id;
     }
     return
   }
@@ -221,6 +243,8 @@ function HarvestSourceEnergy(creep) {
     if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
       creep.say('🔍能量');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      // 标记该能量
+      creep.memory.energyId = source.id;
     }
     return
   }
@@ -234,6 +258,8 @@ function HarvestSourceEnergy(creep) {
     if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
       creep.say('🔍能量');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      // 标记该能量
+      creep.memory.energyId = source.id;
     }
     return
   }
