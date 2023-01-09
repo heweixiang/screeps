@@ -218,7 +218,7 @@ console.log('creep.memory.sourceId: ', creep.memory.sourceId);
       // 维护creepsList
       creepsList = creepsList.map(x => {
         if (x.id === creep.id) {
-          x.memory.sourceId = source;
+          x.memory.sourceId = source.id;
         }
         return x;
       })
