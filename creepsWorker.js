@@ -122,7 +122,6 @@ function Upgrade(creep) {
 }
 
 function Harvest(creep) {
-console.log('creep.memory.sourceId: ', creep.memory.sourceId);
   // 如果creep的carry满了
   if (creep.carry.energy === creep.carryCapacity) {
     // 移除标记
