@@ -38,7 +38,7 @@ const config = {
       }
       return body
     },
-    // 2、采集者
+    // 2、采集者,采集者分配一个CARRY模块，用于建造和维护
     generateHarvester: (ROOM) => {
       // 计算当前房间的能量容量
       const energyCapacity = ROOM.energyCapacityAvailable
@@ -70,15 +70,6 @@ const config = {
     // 5、探索工
     // 6、治疗工
     // 普通通用工具人
-    baseCreep: [WORK, CARRY, MOVE],
-    // 采集工具人
-    '6modelHarvester': [WORK, WORK, WORK, WORK, MOVE, MOVE],
-    // 修理工具人
-    '6modelRepairer': [WORK, WORK, CARRY, CARRY, MOVE, MOVE],
-    // 运输工具人
-    '6modelTransporter': [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
-    // 奶妈
-    '6modelHealer': [HEAL, HEAL, HEAL, HEAL, MOVE, MOVE],
   }
 }
 
