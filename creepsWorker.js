@@ -213,7 +213,7 @@ function Harvest(creep) {
       }
     } else if (creep.memory.sourceId === '' || creep.memory.sourceId === undefined) {
       // 先标记source
-      creep.memory.sourceId = source;
+      creep.memory.sourceId = source.id;
       // 维护creepsList
       creepsList = creepsList.map(x => {
         if (x.id === creep.id) {
