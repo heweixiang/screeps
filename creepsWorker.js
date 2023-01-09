@@ -142,15 +142,6 @@ function Harvest(creep) {
     }
   } else {
     creep.say('🔄采集');
-    // 如果当前creep有标记则继续采集
-    if (creep.memory.sourceId !== '') {
-      const source = Game.getObjectById(creep.memory.sourceId);
-      console.log('source: ', source);
-      if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
-      }
-      return;
-    }
     // 如果creep的carry没满
     // 查找所有的source中只被creep.memory中标记一次的source
     const source = creep.pos.findClosestByPath(FIND_SOURCES, {
@@ -220,7 +211,7 @@ function Harvest(creep) {
         // 从energy中取出能量
         creep.pickup(energy);
       }
-    } else {
+    } else if (creep.memory.sourceId === '' || creep.memory.sourceId === undefined) {
       // 先标记source
       creep.memory.sourceId = source;
       // 维护creepsList
@@ -239,6 +230,13 @@ function Harvest(creep) {
         // 如果creep在source附近
         // 从source中取出能量
         creep.harvest(source);
+      }
+    } else {
+      const source = Game.getObjectById(creep.memory.sourceId);
+      // 如果creep不在source附近
+      if (creep.pos.getRangeTo(source) > 1) {
+        // 移动到source附近
+        creep.moveTo(source);
       }
     }
   }
