@@ -94,7 +94,7 @@ function Transport(creep) {
     Harvest(creep);
   } else {
     // 移除标记
-    if(creep.memeory.sourceId) {
+    if(typeof creep.memeory.sourceId !== 'undefined') {
       creep.memeory.sourceId = ''
     }
     // 寻找附近工地
@@ -117,7 +117,7 @@ function Upgrade(creep) {
     Harvest(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     // 移除标记
-    if(creep.memeory.sourceId) {
+    if(typeof creep.memeory.sourceId !== 'undefined') {
       creep.memeory.sourceId = ''
     }
     creep.say('🚧升级');
@@ -130,7 +130,7 @@ console.log('creep.carry.energy === creep.carryCapacity: ', creep.carry.energy =
   // 如果creep的carry满了
   if (creep.carry.energy === creep.carryCapacity) {
     // 移除标记
-    if(creep.memeory.sourceId) {
+    if(typeof creep.memeory.sourceId !== 'undefined') {
       creep.memeory.sourceId = ''
     }
     creep.say('🔄存储');
