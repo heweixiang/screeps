@@ -93,6 +93,8 @@ function Transport(creep) {
   if (creep.carry.energy < creep.carryCapacity) {
     Harvest(creep);
   } else {
+    // 移除标记
+    creep.memeory.sourceId = ''
     // 寻找附近工地
     const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if (targets.length) {
@@ -112,6 +114,8 @@ function Upgrade(creep) {
   if (creep.carry.energy < creep.carryCapacity) {
     Harvest(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+    // 移除标记
+    creep.memeory.sourceId = ''
     creep.say('🚧升级');
     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
   }
@@ -120,6 +124,8 @@ function Upgrade(creep) {
 function Harvest(creep) {
   // 如果creep的carry满了
   if (creep.carry.energy === creep.carryCapacity) {
+    // 移除标记
+    creep.memeory.sourceId = ''
     creep.say('🔄存储');
     // 寻找空的extension或者spawn
     const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
@@ -136,6 +142,14 @@ function Harvest(creep) {
     }
   } else {
     creep.say('🔄采集');
+    // 如果当前creep有标记则继续采集
+    if (creep.memory.sourceId !== '') {
+      const source = Game.getObjectById(creep.memory.sourceId);
+      if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+      return;
+    }
     // 如果creep的carry没满
     // 查找所有的source中只被creep.memory中标记一次的source
     const source = creep.pos.findClosestByPath(FIND_SOURCES, {
