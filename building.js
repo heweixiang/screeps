@@ -10,7 +10,7 @@ const Building = {
     // 如果GCL到了8再考虑link挖
 
     // 构建道路
-    this.createRoad(ROOM);
+    // this.createRoad(ROOM);
   },
   // 创建绑定矿的container
   createContainer: function (ROOM) {
