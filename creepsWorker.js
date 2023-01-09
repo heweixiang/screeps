@@ -97,7 +97,7 @@ function Transport(creep) {
     if(typeof creep.memeory.sourceId !== 'undefined') {
       creep.memeory.sourceId = ''
     }
-    // 寻找附近工地
+    // 寻找附近工地 
     const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
     if (targets.length) {
       if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
