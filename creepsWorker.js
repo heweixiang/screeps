@@ -149,7 +149,7 @@ function Harvest(creep) {
         // 标记次数
         let count = 0;
         creepsList.forEach(creep => {
-          if (creep.memory.sourceId === source) {
+          if (creep.memory.sourceId === source.id) {
             count++;
           }
         })
