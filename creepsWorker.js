@@ -237,6 +237,10 @@ function Harvest(creep) {
       if (creep.pos.getRangeTo(source) > 1) {
         // 移动到source附近
         creep.moveTo(source);
+      } else {
+        // 如果creep在source附近
+        // 从source中取出能量
+        creep.harvest(source);
       }
     }
   }
