@@ -99,7 +99,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
       }
     });
     // 如果维护者数量小于建筑数量，生成维护者
-    if (repairers.length < repairTargets.length / 2) {
+    if (repairers.length < repairTargets.length / 2 && repairers.length < 3) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_维护' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_REPAIR } };
