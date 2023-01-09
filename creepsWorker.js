@@ -150,18 +150,25 @@ function Harvest(creep) {
     creep.say('🔄采集');
     // 如果creep的carry没满
     // 查找所有的source中只被creep.memory中标记一次的source
-    const source = creep.pos.findClosestByPath(FIND_SOURCES, {
-      filter: (source) => {
-        // 标记次数
-        let count = 0;
-        creepsList.forEach(creep => {
-          if (creep.memory.sourceId === source.id) {
-            count++;
-          }
-        })
-        return count < 3;
-      }
-    });
+    // 有标记的直接去标记点
+    let source
+    if (creep.memeory && creep.memeory.sourceId) {
+      source = Game.getObjectById(creep.memory.sourceId);
+    } else {
+      source = creep.pos.findClosestByPath(FIND_SOURCES, {
+        filter: (source) => {
+          // 标记次数
+          let count = 0;
+          creepsList.forEach(creep => {
+            if (creep.memory.sourceId === source.id) {
+              count++;
+            }
+          })
+          return count < 3;
+        }
+      });
+    }
+
     // 找到附近的container，container无所谓一般不会堵车
     const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -238,7 +245,6 @@ function Harvest(creep) {
         creep.harvest(source);
       }
     } else {
-      const source = Game.getObjectById(creep.memory.sourceId);
       // 如果creep不在source附近
       if (creep.pos.getRangeTo(source) > 1) {
         // 移动到source附近
