@@ -141,6 +141,7 @@ function Harvest(creep) {
       }
     }
   } else {
+  console.log('creep.memory.sourceId: ', creep.memory.sourceId);
     creep.say('🔄采集');
     // 如果creep的carry没满
     // 查找所有的source中只被creep.memory中标记一次的source
@@ -150,6 +151,7 @@ function Harvest(creep) {
         let count = 0;
         creepsList.forEach(creep => {
           if (creep.memory.sourceId === source.id) {
+          
             count++;
           }
         })
