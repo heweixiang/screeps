@@ -145,6 +145,7 @@ function Harvest(creep) {
     // 如果当前creep有标记则继续采集
     if (creep.memory.sourceId !== '') {
       const source = Game.getObjectById(creep.memory.sourceId);
+      console.log('source: ', source);
       if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       }
