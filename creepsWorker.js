@@ -99,9 +99,18 @@ function Repair(creep) {
     HarvestSourceEnergy(creep);
   } else {
     // 寻找附近的需要修理的建筑
-    const targets = creep.room.find(FIND_STRUCTURES, {
-      filter: object => object.hits < object.hitsMax
+    let targets = creep.room.find(FIND_STRUCTURES, {
+      filter: object => object.hits < object.hitsMax * 0.5 
     });
+    // 排序最后维护墙壁
+    targets = _.sortBy(targets, (target) => {
+      if (target.structureType === STRUCTURE_WALL) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
     if (targets.length) {
       if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.say('🛠️');
@@ -168,10 +177,18 @@ function Building(creep) {
     HarvestSourceEnergy(creep);
   } else {
     // 寻找附近工地 
-    const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+    let targets = creep.room.find(FIND_CONSTRUCTION_SITES)
+    // 排序优先extension
+    targets = _.sortBy(targets, (target) => {
+      if (target.structureType === STRUCTURE_EXTENSION) {
+        return 1
+      } else {
+        return 2
+      }
+    })
     if (targets.length) {
       if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-        creep.say('🚧建造');
+        creep.say('🚧');
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
@@ -195,7 +212,7 @@ function Upgrade(creep) {
   if (creep.carry.energy < creep.carryCapacity) {
     HarvestSourceEnergy(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-    creep.say('⏏️升级');
+    creep.say('⏏️');
     creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
   }
 }
@@ -210,10 +227,10 @@ function HarvestSourceEnergy(creep) {
     if (source && source.amount > 0) {
       // 拾取能量
       if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
-        creep.say('🔍能量');
+        creep.say('🔍');
         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       } else if (creep.withdraw(source) === ERR_NOT_IN_RANGE) {
-        creep.say('🔍能量');
+        creep.say('🔍');
         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       }
       return
@@ -226,7 +243,7 @@ function HarvestSourceEnergy(creep) {
   let source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
   if (source) {
     if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
-      creep.say('🔍能量');
+      creep.say('🔍');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       // 标记该能量
       creep.memory.energyId = source.id;
@@ -241,7 +258,7 @@ function HarvestSourceEnergy(creep) {
   });
   if (source) {
     if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-      creep.say('🔍能量');
+      creep.say('🔍');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       // 标记该能量
       creep.memory.energyId = source.id;
@@ -256,7 +273,7 @@ function HarvestSourceEnergy(creep) {
   });
   if (source) {
     if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-      creep.say('🔍能量');
+      creep.say('🔍');
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       // 标记该能量
       creep.memory.energyId = source.id;
@@ -335,7 +352,7 @@ function Harvest(creep) {
       if (container.length) {
         // 如果不是在container上
         if (!creep.pos.isEqualTo(container[0].pos)) {
-          creep.say('⛑️上岗');
+          creep.say('⛑️');
           // 移动到container上
           creep.moveTo(container[0], { visualizePathStyle: { stroke: '#ffffff' } });
         } else {
