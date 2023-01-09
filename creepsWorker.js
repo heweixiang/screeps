@@ -143,7 +143,6 @@ console.log('creep.carry.energy === creep.carryCapacity: ', creep.carry.energy =
       }
     }
   } else {
-  creep.memory.sourceId = ""
   console.log('creep.memory.sourceId: ', creep.memory.sourceId);
     creep.say('🔄采集');
     // 如果creep的carry没满
