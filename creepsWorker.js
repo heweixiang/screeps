@@ -132,7 +132,7 @@ function Harvest(creep) {
     if (creep.memeory && creep.memeory.sourceId) {
       creep.memeory.sourceId = ''
     }
-    creep.say('🔄存储');
+    creep.say('S存储');
     // 寻找空的extension或者spawn
     const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
       filter: (structure) => {
