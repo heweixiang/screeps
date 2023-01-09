@@ -253,6 +253,7 @@ function Harvest(creep) {
       const source = Game.getObjectById(sourceId);
       // 当前source的能量剩余
       const energy = source.energy;
+      console.log('energy: ', energy);
       // 如果当前source的能量剩余大于0
       if (energy > 0) {
         creep.harvest(source);
