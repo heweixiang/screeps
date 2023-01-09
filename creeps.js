@@ -61,12 +61,10 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     const builders = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_BUILD);
     // 如果建造者数量小于2，生成建造者
     if (builders.length < 2) {
-      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_建造' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } });
-      if (SpawnCreateResult === OK) {
-        console.log('RCL2_生成建造爬爬成功');
-      } else {
-        console.log('RCL2_生成建爬爬失败');
-      }
+      const body = Game.Config.creep.generateInitialWorker(ROOM);
+      const name = 'TouchFish_建造' + Game.time;
+      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
+      GenerateCreep(ROOM, spawn, body, name, config);
     }
   }
 }
@@ -83,44 +81,57 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
   // 保证有一个采集者
   if (harvesters.length < 1) {
     // 此处使用最基础的生成防止一个爬爬都没有
-    const SpawnCreateResult = spawn.spawnCreep([WORK, CARRY, MOVE], 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
-    if (SpawnCreateResult === OK) {
-      console.log('RCL1_生成采集爬爬成功');
-    } else {
-      console.log('RCL1_生成采集爬爬失败');
-    }
+    const body = [WORK, CARRY, MOVE];
+    const name = 'TouchFish_采集' + Game.time;
+    const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } };
+    GenerateCreep(ROOM, spawn, body, name, config);
     return 'create'
   } else if (upgraders.length < 2) {
     // 保证有两个升级者
     // 此处使用最基础的生成防止一个爬爬都没有
-    const SpawnCreateResult = spawn.spawnCreep([WORK, CARRY, MOVE], 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
-    if (SpawnCreateResult === OK) {
-      console.log('RCL1_生成升级爬爬成功');
-    } else {
-      console.log('RCL1_生成升级爬爬失败');
-    }
+    const body = [WORK, CARRY, MOVE];
+    const name = 'TouchFish_升级' + Game.time;
+    const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };
+    GenerateCreep(ROOM, spawn, body, name, config);
     return 'create'
   } else if (creeps.length < sources.length * 2 + 2) {
     if (harvesters.length < (sources.length * 2 + 2) / 2) {
       // 保证有五个采集者
-      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_采集' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } });
-      if (SpawnCreateResult === OK) {
-        console.log('RCL1_生成采集爬爬成功');
-      } else {
-        console.log('RCL1_生成采集爬爬失败');
-      }
+      const body = Game.Config.creep.generateInitialWorker(ROOM);
+      const name = 'TouchFish_采集' + Game.time;
+      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } };
+      GenerateCreep(ROOM, spawn, body, name, config);
     } else {
       // 保证有6个综合工
-      const SpawnCreateResult = spawn.spawnCreep(Game.Config.creep.generateInitialWorker(ROOM), 'TouchFish_升级' + Game.time, { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } });
-      if (SpawnCreateResult === OK) {
-        console.log('RCL1_生成升级爬爬成功');
-      } else {
-        console.log('RCL1_生成升级爬爬失败');
-      }
+      const body = Game.Config.creep.generateInitialWorker(ROOM);
+      const name = 'TouchFish_升级' + Game.time;
+      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };
+      GenerateCreep(ROOM, spawn, body, name, config);
     }
     return 'create'
   }
   return 'no-create'
+}
+
+// 接管创建creep，方便控制台输出了解详情
+function GenerateCreep(ROOM, spawn, body, name, config) {
+  // 正则移除name后面的数值
+  const nameZN = name.replace(/\d+$/, '');
+  // 获取当前爬爬生成需要的能量
+  const computedResult = Game.Tools.ComputerCreepCost(body, ROOM);
+  if (computedResult.CanGenerate === true) {
+    const SpawnCreateResult = spawn.spawnCreep(body, name, config);
+    if (SpawnCreateResult === OK) {
+      console.log(`生成爬爬成功【${nameZN}】，本次消耗 ${computedResult.NeedEnergy} 能量`);
+      return true
+    } else {
+      console.log(`生成爬爬失败【${nameZN}】，生成需要 ${computedResult.NeedEnergy} 能量,当前房间能量：${LackEnergy} ...`);
+      return false
+    }
+  } else if (computedResult.CanGenerate === false) {
+    console.log(`即将生成爬爬【${nameZN}】，预计还需要 ${computedResult.LackEnergy} 能量,当前房间能量：${AvailableEnergy} ...`);
+    return false
+  }
 }
 
 // 输出当前房间状态

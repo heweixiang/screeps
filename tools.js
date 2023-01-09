@@ -18,7 +18,8 @@ const tools = {
       NeedEnergy,
       CanGenerate: AvailableEnergy >= NeedEnergy,
       // 还差多少能量
-      LackEnergy: NeedEnergy - AvailableEnergy
+      LackEnergy: NeedEnergy - AvailableEnergy,
+      AvailableEnergy
     };
   }
 }
