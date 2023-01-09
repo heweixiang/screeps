@@ -118,7 +118,7 @@ function Repair(creep) {
     if (targets.length) {
       if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.say('🛠️');
-        creep.moveTo(targets[0]);
+        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
       Transport(creep);
@@ -217,7 +217,7 @@ function Upgrade(creep) {
     HarvestSourceEnergy(creep);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     creep.say('⏏️');
-    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+    creep.moveTo(creep.room.controller);
   }
 }
 
