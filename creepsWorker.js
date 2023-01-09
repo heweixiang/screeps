@@ -94,6 +94,7 @@ function RoleHarvesterWorker(ROOM, spawns, creep) {
 }
 
 function Repair(creep) {
+console.log('000')
   // 如果creep的carry没有满
   if (creep.carry.energy < creep.carryCapacity) {
     HarvestSourceEnergy(creep);
