@@ -44,7 +44,7 @@ function createCreeps(ROOM, spawns, creeps) {
     LV1GenerateCreeps(ROOM, spawns, creeps);
   }
   // RCL过高时记得兼容低版本，比如当前没那么多钱造高级creep，就造低级creep
-  if (ROOM.controller.level === 2) {
+  if (ROOM.controller.level < 4) {
     LV2GenerateCreeps(ROOM, spawns, creeps);
   }
 
