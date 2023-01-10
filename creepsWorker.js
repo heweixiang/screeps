@@ -95,7 +95,7 @@ function RoleHarvesterWorker(ROOM, spawns, creep) {
 
 function Repair(creep) {
   // 如果creep的carry没有满
-  if (creep.carry.energy < creep.carryCapacity) {
+  if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep, true);
   } else {
     // 寻找附近的需要修理的建筑
@@ -128,7 +128,7 @@ function Repair(creep) {
 
 function Transport(creep) {
   // 如果creep的carry没有满
-  if (creep.carry.energy < creep.carryCapacity) {
+  if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep);
   } else {
     // 寻找附exits或者spawn的建筑
@@ -191,7 +191,7 @@ function Transport(creep) {
 
 function Building(creep) {
   // 如果creep的carry没有满
-  if (creep.carry.energy < creep.carryCapacity) {
+  if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep, true);
   } else {
     // 寻找附近工地 
@@ -227,7 +227,7 @@ function Building(creep) {
 
 function Upgrade(creep) {
   // 如果creep的carry没有满
-  if (creep.carry.energy < creep.carryCapacity) {
+  if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep, true);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     creep.say('⏏️');
@@ -394,7 +394,7 @@ function Harvest(creep) {
         // 如果当前坐标是工地
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
           // 如果carry没有满
-          if (creep.carry.energy < creep.carryCapacity) {
+          if (creep.carry.energy === 0) {
             // 获取脚下的能量
             const energy = creep.pos.lookFor(LOOK_ENERGY);
             // 如果脚下有能量
