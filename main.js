@@ -25,6 +25,9 @@ module.exports.loop = function () {
     RoomManager.roomManager(ROOM);
   }
 
+  if(Game.cpu.bucket == 10000){
+    Game.cpu.generatePixel();
+  }
   // 预留防止spawn防止方法
   // 分割线
   console.log('===================================================\n\n\n');
