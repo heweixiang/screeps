@@ -102,6 +102,11 @@ function Repair(creep) {
     let targets = creep.room.find(FIND_STRUCTURES, {
       filter: object => object.hits < object.hitsMax * 0.5
     });
+    if (targets.length === 0) {
+      targets = creep.room.find(FIND_STRUCTURES, {
+        filter: object => object.hits < object.hitsMax * 0.85
+      });
+    }
     // 排序最后维护墙壁
     targets = _.sortBy(targets, (target) => {
       if (target.structureType === STRUCTURE_WALL) {
@@ -114,6 +119,7 @@ function Repair(creep) {
     targets = _.sortBy(targets, (target) => {
       return target.hits;
     });
+
 
     if (targets.length) {
       if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
