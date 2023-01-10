@@ -101,35 +101,73 @@ const Building = {
   },
   // 创建exterior，必须建满exterior才能建立container
   createExterior: function (ROOM) {
-    // RCL
-    const RCL = ROOM.controller.level;
-    // 获取当前最大允许的exterior数量
-    const maxExterior = Game.Config.RCL['LV' + RCL].Extension || 0;
-    // 获取当前房间已有的exterior数量
-    const currentExterior = ROOM.find(FIND_STRUCTURES, {
+    // 获取当前支持的exterior数量
+    const extCount = Game.Config.RCL['LV' + ROOM.controller.level].Extension;
+    // 获取当前房间的exterior
+    const exts = ROOM.find(FIND_MY_STRUCTURES, {
       filter: (structure) => {
         return structure.structureType == STRUCTURE_EXTENSION;
       }
-    }).length
-    if (currentExterior < maxExterior) {
-      // 在矿点附近7格内寻找空地
-      const sources = ROOM.find(FIND_SOURCES);
-      for (let i = 0; i < sources.length; i++) {
-        const source = sources[i];
-        // 获取矿点附近7格内的空地
-        const terrain = ROOM.lookForAtArea(LOOK_TERRAIN, source.pos.y - 5, source.pos.x - 5, source.pos.y + 5, source.pos.x + 5, true);
-        // 遍历空地，找到第一个可用的位置
-        for (let j = 0; j < terrain.length; j++) {
-          const terrainItem = terrain[j];
-          if (terrainItem.terrain == 'plain') {
-            // 找到第一个可用的位置，开始创建
-            const result = ROOM.createConstructionSite(terrainItem.x, terrainItem.y, STRUCTURE_EXTENSION);
-            if (result == OK) {
-              console.log('创建exterior成功');
-              // 此处退出为了防止在一个矿点附近创建多个exterior，下个轮询再创建下一个矿点的exterior，这样可以保证每个矿点都有一个及以上exterior
-              break;
-            }
-          }
+    });
+    // 如果当前房间的exterior数量小于支持的数量，则继续建造
+    if (exts.length < extCount) {
+      // 由内向外查找空地
+      for (let i = 1; i < 10; i++) {
+        // 查找资源X+1是否存在空地
+        let terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源X-1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源Y+1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x, ROOM.controller.pos.y + i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源Y-1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x, ROOM.controller.pos.y - i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源X+1Y+1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y + i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源X-1Y-1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y - i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源X+1Y-1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y - i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
+          continue;
+        }
+        // 查找资源X-1Y+1是否存在空地
+        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y + i);
+        if (!terrain) {
+          // 如果存在空地，就在空地上建造exterior
+          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
+          continue;
         }
       }
     }
@@ -146,7 +184,7 @@ const Building = {
         // 简历5*5的星状道路
         for (let i = -(RCL + 1); i <= (RCL + 1); i++) {
           for (let j = -(RCL + 1); j <= (RCL + 1); j++) {
-            if (Math.abs(i) === Math.abs(j) && !(i===j && i === 0) || Math.abs(i) % 2 === 1 && Math.abs(j) % 2 === 1) {
+            if (Math.abs(i) === Math.abs(j) && !(i === j && i === 0) || Math.abs(i) % 2 === 1 && Math.abs(j) % 2 === 1) {
               // 如果是空地
               if (!Game.map.getRoomTerrain(ROOM.name).get(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j)) {
                 ROOM.createConstructionSite(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j, STRUCTURE_ROAD);
