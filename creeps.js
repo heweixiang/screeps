@@ -109,7 +109,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     // 获取工地数量
     const constructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
     // 以上都满足就大力发展基建
-    if (builders.length < constructionSites) {
+    if (builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造')) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
@@ -132,7 +132,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
   // 获取矿物数量
   const sources = ROOM.find(FIND_SOURCES);
   // 有几个采集者就生成几个运输者
-  if (transporters.length < harvesters.length) {
+  if (transporters.length < harvesters.length + Game.Tools.GetCreepNum(ROOM, '运输')) {
     const body = Game.Config.creep.generateTransporter(ROOM);
     const name = 'TouchFish_运输' + Game.time;
     const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
@@ -140,7 +140,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
     return 'create';
   }
   // 有几个矿物就生成几个采集者
-  if (harvesters.length < sources.length) {
+  if (harvesters.length < sources.length + Game.Tools.GetCreepNum(ROOM, '采集')) {
     const body = Game.Config.creep.generateHarvester(ROOM);
     const name = 'TouchFish_采集' + Game.time;
     const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_HARVEST } };
@@ -148,7 +148,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
     return 'create';
   }
   // 有几个矿物就生成几个升级者
-  if (upgraders.length < sources.length) {
+  if (upgraders.length < sources.length + Game.Tools.GetCreepNum(ROOM, '升级')) {
     const body = Game.Config.creep.generateInitialWorker(ROOM);
     const name = 'TouchFish_升级' + Game.time;
     const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };

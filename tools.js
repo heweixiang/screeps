@@ -21,6 +21,23 @@ const tools = {
       LackEnergy: NeedEnergy - AvailableEnergy,
       AvailableEnergy
     };
+  },
+  // 设置角色产生数量
+  SetCreepNum(ROOM, CreepName, Num) {
+    if (ROOM.memory.CreepNum == undefined) {
+      ROOM.memory.CreepNum = {};
+    }
+    ROOM.memory.CreepNum[CreepName] = Num;
+  },
+  // 获取角色产生数量
+  GetCreepNum(ROOM, CreepName) {
+    if (ROOM.memory.CreepNum == undefined) {
+      ROOM.memory.CreepNum = {};
+    }
+    if (ROOM.memory.CreepNum[CreepName] == undefined) {
+      ROOM.memory.CreepNum[CreepName] = 0;
+    }
+    return ROOM.memory.CreepNum[CreepName];
   }
 }
 

@@ -218,7 +218,7 @@ function Transport(creep) {
 function Building(creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy === 0) {
-    HarvestSourceEnergy(creep, true);
+    HarvestSourceEnergy(creep, false);
   } else {
     // 寻找附近工地 
     let targets = creep.room.find(FIND_CONSTRUCTION_SITES)
