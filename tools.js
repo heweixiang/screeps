@@ -23,7 +23,8 @@ const tools = {
     };
   },
   // 设置角色产生数量
-  SetCreepNum(ROOM, CreepName, Num) {
+  SetCreepNum(ROOMName, CreepName, Num) {
+    const ROOM = Game.rooms[ROOMName];
     if (ROOM.memory.CreepNum == undefined) {
       ROOM.memory.CreepNum = {};
     }
