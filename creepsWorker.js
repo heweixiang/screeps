@@ -100,7 +100,7 @@ function Repair(creep) {
   } else {
     // 寻找附近的需要修理的建筑
     let targets = creep.room.find(FIND_STRUCTURES, {
-      filter: object => object.hits < object.hitsMax * 0.5 
+      filter: object => object.hits < object.hitsMax * 0.5
     });
     // 排序最后维护墙壁
     targets = _.sortBy(targets, (target) => {
@@ -230,10 +230,10 @@ function HarvestSourceEnergy(creep) {
     // 如果能量存在且能量不为0
     if (source && source.amount > 0) {
       // 拾取能量
-      if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
+      if (creep.withdraw(source) === ERR_NOT_IN_RANGE) {
         creep.say('🔍');
         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
-      } else if (creep.withdraw(source) === ERR_NOT_IN_RANGE) {
+      } else if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
         creep.say('🔍');
         creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       }
@@ -243,8 +243,24 @@ function HarvestSourceEnergy(creep) {
     delete creep.memory.energyId;
   }
 
+  // 找到附近的废墟,兼容废墟
+  let source = creep.pos.findClosestByPath(FIND_RUINS, {
+    filter: (ruin) => {
+      return ruin.store[RESOURCE_ENERGY] > 0;
+    }
+  });
+  if (source) {
+    if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍');
+      creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+      // 标记该能量
+      creep.memory.energyId = source.id;
+    }
+    return
+  }
+
   // 找到最近的散落的能量
-  let source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
+  source = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES);
   if (source) {
     if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
       creep.say('🔍');
