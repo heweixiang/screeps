@@ -22,8 +22,11 @@ const room = {
       }
     }).length;
     ROOM.containerNum = containerNum
-    // 处理Building
-    Building.BuildingManager(ROOM);
+    // 每500tick执行一次
+    if (Game.time % 500 == 0) {
+      // 处理Building
+      Building.BuilingManager(ROOM);
+    }
     // 处理Creeps
     Creeps(ROOM);
   }
