@@ -276,6 +276,7 @@ function Upgrade(creep) {
     // 如果没有container
     HarvestSourceEnergy(creep, true);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+    delete creep.memory.energyId;
     creep.say('⏏️');
     creep.moveTo(creep.room.controller);
   }
