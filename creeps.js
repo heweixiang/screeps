@@ -77,7 +77,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     // 获取当前矿物采集者数量
     const harvesters = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_HARVEST);
     // 如果建造者数量小于采集者数量，生成建造者
-    if (builders.length < harvesters.length) {
+    if (builders.length < harvesters.length * 10) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
