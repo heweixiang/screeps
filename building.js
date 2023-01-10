@@ -126,12 +126,13 @@ const Building = {
     // 首先建立spawn到所有container的道路
     // 获取当前房间的spawn
     const spawns = ROOM.find(FIND_MY_SPAWNS);
+    const RCL = ROOM.controller.level
     for (let spawnIndex = 0; spawnIndex < spawns.length; spawnIndex++) {
       // 如果RCL2以上
-      if (ROOM.controller.level == 2) {
+      if (RCL == 2) {
         // 简历5*5的星状道路
-        for (let i = -7; i < 7; i++) {
-          for (let j = -7; j < 7; j++) {
+        for (let i = -(RCL * 2); i < (RCL * 2); i++) {
+          for (let j = -(RCL * 2); j < (RCL * 2); j++) {
             if (Math.abs(i) === Math.abs(j)) {
               // 如果是空地
               if (!Game.map.getRoomTerrain(ROOM.name).get(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j)) {
