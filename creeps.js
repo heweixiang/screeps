@@ -213,6 +213,11 @@ function logRoomSpawnState(ROOM) {
   for (const spawn in spawns) {
     HatchingState = HatchingState + "【Spawn" + spawn + (!!spawns[spawn].spawning ? '-孵化中' : '-空闲') + "】"
   }
+  // 输出当前是否有附加爬爬
+  // 循环输出该对象ROOM.memory.CreepNum
+  for (const creep in ROOM.memory.CreepNum) {
+    HatchingState += creep + ' 附加：' + ROOM.memory.CreepNum[creep] + '个 '
+  }
   console.log(HatchingState);
 }
 
