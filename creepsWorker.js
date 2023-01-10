@@ -218,6 +218,17 @@ function Transport(creep) {
       }
       return
     }
+    // 移动到controller旁边然后丢弃
+    if (creep.pos.isNearTo(creep.room.controller)) {
+      creep.say('🚚');
+      creep.drop(RESOURCE_ENERGY);
+    } else {
+      creep.moveTo(creep.room.controller, {
+        visualizePathStyle: {
+          stroke: '#ffffff'
+        }
+      });
+    }
   }
 }
 
