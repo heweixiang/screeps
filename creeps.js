@@ -216,7 +216,7 @@ function logRoomSpawnState(ROOM) {
   // 输出当前是否有附加爬爬
   // 循环输出该对象ROOM.memory.CreepNum
   for (const creep in ROOM.memory.CreepNum) {
-    HatchingState += creep + ' 附加：' + ROOM.memory.CreepNum[creep] + '个 '
+    HatchingState += ` ${creep}附加：${ROOM.memory.CreepNum[creep]}个 `
   }
   console.log(HatchingState);
 }

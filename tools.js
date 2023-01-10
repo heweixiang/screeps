@@ -30,7 +30,7 @@ const tools = {
     if(Num === 0){
       delete ROOM.memory.CreepNum[CreepName];
     }
-    console.log(`SetCreepNum[${CreepName}]`, ROOM.memory.CreepNum[CreepName]);
+    console.log(`SetCreepNum[${CreepName}]`, ROOM.memory.CreepNum[CreepName] || '已删除');
   },
   // 获取角色产生数量
   GetCreepNum(ROOM, CreepName) {
