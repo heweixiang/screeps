@@ -148,7 +148,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
     return 'create';
   }
   // 有几个矿物就生成几个升级者
-  if (upgraders.length < sources.length) {
+  if (upgraders.length < sources.length * 5) {
     const body = Game.Config.creep.generateInitialWorker(ROOM);
     const name = 'TouchFish_升级' + Game.time;
     const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };
