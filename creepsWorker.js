@@ -170,7 +170,17 @@ function Transport(creep) {
       }
       return
     }
-    Building(creep);
+    // 将资源丢弃到RCL旁边
+    const controller = creep.room.controller;
+    if (creep.transfer(controller, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🚚');
+      creep.moveTo(controller, {
+        visualizePathStyle: {
+          stroke: '#ffffff'
+        }
+      });
+    }
+    // Building(creep);
   }
 
 }
