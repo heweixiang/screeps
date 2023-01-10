@@ -129,24 +129,34 @@ const Building = {
         for (let j = -RCL; j <= RCL; j++) {
           // 查找资源X+1是否存在空地且不是工地
           let terrain = Game.map.getRoomTerrain(ROOM.name).get(spawn.pos.x + i, spawn.pos.y + j)
-          if (!terrain) {
+          // 获取x,y上的工地
+          const sites = ROOM.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + i, spawn.pos.y + j)
+          if (!terrain && sites.length == 0) {
             // 如果存在空地，就在空地上建造exterior
             ROOM.createConstructionSite(spawn.pos.x + i, spawn.pos.y + j, STRUCTURE_EXTENSION);
             extBuildCount++
-            return;
+            break;
           }
+        }
+        if (extBuildCount >= extCount) {
+          return;
         }
       }
       for (let i = -RCL; i <= RCL; i++) {
         for (let j = -RCL; j <= RCL; j++) {
           // 查找资源X+1是否存在空地
           let terrain = Game.map.getRoomTerrain(ROOM.name).get(spawn.pos.x + i, spawn.pos.y + j)
-          if (!terrain) {
+          // 获取x,y上的工地
+          const sites = ROOM.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + i, spawn.pos.y + j)
+          if (!terrain && sites.length == 0) {
             // 如果存在空地，就在空地上建造exterior
             ROOM.createConstructionSite(spawn.pos.x + i, spawn.pos.y + j, STRUCTURE_EXTENSION);
             extBuildCount++
-            return;
+            break;
           }
+        }
+        if (extBuildCount >= extCount) {
+          return;
         }
       }
     }
