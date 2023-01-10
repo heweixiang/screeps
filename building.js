@@ -2,15 +2,19 @@
 const Building = {
   BuildingManager: function (ROOM) {
     // 扫描创建扩展，我的技术前期还是手动创建吧
-    // this.createExterior(ROOM);
+    if (ROOM.controller.level >= 2) {
+      // 构建道路
+      this.createRoad(ROOM);
+      // 优先构建道路
+      this.createExterior(ROOM);
+    }
     // 除了第一个房间，其他房间都需要建造spawn 自动建造spawn
 
     // 自动给每个矿绑定一个container，如果没有container则自动建造，并在memory绑定矿
     this.createContainer(ROOM);
     // 如果GCL到了8再考虑link挖
 
-    // 构建道路
-    this.createRoad(ROOM);
+
   },
   // 创建绑定矿的container
   createContainer: function (ROOM) {
@@ -113,62 +117,7 @@ const Building = {
     if (exts.length < extCount) {
       // 由内向外查找空地
       for (let i = 1; i < 10; i++) {
-        // 查找资源X+1是否存在空地
-        let terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源X-1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源Y+1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x, ROOM.controller.pos.y + i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源Y-1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x, ROOM.controller.pos.y - i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源X+1Y+1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y + i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源X-1Y-1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y - i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源X+1Y-1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x + i, ROOM.controller.pos.y - i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x + i, ROOM.controller.pos.y - i, STRUCTURE_EXTENSION);
-          continue;
-        }
-        // 查找资源X-1Y+1是否存在空地
-        terrain = Game.map.getRoomTerrain(ROOM.name).get(ROOM.controller.pos.x - i, ROOM.controller.pos.y + i);
-        if (!terrain) {
-          // 如果存在空地，就在空地上建造exterior
-          ROOM.createConstructionSite(ROOM.controller.pos.x - i, ROOM.controller.pos.y + i, STRUCTURE_EXTENSION);
-          continue;
-        }
+
       }
     }
   },
@@ -177,14 +126,20 @@ const Building = {
     // 首先建立spawn到所有container的道路
     // 获取当前房间的spawn
     const spawns = ROOM.find(FIND_MY_SPAWNS);
-    const RCL = ROOM.controller.level
+    const RCL = ROOM.controller.level > 5 ? 5 : ROOM.controller.level;
     for (let spawnIndex = 0; spawnIndex < spawns.length; spawnIndex++) {
       // 如果RCL2以上
-      if (RCL >= 2 && RCL <= 4) {
+      if (RCL >= 2) {
         // 简历5*5的星状道路
         for (let i = -(RCL + 1); i <= (RCL + 1); i++) {
           for (let j = -(RCL + 1); j <= (RCL + 1); j++) {
-            if (Math.abs(i) === Math.abs(j) && !(i === j && i === 0) || Math.abs(i) % 2 === 1 && Math.abs(j) % 2 === 1) {
+            if (Math.abs(i) === Math.abs(j) && !(i === j && i === 0)
+              || Math.abs(i) % 2 === 1 && Math.abs(j) % 2 === 1
+              || (Math.abs(i) % 2 === 1 && j === 0)
+              || (Math.abs(j) % 2 === 1 && i === 0)
+              || (Math.abs(i) === 5 && Math.abs(j) === 2)
+              || (Math.abs(j) === 5 && Math.abs(i) === 2)
+              ) {
               // 如果是空地
               if (!Game.map.getRoomTerrain(ROOM.name).get(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j)) {
                 ROOM.createConstructionSite(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j, STRUCTURE_ROAD);
