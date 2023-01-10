@@ -27,6 +27,16 @@ const Building = {
       // 查找当前房间还没有绑定container的矿
       for (let i = 0; i < sources.length; i++) {
         const source = sources[i];
+        // 3*3范围内的container
+        const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_CONTAINER;
+          }
+        });
+        // 如果有container则跳过
+        if (container.length > 0) {
+          continue;
+        }
         // 查找资源X+1是否存在空地
         let terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y);
         if (!terrain) {
