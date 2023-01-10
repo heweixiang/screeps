@@ -10,7 +10,7 @@ const Building = {
     // 如果GCL到了8再考虑link挖
 
     // 构建道路
-    this.createRoad(ROOM);
+    // this.createRoad(ROOM);
   },
   // 创建绑定矿的container
   createContainer: function (ROOM) {
@@ -29,56 +29,56 @@ const Building = {
         const source = sources[i];
         // 查找资源X+1是否存在空地
         let terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源Y+1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x, source.pos.y + 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源Y-1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x, source.pos.y - 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x, source.pos.y - 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X+1Y+1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y + 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1Y-1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y - 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y - 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X-1Y+1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x - 1, source.pos.y + 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x - 1, source.pos.y + 1, STRUCTURE_CONTAINER);
           continue;
         }
         // 查找资源X+1Y-1是否存在空地
         terrain = Game.map.getRoomTerrain(ROOM.name).get(source.pos.x + 1, source.pos.y - 1);
-        if (!terrain) {
+        if (terrain === 'plain') {
           // 如果存在空地，就在空地上建造container
           ROOM.createConstructionSite(source.pos.x + 1, source.pos.y - 1, STRUCTURE_CONTAINER);
           continue;
@@ -88,31 +88,73 @@ const Building = {
   },
   // 创建exterior，必须建满exterior才能建立container
   createExterior: function (ROOM) {
-    // 围绕spawn二环建造exterior
-  },
-  // 构建道路， 该行为较为复杂，需要考虑到房间内的所有建筑，以及房间内的所有矿，以及房间内的所有container
-  createRoad: function (ROOM) {
-    // 围绕spawn创建道路
-    const spawns = ROOM.find(FIND_MY_SPAWNS);
-    for (let i = 0; i < spawns.length; i++) {
-      const spawn = spawns[i];
-      const terrain = ROOM.lookForAtArea(LOOK_TERRAIN, spawn.pos.y - 1, spawn.pos.x - 1, spawn.pos.y + 1, spawn.pos.x + 1, true);
-      for (let j = 0; j < terrain.length; j++) {
-        const terrainItem = terrain[j];
-        if (terrainItem.terrain == 'plain') {
-          ROOM.createConstructionSite(terrainItem.x, terrainItem.y, STRUCTURE_ROAD);
+    // RCL
+    const RCL = ROOM.controller.level;
+    // 获取当前最大允许的exterior数量
+    const maxExterior = Game.Config.RCL['LV' + RCL].Extension || 0;
+    // 获取当前房间已有的exterior数量
+    const currentExterior = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_EXTENSION;
+      }
+    }).length
+    if (currentExterior < maxExterior) {
+      // 在矿点附近7格内寻找空地
+      const sources = ROOM.find(FIND_SOURCES);
+      for (let i = 0; i < sources.length; i++) {
+        const source = sources[i];
+        // 获取矿点附近7格内的空地
+        const terrain = ROOM.lookForAtArea(LOOK_TERRAIN, source.pos.y - 5, source.pos.x - 5, source.pos.y + 5, source.pos.x + 5, true);
+        // 遍历空地，找到第一个可用的位置
+        for (let j = 0; j < terrain.length; j++) {
+          const terrainItem = terrain[j];
+          if (terrainItem.terrain == 'plain') {
+            // 找到第一个可用的位置，开始创建
+            const result = ROOM.createConstructionSite(terrainItem.x, terrainItem.y, STRUCTURE_EXTENSION);
+            if (result == OK) {
+              console.log('创建exterior成功');
+              // 此处退出为了防止在一个矿点附近创建多个exterior，下个轮询再创建下一个矿点的exterior，这样可以保证每个矿点都有一个及以上exterior
+              break;
+            }
+          }
         }
       }
     }
-    // 围绕spawn创建呈现十字架形状向外延伸道3格的道路
-    for (let i = 0; i < spawns.length; i++) {
-      const spawn = spawns[i];
-      const terrain = ROOM.lookForAtArea(LOOK_TERRAIN, spawn.pos.y - i, spawn.pos.x - i, spawn.pos.y + i, spawn.pos.x + i, true);
-      for (let j = 0; j < terrain.length; j++) {
-        const terrainItem = terrain[j];
-        if (terrainItem.terrain == 'plain') {
-          ROOM.createConstructionSite(terrainItem.x, terrainItem.y, STRUCTURE_ROAD);
-        }
+  },
+  // 构建道路， 该行为较为复杂，需要考虑到房间内的所有建筑，以及房间内的所有矿，以及房间内的所有container
+  createRoad: function (ROOM) {
+    // 首先建立spawn到所有container的道路
+    // 获取当前房间的spawn
+    const spawns = ROOM.find(FIND_MY_SPAWNS);
+    // 获取当前房间的container
+    const containers = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType == STRUCTURE_CONTAINER;
+      }
+    });
+    // 遍历containers，为每个container创建一条道路
+    for (let i = 0; i < containers.length; i++) {
+      const container = containers[i];
+      // 获取spawn到container的路径
+      const path = ROOM.findPath(spawns[0].pos, container.pos);
+      // 遍历路径，为每个路径点创建一条道路
+      for (let j = 0; j < path.length; j++) {
+        const pathItem = path[j];
+        ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+      }
+    }
+    // 建立spawn1到RCL的道路
+    // 获取当前房间的RCL位置
+    const RCLPos = ROOM.controller.pos;
+    // 获取spawn1到RCL的路径
+    const path = ROOM.findPath(spawns[0].pos, RCLPos);
+    // 找到最近的路径点，如果没有创建道路，如果有则不创建
+    for (let i = 0; i < path.length; i++) {
+      const pathItem = path[i];
+      const structures = ROOM.lookForAt(LOOK_STRUCTURES, pathItem.x, pathItem.y);
+      if (structures.length == 0) {
+        ROOM.createConstructionSite(pathItem.x, pathItem.y, STRUCTURE_ROAD);
+        break;
       }
     }
   }
