@@ -25,7 +25,7 @@ const room = {
     // 每500tick执行一次
     if (Game.time % 500 == 0) {
       // 处理Building
-      Building.BuilingManager(ROOM);
+      Building.BuildingManager(ROOM);
     }
     // 处理Creeps
     Creeps(ROOM);

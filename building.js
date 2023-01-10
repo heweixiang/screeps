@@ -22,6 +22,9 @@ const Building = {
         return structure.structureType == STRUCTURE_CONTAINER;
       }
     });
+    // 获取当前房间的RCL
+    const RCL = ROOM.controller;
+    sources.push(RCL)
     // 确保每个矿绑定了一个
     if (sources.length > containers.length) {
       // 查找当前房间还没有绑定container的矿
