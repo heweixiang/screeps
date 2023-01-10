@@ -29,6 +29,7 @@ const tools = {
       ROOM.memory.CreepNum = {};
     }
     ROOM.memory.CreepNum[CreepName] = Num;
+    console.log(`SetCreepNum[${CreepName}]`, ROOM.memory.CreepNum[CreepName]);
   },
   // 获取角色产生数量
   GetCreepNum(ROOM, CreepName) {
