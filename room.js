@@ -22,8 +22,6 @@ const room = {
       }
     }).length;
     ROOM.containerNum = containerNum
-      Building.BuildingManager(ROOM);
-
     // 每500tick执行一次
     if (Game.time % 500 == 0) {
       // 处理Building
