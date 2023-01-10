@@ -133,7 +133,7 @@ const Building = {
         // 简历5*5的星状道路
         for (let i = -(RCL * 2); i < (RCL * 2); i++) {
           for (let j = -(RCL * 2); j < (RCL * 2); j++) {
-            if (Math.abs(i) === Math.abs(j)) {
+            if (Math.abs(i) === Math.abs(j) && Math.abs(i) !== 0) {
               // 如果是空地
               if (!Game.map.getRoomTerrain(ROOM.name).get(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j)) {
                 ROOM.createConstructionSite(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j, STRUCTURE_ROAD);
