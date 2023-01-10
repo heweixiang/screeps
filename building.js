@@ -105,19 +105,51 @@ const Building = {
   },
   // 创建exterior，必须建满exterior才能建立container
   createExterior: function (ROOM) {
+    const RCL = ROOM.controller.level
     // 获取当前支持的exterior数量
-    const extCount = Game.Config.RCL['LV' + ROOM.controller.level].Extension;
+    const extCount = Game.Config.RCL['LV' + RCL].Extension;
     // 获取当前房间的exterior
     const exts = ROOM.find(FIND_MY_STRUCTURES, {
       filter: (structure) => {
         return structure.structureType == STRUCTURE_EXTENSION;
       }
     });
+    let extBuildCount = exts.length
     // 如果当前房间的exterior数量小于支持的数量，则继续建造
     if (exts.length < extCount) {
-      // 由内向外查找空地
-      for (let i = 1; i < 10; i++) {
-
+      // 获取当前房间的spawn
+      const spawns = ROOM.find(FIND_MY_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType == STRUCTURE_SPAWN;
+        }
+      })
+      const spawn = spawns[0];
+      // 由内向外查找空地RCL + 1范围
+      for (let i = -RCL; i <= RCL; i++) {
+        for (let j = -RCL; j <= RCL; j++) {
+          // 查找资源X+1是否存在空地
+          let terrain = Game.map.getRoomTerrain(ROOM.name).get(spawn.pos.x + i, spawn.pos.y + j);
+          if (!terrain) {
+            // 如果存在空地，就在空地上建造exterior
+            ROOM.createConstructionSite(spawn.pos.x + i, spawn.pos.y + j, STRUCTURE_EXTENSION);
+            extBuildCount++
+            break;
+          }
+        }
+        if(extBuildCount >= extCount) return;
+      }
+      for (let i = -RCL; i <= RCL; i++) {
+        for (let j = -RCL; j <= RCL; j++) {
+          // 查找资源X+1是否存在空地
+          let terrain = Game.map.getRoomTerrain(ROOM.name).get(i, j);
+          if (!terrain) {
+            // 如果存在空地，就在空地上建造exterior
+            ROOM.createConstructionSite(i, j, STRUCTURE_EXTENSION);
+            extBuildCount++
+            break;
+          }
+        }
+        if(extBuildCount >= extCount) return;
       }
     }
   },
@@ -139,7 +171,7 @@ const Building = {
               || (Math.abs(j) % 2 === 1 && i === 0)
               || (Math.abs(i) === 5 && Math.abs(j) === 2)
               || (Math.abs(j) === 5 && Math.abs(i) === 2)
-              ) {
+            ) {
               // 如果是空地
               if (!Game.map.getRoomTerrain(ROOM.name).get(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j)) {
                 ROOM.createConstructionSite(spawns[spawnIndex].pos.x + i, spawns[spawnIndex].pos.y + j, STRUCTURE_ROAD);
