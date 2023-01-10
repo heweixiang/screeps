@@ -109,7 +109,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     // 获取工地数量
     const constructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
     // 以上都满足就大力发展基建
-    if (builders.length < constructionSites / 2) {
+    if ((builders.length < constructionSites) * 5) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
