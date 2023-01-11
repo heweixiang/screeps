@@ -19,7 +19,7 @@ const room = {
     const ProgressTotal = ROOM.controller.progressTotal;
     // 百分比
     const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(4);
-    console.log(`--------- ${ROOM} Level：${RCL} Progress：${Progress}/${ProgressTotal} ${ProgressPercent}% ---------`);
+    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotal - Progress} ${ProgressPercent}% ---------`);
     console.log('AvailableEnergy：', AvailableEnergy);
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
