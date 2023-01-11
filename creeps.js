@@ -10,7 +10,7 @@ const creeps = (ROOM) => {
   const creeps = ROOM.find(FIND_MY_CREEPS);
   logRoomSpawnState(ROOM);
 
-  // 如果没有空闲spawn不执行生成creep
+  // 如果没有空闲spawn不执行生成creep 
   if (spawns.length) {
     // 判断当前房间是否属于紧急状态，如果是则不生成creep
     if (!RoomCreepLengthIsSafe(ROOM, spawns[0], creeps)) {
