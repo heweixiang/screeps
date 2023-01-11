@@ -191,6 +191,8 @@ function Assign(ROOM, creep) {
 function Repair(ROOM, creep) {
   // 如果creep的carry没有满
   if (creep && creep.carry.energy === 0) {
+    // 每次挖矿就失忆，把东西留给更需要的人
+    creep.memory.targetId = null;
     HarvestSourceEnergy(creep, true);
   } else if (creep) {
     // 如果有绑定ID获取该建筑
@@ -215,13 +217,13 @@ function Repair(ROOM, creep) {
         }
       }
     }
-    // 寻找附近的需要修理的建筑
+    // 寻找附近的需要修理的建筑 墙壁交给塔来维护
     let targets = creep.room.find(FIND_STRUCTURES, {
-      filter: object => object.hits < object.hitsMax * 0.5
+      filter: object => object.hits < object.hitsMax * 0.5 && object.structureType !== STRUCTURE_WALL
     });
     if (targets.length === 0) {
       targets = creep.room.find(FIND_STRUCTURES, {
-        filter: object => object.hits < object.hitsMax * 0.85
+        filter: object => object.hits < object.hitsMax * 0.85 && object.structureType !== STRUCTURE_WALL
       });
     }
     // 排序最后维护墙壁
@@ -236,7 +238,6 @@ function Repair(ROOM, creep) {
     targets = _.sortBy(targets, (target) => {
       return target.hits;
     });
-
 
     if (targets.length) {
       // 如果有需要修理的建筑
