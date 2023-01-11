@@ -18,7 +18,7 @@ const room = {
     // 获取当前房间升级进度总量
     const ProgressTotal = ROOM.controller.progressTotal;
     // 百分比
-    const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(2);
+    const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(4);
     console.log(`--------- ${ROOM} Level：${RCL} Progress：${Progress}/${ProgressTotal} ${ProgressPercent}% ---------`);
     console.log('AvailableEnergy：', AvailableEnergy);
     // 获取container数量
