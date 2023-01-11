@@ -20,6 +20,9 @@ const tools = {
       AvailableEnergy
     };
   },
+  SCN(R, C, N) {
+    SetCreepNum(R, C, N)
+  },
   // 设置角色产生数量
   SetCreepNum(ROOMName, CreepName, Num) {
     const ROOM = Game.rooms[ROOMName];
@@ -27,7 +30,7 @@ const tools = {
       ROOM.memory.CreepNum = {};
     }
     ROOM.memory.CreepNum[CreepName] = Num;
-    if(Num === 0){
+    if (Num === 0) {
       delete ROOM.memory.CreepNum[CreepName];
     }
     console.log(`SetCreepNum[${CreepName}]`, ROOM.memory.CreepNum[CreepName] || '已删除');
