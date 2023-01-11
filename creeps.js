@@ -14,8 +14,8 @@ const creeps = (ROOM) => {
   if (spawns.length) {
     // 判断当前房间是否属于紧急状态，如果是则不生成creep
     if (!RoomCreepLengthIsSafe(ROOM, spawns[0], creeps)) {
-      // 20TICK执行一次
-      if (Game.time % 20 === 0) {
+      // 100TICK执行一次
+      if (Game.time % 100 === 0) {
         // 生成creep
         createCreeps(ROOM, spawns, creeps);
       }
