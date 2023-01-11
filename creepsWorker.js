@@ -137,25 +137,6 @@ function Transport(creep) {
   if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep);
   } else {
-    // // 查找Storage,如果有则LV4注意需要创建一个分配者
-    // const storage = creep.room.find(FIND_STRUCTURES, {
-    //   filter: (structure) => {
-    //     return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
-    //   }
-    // });
-    // // 如果有Storage
-    // if (storage.length > 0) {
-    //   // 运输到Storage
-    //   if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-    //     creep.say('🚚');
-    //     creep.moveTo(storage[0], {
-    //       visualizePathStyle: {
-    //         stroke: '#ffffff'
-    //       }
-    //     });
-    //   }
-    //   return
-    // }
     // 寻找附exits或者spawn的建筑
     const exitsOrSpawnBuildings = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -218,16 +199,24 @@ function Transport(creep) {
       }
       return
     }
-    // 移动到controller旁边然后丢弃
-    if (creep.pos.isNearTo(creep.room.controller)) {
-      creep.say('🚚');
-      creep.drop(RESOURCE_ENERGY);
-    } else {
-      creep.moveTo(creep.room.controller, {
-        visualizePathStyle: {
-          stroke: '#ffffff'
-        }
-      });
+    // 查找Storage,如果有则LV4注意需要创建一个分配者
+    const storage = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
+      }
+    });
+    // 如果有Storage
+    if (storage.length > 0) {
+      // 运输到Storage
+      if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🚚');
+        creep.moveTo(storage[0], {
+          visualizePathStyle: {
+            stroke: '#ffffff'
+          }
+        });
+      }
+      return
     }
   }
 }
