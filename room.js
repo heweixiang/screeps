@@ -13,7 +13,9 @@ const room = {
     const RCL = ROOM.controller.level;
     // 获取当前房间可用能量
     const AvailableEnergy = ROOM.energyAvailable;
-    console.log(`--------- ${ROOM} Level：${RCL} ---------`);
+    // 获取当前房间升级进度
+    const Progress = ROOM.controller.progress;
+    console.log(`--------- ${ROOM} Level：${RCL} ---Progress：${Progress}------`);
     console.log('AvailableEnergy：', AvailableEnergy);
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
