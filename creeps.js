@@ -111,7 +111,7 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     }
     // 获取工地数量
     const constructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
-    console.log('builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造'): ', builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造'));
+    console.log('builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, ): ', builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造'));
     // 以上都满足就大力发展基建
     if (builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造')) {
     
