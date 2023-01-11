@@ -98,6 +98,28 @@ function Repair(creep) {
   if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep, true);
   } else {
+    // 如果有绑定ID获取该建筑
+    if (creep.memory.targetId) {
+      const target = Game.getObjectById(creep.memory.targetId);
+      // 如果该建筑存在
+      if (target) {
+        // 如果该建筑血量小于最大血量
+        if (target.hits < target.hitsMax) {
+          // 如果creep在该建筑附近
+          if (creep.pos.isNearTo(target)) {
+            // 修理该建筑
+            creep.repair(target);
+          } else {
+            // 否则移动到该建筑附近
+            creep.moveTo(target);
+          }
+        } else {
+          // 如果该建筑血量大于最大血量
+          // 重置绑定ID
+          creep.memory.targetId = null;
+        }
+      }
+    }
     // 寻找附近的需要修理的建筑
     let targets = creep.room.find(FIND_STRUCTURES, {
       filter: object => object.hits < object.hitsMax * 0.5
@@ -122,6 +144,9 @@ function Repair(creep) {
 
 
     if (targets.length) {
+      // 如果有需要修理的建筑
+      // 绑定
+      creep.memory.targetId = targets[0].id;
       if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
         creep.say('🛠️');
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
