@@ -134,7 +134,7 @@ function Assign(ROOM, creep) {
         creep.say('🔍');
         creep.moveTo(extensions[0], { visualizePathStyle: { stroke: '#ffaa00' } });
       }
-      return 
+      return
     }
     // 获取所有没有被填满的spawn
     const spawns = ROOM.find(FIND_STRUCTURES, {
@@ -148,7 +148,7 @@ function Assign(ROOM, creep) {
         creep.say('🔍');
         creep.moveTo(spawns[0], { visualizePathStyle: { stroke: '#ffaa00' } });
       }
-      return 
+      return
     }
     // 获取所有没有被填满的tower
     const towers = ROOM.find(FIND_STRUCTURES, {
@@ -162,7 +162,26 @@ function Assign(ROOM, creep) {
         creep.say('🔍');
         creep.moveTo(towers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
       }
-      return 
+      return
+    }
+    // 寻找controller3*3附近的container
+    const controllerContainer = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
+      }
+    });
+    // 如果有controllerContainer
+    if (controllerContainer.length > 0) {
+      // 运输到controllerContainer
+      if (creep.transfer(controllerContainer[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🚚');
+        creep.moveTo(controllerContainer[0], {
+          visualizePathStyle: {
+            stroke: '#ffffff'
+          }
+        });
+      }
+      return
     }
 
   }
