@@ -6,7 +6,7 @@ const Building = {
       // 构建道路
       this.createRoad(ROOM);
       // 优先构建道路
-      this.createExterior(ROOM);
+      // this.createExterior(ROOM);
     }
     // 除了第一个房间，其他房间都需要建造spawn 自动建造spawn
 
