@@ -389,11 +389,11 @@ function Building(ROOM, creep) {
     } else {
       // 查找需要修理的建筑
       const targets = creep.room.find(FIND_STRUCTURES, {
-        filter: object => object.hits < object.hitsMax
+        filter: object => object.hits < object.hitsMax * 0.5  && object.structureType !== STRUCTURE_WALL
       });
       if (targets.length) {
         // 修理
-        Repair(creep);
+        Repair(ROOM, creep);
       } else {
         // 如果没有工地，和修理就去升级
         Upgrade(ROOM, creep);
