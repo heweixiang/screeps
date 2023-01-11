@@ -111,8 +111,10 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     }
     // 获取工地数量
     const constructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
+    console.log('builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造'): ', builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造'));
     // 以上都满足就大力发展基建
     if (builders.length < constructionSites + Game.Tools.GetCreepNum(ROOM, '建造')) {
+    
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
