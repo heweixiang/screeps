@@ -21,7 +21,7 @@ const room = {
     const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(4);
     // ProgressTotal - Progress 转换成K和M
     const ProgressTotalMinusProgress = ProgressTotal - Progress;
-    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgress/10000}M ${ProgressTotalMinusProgress%10000/1000}K${ProgressTotalMinusProgress} ${ProgressPercent}% ---------`);
+    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgress/1000000}M ${ProgressTotalMinusProgress%1000000/100000}K${ProgressTotalMinusProgress} ${ProgressPercent}% ---------`);
     console.log('AvailableEnergy：', AvailableEnergy);
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
