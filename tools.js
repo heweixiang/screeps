@@ -21,7 +21,7 @@ const tools = {
     };
   },
   SCN(R, C, N) {
-    SetCreepNum(R, C, N)
+    this.SetCreepNum(R, C, N)
   },
   // 设置角色产生数量
   SetCreepNum(ROOMName, CreepName, Num) {

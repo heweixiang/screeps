@@ -16,8 +16,8 @@ const creeps = (ROOM) => {
     if (!RoomCreepLengthIsSafe(ROOM, spawns[0], creeps)) {
       // 100TICK执行一次
       // if (Game.time % 2 === 0) {
-        // 生成creep
-        createCreeps(ROOM, spawns, creeps);
+      // 生成creep
+      createCreeps(ROOM, spawns, creeps);
       // }
     } else {
       console.log('当前房间Creep数量处于紧急状态！！！');
@@ -33,6 +33,8 @@ const creeps = (ROOM) => {
 const ROLE_WORKER = 'ROLE_WORKER';
 // 运输者：一辈子东奔西走运输资源
 const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
+// 分配
+const ROLE_ASSIGN = 'ROLE_ASSIGN';
 // 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
 const ROLE_HARVESTER = 'ROLE_HARVESTER';
 // 行为
@@ -46,6 +48,8 @@ const BEHAVIOR_REPAIR = 'BEHAVIOR_REPAIR';
 const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
 // 建造
 const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
+// 分配
+const BEHAVIOR_ASSIGN = 'BEHAVIOR_ASSIGN';
 
 function createCreeps(ROOM, spawns, creeps) {
 
@@ -56,6 +60,8 @@ function createCreeps(ROOM, spawns, creeps) {
     case 6:
     case 5:
     case 4:
+      LV4GenerateCreeps(ROOM, spawns, creeps);
+      break;
     case 3:
     case 2:
       LV2GenerateCreeps(ROOM, spawns, creeps);
@@ -65,6 +71,28 @@ function createCreeps(ROOM, spawns, creeps) {
       break;
 
   }
+}
+
+// RCL4,分配者
+function LV4GenerateCreeps(ROOM, spawns, creeps) {
+  const LV2CreateResult = LV2GenerateCreeps(ROOM, spawns, creeps);
+  if (LV2CreateResult === 'no-create') {
+    const spawn = spawns[0];
+    // 保证有两个分配者
+    const assigners = creeps.filter(creep => creep.memory.role === ROLE_ASSIGN);
+    // 获取矿数量
+    const sources = ROOM.find(FIND_SOURCES);
+    if (assigners.length < sources.length + Game.Tools.GetCreepNum(ROOM, '分配')) {
+      const body = Game.Config.creep.generateTransporter(ROOM);
+      const name = 'TouchFish_分配' + Game.time;
+      const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
+      GenerateCreep(ROOM, spawn, body, name, config);
+      return 'create';
+    }
+  } else {
+    return 'create';
+  }
+  return 'no-create';
 }
 
 // RCL2，这时候在优先满足RCL1设定下就可以开始生成RCL2的creep了

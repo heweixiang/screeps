@@ -19,6 +19,8 @@
 const ROLE_WORKER = 'ROLE_WORKER';
 // 运输者：一辈子东奔西走运输资源
 const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
+// 分配
+const ROLE_ASSIGN = 'ROLE_ASSIGN';
 // 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
 const ROLE_HARVESTER = 'ROLE_HARVESTER';
 // 行为
@@ -32,6 +34,8 @@ const BEHAVIOR_REPAIR = 'BEHAVIOR_REPAIR';
 const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
 // 建造
 const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
+// 分配
+const BEHAVIOR_ASSIGN = 'BEHAVIOR_ASSIGN';
 
 let creepsList = [];
 
@@ -43,8 +47,11 @@ const creepsWorker = (ROOM, spawns, creeps) => {
     switch (creep.memory.role) {
       case ROLE_WORKER:
         break;
+      case ROLE_ASSIGN:
+        Assign(ROOM, creep);
+        break;
       case ROLE_TRANSPORTER:
-        Transport(creep);
+        Transport(ROOM, creep);
         break;
       // 综合工
       case ROLE_HARVESTER:
@@ -64,8 +71,8 @@ const creepsWorker = (ROOM, spawns, creeps) => {
   let creepCount = '爬爬数量：';
   for (const key in creepGroup) {
     creepCount += `${key}：${creepGroup[key]}，`;
-
   }
+  creepCount += `总数：${creeps.length}`;
   console.log(creepCount);
   // 2、采集者
   // 3、运输者
@@ -81,23 +88,92 @@ const creepsWorker = (ROOM, spawns, creeps) => {
 function RoleHarvesterWorker(ROOM, spawns, creep) {
   // 如果是采集行为
   if (creep.memory.behavior === BEHAVIOR_HARVEST) {
-    Harvest(creep);
+    Harvest(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_UPGRADE) {
-    Upgrade(creep);
+    Upgrade(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_TRANSPORT) {
-    Transport(creep);
+    Transport(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_BUILD) {
-    Building(creep);
+    Building(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_REPAIR) {
-    Repair(creep);
+    Repair(ROOM, creep);
   }
 }
 
-function Repair(creep) {
-  // 如果creep的carry没有满
+
+// Assign 分配者工作
+function Assign(ROOM, creep) {
+  // 首先获取能量
   if (creep.carry.energy === 0) {
+    // 找到最近的Storage
+    source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType === STRUCTURE_STORAGE) && structure.store[RESOURCE_ENERGY] > 0;
+      }
+    });
+    if (source) {
+      if (creep.withdraw(source, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍');
+        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        // 标记该能量
+        creep.memory.energyId = source.id;
+      }
+      return
+    }
     HarvestSourceEnergy(creep, true);
   } else {
+    // 获取所有没有被填满的extension
+    const extensions = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType === STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
+      }
+    });
+    if (extensions.length > 0) {
+      // 如果有extension
+      if (creep.transfer(extensions[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍');
+        creep.moveTo(extensions[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+      return 
+    }
+    // 获取所有没有被填满的spawn
+    const spawns = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType === STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity;
+      }
+    });
+    if (spawns.length > 0) {
+      // 如果有spawn
+      if (creep.transfer(spawns[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍');
+        creep.moveTo(spawns[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+      return 
+    }
+    // 获取所有没有被填满的tower
+    const towers = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+      }
+    });
+    if (towers.length > 0) {
+      // 如果有tower
+      if (creep.transfer(towers[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🔍');
+        creep.moveTo(towers[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+      return 
+    }
+
+  }
+
+}
+
+function Repair(ROOM, creep) {
+  // 如果creep的carry没有满
+  if (creep && creep.carry.energy === 0) {
+    HarvestSourceEnergy(creep, true);
+  } else if (creep) {
     // 如果有绑定ID获取该建筑
     if (creep.memory.targetId) {
       const target = Game.getObjectById(creep.memory.targetId);
@@ -152,16 +228,40 @@ function Repair(creep) {
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
-      Transport(creep);
+      Transport(ROOM, creep);
     }
   }
 }
 
-function Transport(creep) {
-  // 如果creep的carry没有满
+function Transport(ROOM, creep) {
+  // 如果creep没有满
   if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep);
   } else {
+    // 获取分配者数量
+    const assignCount = creepsList.filter(creep => creep.memory.role === ROLE_ASSIGN).length;
+    // 如果RCL高于3则优先storage储存
+    if (ROOM.controller.level > 3 && assignCount > 0) {
+      // 查找Storage,如果有则LV4注意需要创建一个分配者
+      const storage = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
+        }
+      });
+      // 如果有Storage
+      if (storage.length > 0) {
+        // 运输到Storage
+        if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.say('🚚');
+          creep.moveTo(storage[0], {
+            visualizePathStyle: {
+              stroke: '#ffffff'
+            }
+          });
+        }
+        return
+      }
+    }
     // 寻找附exits或者spawn的建筑
     const exitsOrSpawnBuildings = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -246,7 +346,7 @@ function Transport(creep) {
   }
 }
 
-function Building(creep) {
+function Building(ROOM, creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy === 0) {
     HarvestSourceEnergy(creep, false);
@@ -276,13 +376,13 @@ function Building(creep) {
         Repair(creep);
       } else {
         // 如果没有工地，和修理就去升级
-        Upgrade(creep);
+        Upgrade(ROOM, creep);
       }
     }
   }
 }
 
-function Upgrade(creep) {
+function Upgrade(ROOM, creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy === 0) {
     // 查找controller附近的3*3范围内的container
@@ -447,7 +547,7 @@ function HarvestSourceEnergy(creep, urgent = false) {
 }
 
 // 纯采集者只上岗不下岗
-function Harvest(creep) {
+function Harvest(ROOM, creep) {
   // 获取当前标记的sourceId
   const sourceId = creep.memory.sourceId;
   // 获取上岗标记
@@ -559,8 +659,13 @@ function Harvest(creep) {
     if (source) {
       // 标记sourceId
       creep.memory.sourceId = source.id;
-      // 维护 creepsList
-      creepsList.push(creep);
+      // 找到并维护 creepsList
+      creepsList = creepsList.map(x => {
+        if (x.name === creep.name) {
+          x.memory.sourceId = source.id;
+        }
+        return x
+      })
       // 移动到source上
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
     }
