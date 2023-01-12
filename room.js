@@ -12,7 +12,7 @@ const room = {
   // 该行由tick重复调用
   roomManager(ROOM) {
     // ROOM controller level
-    const RCL = ROOM.controller.level;
+    const RCL = ROOM.controller ? ROOM.controller.level || 0 : 0;
     // 获取当前房间可用能量
     const AvailableEnergy = ROOM.energyAvailable;
     // 获取房间storage剩余能量
@@ -26,9 +26,9 @@ const room = {
       return sum + container.store[RESOURCE_ENERGY];
     }, 0);
     // 获取当前房间升级进度
-    const Progress = ROOM.controller.progress;
+    const Progress = ROOM.controller ? ROOM.controller.progress : 0;
     // 获取当前房间升级进度总量
-    const ProgressTotal = ROOM.controller.progressTotal;
+    const ProgressTotal = ROOM.controller ? ROOM.controller.progressTotal : 0;
     // 百分比
     const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(4);
     // ProgressTotal - Progress 转换成K和M
@@ -43,15 +43,19 @@ const room = {
       }
     }).length;
     ROOM.containerNum = containerNum
+    // 获取房间旗子
+    const flags = ROOM.find(FIND_FLAGS);
     // 每500tick执行一次
-    if (Game.time % 500 == 0) {
+    if (Game.time % 500 == 0 && ROOM.controller && flags.length > 0) {
       // 处理Building
       Building.BuildingManager(ROOM);
     }
     // 处理Creeps
     Creeps(ROOM);
-    // 处理攻防
-    AttackAndDefense.loop(ROOM)
+    if (ROOM.controller) {
+      // 处理攻防
+      AttackAndDefense.loop(ROOM)
+    }
   }
 }
 
