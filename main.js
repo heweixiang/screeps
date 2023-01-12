@@ -1,5 +1,5 @@
 // 引入移动优化
-// require('moveManager');
+require('moveManager');
 const Tools = require('tools');
 const Config = require('config');
 // 引入ROOM管理
