@@ -180,12 +180,12 @@ function LV4GenerateCreeps(ROOM, spawns, creeps) {
             return 'create';
           }
 
-        } else if (flagRoomConfig && !Memory.externalmineRoom[flag.pos.roomName]) {
+        } else if (!flagRoomConfig && !Memory.externalmineRoom[flag.pos.roomName]) {
           // 不存在视野
           // 创建一个外矿矿工
           const body = Game.Config.creep.generateHarvester(ROOM);
           const name = 'TouchFish_外矿矿工' + Game.time;
-          const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST } };
+          const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flag.pos.roomName } };
           GenerateCreep(ROOM, spawn, body, name, config);
           return 'create';
         }
@@ -344,7 +344,7 @@ function logRoomSpawnState(ROOM) {
   let HatchingState = '孵化状态：';
   for (const spawn in spawns) {
     HatchingState = HatchingState + "【Spawn" + spawn + (!!spawns[spawn].spawning ? '-孵化中' : '-空闲') + "】"
-    if(spawns[spawn].spawning){
+    if (spawns[spawn].spawning) {
       HatchingState = HatchingState + `【Name：${spawns[spawn].spawning.name}】【Time：${spawns[spawn].spawning.remainingTime}】`
     }
   }
