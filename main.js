@@ -6,15 +6,15 @@ const Config = require('config');
 const RoomManager = require('room');
 module.exports.loop = function () {
   // 用于各个模块之间通信
-  if(Memory.Info == undefined){
+  if (Memory.Info == undefined) {
     Memory.Info = {};
   }
   // 用于公共静态配置
-  if(Game.Config == undefined){
+  if (Game.Config == undefined) {
     Game.Config = Config;
   }
   // 用于手动操作，入侵等操作放入
-  if(Game.Tools == undefined){
+  if (Game.Tools == undefined) {
     Game.Tools = Tools;
   }
 
@@ -25,10 +25,25 @@ module.exports.loop = function () {
     RoomManager.roomManager(ROOM);
   }
 
-  if(Game.cpu.bucket == 10000){
+  if (Game.cpu.bucket == 10000) {
     Game.cpu.generatePixel();
   }
+
+  // 每500tick清理一次creep内存
+  if (Game.time % 500 === 0) {
+    clearMemory();
+  }
+
   // 预留防止spawn防止方法
   // 分割线
   console.log(`==========================${Game.time}==========================\n\n\n`);
+}
+
+function clearMemory() {
+  // 清理房间内无效的creep
+  for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
+  }
 }
