@@ -34,7 +34,7 @@ const room = {
     // ProgressTotal - Progress 转换成K和M
     const ProgressTotalMinusProgress = ProgressTotal - Progress;
     let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
-    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgressK} ${ProgressTotalMinusProgress} ${ProgressPercent}% ---------`);
+    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgressK || -1} ${ProgressTotalMinusProgress || -1} ${ProgressPercent || -1}% ---------`);
     console.log(`AvailableEnergy：${AvailableEnergy} StorageEnergy：${StorageEnergy} ContainerEnergy：${ContainerEnergy}`);
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
