@@ -389,7 +389,7 @@ function Building(ROOM, creep) {
     } else {
       // 查找需要修理的建筑
       const targets = creep.room.find(FIND_STRUCTURES, {
-        filter: object => object.hits < object.hitsMax * 0.5  && object.structureType !== STRUCTURE_WALL
+        filter: object => object.hits < object.hitsMax * 0.5 && object.structureType !== STRUCTURE_WALL
       });
       if (targets.length) {
         // 修理
@@ -585,7 +585,9 @@ function Harvest(ROOM, creep) {
       // 如果当前source的能量剩余大于0
       if (energy > 0) {
         creep.harvest(source);
-        creep.say(container.sotre.energy);
+        if (container) {
+          creep.say(container.sotre.energy);
+        }
       } else {
         // 如果当前坐标是工地
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
