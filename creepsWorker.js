@@ -578,10 +578,6 @@ function Harvest(ROOM, creep) {
     if (sourceId) {
       // 获取脚下的container能量
       const container = creep.pos.lookFor(LOOK_STRUCTURES);
-      // 获取脚下的散落能量
-      const scattered = creep.pos.lookFor(LOOK_ENERGY);
-      // 计算总能量
-      const total = container.store[RESOURCE_ENERGY] + scattered.store[RESOURCE_ENERGY];
       // 获取source
       const source = Game.getObjectById(sourceId);
       // 当前source的能量剩余
@@ -589,7 +585,7 @@ function Harvest(ROOM, creep) {
       // 如果当前source的能量剩余大于0
       if (energy > 0) {
         creep.harvest(source);
-        creep.say(total);
+        creep.say(container.sotre.energy);
       } else {
         // 如果当前坐标是工地
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length) {
