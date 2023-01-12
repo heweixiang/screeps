@@ -44,9 +44,9 @@ const room = {
     }).length;
     ROOM.containerNum = containerNum
     // 获取房间旗子
-    const flags = ROOM.find(FIND_FLAGS);
+    const flag = ROOM.find(FIND_FLAGS);    
     // 每500tick执行一次
-    if (Game.time % 500 == 0 && ROOM.controller && flags.length > 0) {
+    if (Game.time % 500 == 0 && ROOM.controller && flag) {
       // 处理Building
       Building.BuildingManager(ROOM);
     }
