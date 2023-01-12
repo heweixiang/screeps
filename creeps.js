@@ -107,16 +107,12 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     const repairers = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_REPAIR);
     // 获取当前矿物采集者数量
     const harvesters = creeps.filter(creep => creep.memory.behavior === BEHAVIOR_HARVEST);
-    // 如果建造者数量小于采集者数量，生成建造者
-    if (builders.length < harvesters.length) {
-      const body = Game.Config.creep.generateInitialWorker(ROOM);
-      const name = 'TouchFish_建造' + Game.time;
-      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
-      GenerateCreep(ROOM, spawn, body, name, config);
-      return 'create';
-    }
-    // 如果维护者数量小于采集者数量，生成维护者
-    if (repairers.length < harvesters.length) {
+    // 获取防御塔数量
+    const towers = ROOM.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
+    // 获取分配者数量
+    const assigners = creeps.filter(creep => creep.memory.role === ROLE_ASSIGN);
+    // 如果维护者数量小于采集者数量，生成维护者    如果有塔和分配者就不生成维护者，浪费资源
+    if (repairers.length < harvesters.length && towers.length < 1 && assigners.length < 1) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_维护' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_REPAIR } };
@@ -131,16 +127,18 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
     });
     // 如果维护者数量小于建筑数量，生成维护者
     if (repairers.length < repairTargets.length / 2 && repairers.length < 3 || repairers.length < repairTargets.length + Game.Tools.GetCreepNum(ROOM, '维护')) {
-      const body = Game.Config.creep.generateInitialWorker(ROOM);
-      const name = 'TouchFish_维护' + Game.time;
-      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_REPAIR } };
-      GenerateCreep(ROOM, spawn, body, name, config);
-      return 'create';
+      if (towers.length < 1 && assigners.length < 1) {
+        const body = Game.Config.creep.generateInitialWorker(ROOM);
+        const name = 'TouchFish_维护' + Game.time;
+        const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_REPAIR } };
+        GenerateCreep(ROOM, spawn, body, name, config);
+        return 'create';
+      }
     }
     // 获取工地数量
     const constructionSites = ROOM.find(FIND_CONSTRUCTION_SITES);
     // 以上都满足就大力发展基建
-    if (builders.length < constructionSites.length + Game.Tools.GetCreepNum(ROOM, '建造')) {
+    if (builders.length < constructionSites.length + Game.Tools.GetCreepNum(ROOM, '建造') && builders.length < 2) {
       const body = Game.Config.creep.generateInitialWorker(ROOM);
       const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
