@@ -29,14 +29,15 @@ module.exports.loop = function () {
     Game.cpu.generatePixel();
   }
 
-  // 每500tick清理一次creep内存
-  if (Game.time % 500 === 0) {
+  // 每50tick清理一次creep内存
+  if (Game.time % 50 === 0) {
     clearMemory();
   }
 
   // 预留防止spawn防止方法
   // 分割线
-  console.log(`==========================${Game.time}==========================\n\n\n`);
+  // 绿色
+  console.log(`<font color="#00FF00">==========================${Game.time}==========================</font>\n\n\n`);
 }
 
 function clearMemory() {

@@ -34,7 +34,7 @@ const room = {
     // ProgressTotal - Progress 转换成K和M
     const ProgressTotalMinusProgress = ProgressTotal - Progress;
     let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
-    console.log(`--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgressK || -1} ${ProgressTotalMinusProgress || -1} ${ProgressPercent || -1}% ---------`);
+    console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}">--------- ${ROOM} Level：${RCL} Progress：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK} ${ProgressTotalMinusProgress || -1} ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}% ---------</font>`);
     console.log(`AvailableEnergy：${AvailableEnergy} StorageEnergy：${StorageEnergy} ContainerEnergy：${ContainerEnergy}`);
     // 获取container数量
     const containerNum = ROOM.find(FIND_STRUCTURES, {
@@ -44,7 +44,7 @@ const room = {
     }).length;
     ROOM.containerNum = containerNum
     // 获取房间旗子
-    const flag = ROOM.find(FIND_FLAGS);    
+    const flag = ROOM.find(FIND_FLAGS);
     // 每500tick执行一次
     if (Game.time % 500 == 0 && ROOM.controller && flag) {
       // 处理Building
