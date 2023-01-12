@@ -19,6 +19,16 @@
 const ROLE_WORKER = 'ROLE_WORKER';
 // 运输者：一辈子东奔西走运输资源
 const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
+// 外矿矿工
+const ROLE_EXTERNALMINE_WORKER = 'ROLE_EXTERNALMINE_WORKER';
+// 外矿运输者
+const ROLE_EXTERNALMINE_TRANSPORTER = 'ROLE_EXTERNALMINE_TRANSPORTER';
+// 外矿攻击者
+const ROLE_EXTERNALMINE_ATTACKER = 'ROLE_EXTERNALMINE_ATTACKER';
+// 外矿治疗者
+const ROLE_EXTERNALMINE_HEALER = 'ROLE_EXTERNALMINE_HEALER';
+// 外矿预定者
+const ROLE_EXTERNALMINE_RESERVER = 'ROLE_EXTERNALMINE_RESERVER';
 // 分配
 const ROLE_ASSIGN = 'ROLE_ASSIGN';
 // 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
@@ -36,6 +46,13 @@ const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
 const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
 // 分配
 const BEHAVIOR_ASSIGN = 'BEHAVIOR_ASSIGN';
+// 攻击
+const BEHAVIOR_ATTACK = 'BEHAVIOR_ATTACK';
+// 治疗
+const BEHAVIOR_HEAL = 'BEHAVIOR_HEAL';
+// 预定
+const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
+
 
 let creepsList = [];
 
@@ -45,6 +62,23 @@ const creepsWorker = (ROOM, spawns, creeps) => {
   const creepGroup = {}
   creeps.forEach(creep => {
     switch (creep.memory.role) {
+      case ROLE_EXTERNALMINE_RESERVER:
+        externalmineReserver(ROOM, creep);
+        break;
+      case ROLE_EXTERNALMINE_HEALER:
+        externalmineHealer(ROOM, creep);
+        break;
+      case ROLE_EXTERNALMINE_ATTACKER:
+        externalmineAttacker(ROOM, creep);
+        break;
+      case ROLE_EXTERNALMINE_WORKER:
+        // 外矿矿工
+        externalmineWorker(ROOM, creep);
+        break;
+      case ROLE_EXTERNALMINE_TRANSPORTER:
+        // 外矿运输者
+        externalmineTransporter(ROOM, creep);
+        break;
       case ROLE_WORKER:
         break;
       case ROLE_ASSIGN:
@@ -74,15 +108,6 @@ const creepsWorker = (ROOM, spawns, creeps) => {
   }
   creepCount += `总数：${creeps.length}`;
   console.log(creepCount);
-  // 2、采集者
-  // 3、运输者
-  // 4、修理工
-  // 5、建筑工
-  // 6、升级工
-  // 7、战斗工
-  // 8、探索工
-  // 9、治疗工
-  // 10、预备工
 }
 
 function RoleHarvesterWorker(ROOM, spawns, creep) {
@@ -100,6 +125,169 @@ function RoleHarvesterWorker(ROOM, spawns, creep) {
   }
 }
 
+function externalmineReserver(ROOM, creep) {
+  if (externalmineEnter(creep)) {
+    // 预定该房间
+    const target = creep.room.controller;
+    if (target) {
+      if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+    }
+  }
+}
+
+// 奶妈负责奶
+function externalmineHealer(ROOM, creep) {
+  if (externalmineEnter(creep)) {
+    // 寻找附近需要治疗的单位
+    const target = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+      filter: (creep) => creep.hits < creep.hitsMax
+    });
+    if (target) {
+      if (creep.heal(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      return;
+    }
+    // 如果没有敌人就走到旗子上
+    const flag = ROOM.find(FIND_FLAGS, {
+      filter: (flag) => true
+    })[0];
+    if (flag) {
+      creep.moveTo(flag, { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
+  }
+}
+
+function externalmineAttacker(ROOM, creep) {
+  // 战士永不回头
+  if (externalmineEnter(creep)) {
+    // 寻找附近的敌人
+    const target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    if (target) {
+      if (creep.attack(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      return;
+    }
+    // 找到房间内不是自己的extension
+    let extension = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_EXTENSION && structure.store[RESOURCE_ENERGY] === 0 && !structure.my;
+      }
+    })
+    if (extension) {
+      if (creep.attack(extension) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      return;
+    }
+    // 如果没有敌人就走到旗子上
+    const flag = ROOM.find(FIND_FLAGS, {
+      filter: (flag) => true
+    })[0];
+    if (flag) {
+      creep.moveTo(flag, { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
+  }
+}
+
+
+
+// 外矿矿工 这里调用Harvest而不是由房间自动是因为Role不是为ROLE_HARVESTER
+function externalmineWorker(ROOM, creep) {
+  if (externalmineEnter(creep)) {
+    Harvest(creep.room, creep);
+  }
+}
+
+// 外矿运输者
+function externalmineTransporter(ROOM, creep) {
+  if (creep.store.getFreeCapacity() > 0) {
+    if (externalmineEnter(creep)) {
+      HarvestSourceEnergy(creep);
+    }
+  } else {
+    // 找到初始ROOM回去
+    const target = Game.rooms[creep.memory.createRoom];
+    if (target && gotoRoom(creep, target)) {
+      // 获取最近的我的storage
+      const storage = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_STORAGE;
+        }
+      });
+      if (storage) {
+        if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+      }
+    }
+  }
+}
+
+function gotoRoom(creep, ROOM) {
+  // 如果不在目标房间
+  if (creep.room.name !== ROOM.name) {
+    // 移动到该房间
+    const exitDir = creep.room.findExitTo(ROOM);
+    const exit = creep.pos.findClosestByRange(exitDir);
+    creep.moveTo(exit, { visualizePathStyle: { stroke: '#ffffff' } });
+    return false;
+  }
+  return true;
+
+}
+
+// 外矿进入房间以及绑定房间，并非外矿工作运行
+function externalmineEnter(creep) {
+  // 判断是否绑定房间
+  if (creep.memory.bindRoom == undefined) {
+    // 寻找房间并进入
+    // 寻找黄色旗帜 颜色黄色为外矿房间
+    let flag = null
+    for (const key in Game.flags) {
+      let flagx = Game.flags[key];
+      // 获取所有外矿矿工
+      const externalmineWorker = _.filter(Game.creeps, (creep) => creep.memory.role == ROLE_EXTERNALMINE_WORKER);
+      // 是否有绑定该房间的
+      const isBind = externalmineWorker.some((creep) => creep.memory.bindRoom == flagx.roomName);
+      if (flagx.color == COLOR_YELLOW && isBind) {
+        flag = Game.flags[key];
+        break;
+      }
+    }
+    // 如果有黄色旗帜
+    if (flag) {
+      // 绑定房间
+      creep.memory.bindRoom = flag.pos.roomName;
+      // 进入房间
+      creep.moveTo(flag, { visualizePathStyle: { stroke: '#ffaa00' } });
+      return false
+    }
+  } else if (creep.room.name != creep.memory.bindRoom) {
+    // 如果不在房间内
+    // 进入房间
+    creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffaa00' } });
+    return false
+  } else {
+    if (!Memory.externalmineRoom) {
+      Memory.externalmineRoom = {};
+    }
+    // 搜寻Memory.externalmineRoom是否有该房间
+    if (!Memory.externalmineRoom[creep.memory.bindRoom]) {
+      // 如果没有则创建
+      Memory.externalmineRoom[creep.memory.bindRoom] = {
+        // 该房间的外矿数量
+        sourceCount: creep.room.find(FIND_SOURCES).length,
+      }
+    }
+    return true;
+  }
+}
 
 // Assign 分配者工作
 function Assign(ROOM, creep) {
@@ -561,6 +749,22 @@ function HarvestSourceEnergy(creep, urgent = false) {
       creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
       // 标记该能量
       creep.memory.energyId = source.id;
+    }
+    return
+  }
+
+  // 找到房间内不是自己的extension
+  let extension = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return structure.structureType === STRUCTURE_EXTENSION && structure.store[RESOURCE_ENERGY] > 0 && !structure.my;
+    }
+  })
+  if (extension) {
+    if (creep.withdraw(extension, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍');
+      creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffaa00' } });
+      // 标记该能量
+      creep.memory.energyId = extension
     }
     return
   }

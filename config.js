@@ -49,7 +49,8 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = [CARRY]
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
-      const workNum = Math.floor((energyCapacity - CARRY_ENERGY) / (WORK_ENERGY * 2 + MOVE_ENERGY))
+      let workNum = Math.floor((energyCapacity - CARRY_ENERGY) / (WORK_ENERGY * 2 + MOVE_ENERGY))
+      if (workNum > 5) workNum = 5 // 采集者最多5个工作模块就可以达到最大效率
       for (let i = 0; i < workNum; i++) {
         body.push(WORK)
         body.push(WORK)
@@ -63,7 +64,7 @@ const config = {
       let energyCapacity = ROOM.energyCapacityAvailable
       // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
       if (expedited) energyCapacity = ROOM.energyAvailable
-      
+
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 运输模块、移动模块 的运输者
@@ -74,9 +75,63 @@ const config = {
       }
       return body
     },
-    // 4、战斗工
+    // 4、攻击者
+    generateAttacker: (ROOM, expedited = false) => {
+      // 计算当前房间的能量容量
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
+      for (let i = 0; i < Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)); i++) {
+        body.push(ATTACK)
+        body.push(ATTACK)
+        body.push(MOVE)
+        body.push(MOVE)
+      }
+      return body
+    },
+    // 远程
+    generateRangedAttacker: (ROOM, expedited = false) => {
+      // 计算当前房间的能量容量
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
+      for (let i = 0; i < Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)); i++) {
+        body.push(RANGED_ATTACK)
+        body.push(RANGED_ATTACK)
+        body.push(MOVE)
+        body.push(MOVE)
+      }
+      return body
+    },
     // 5、探索工
     // 6、治疗工
+    generateHealer: (ROOM, expedited = false) => {
+      // 计算当前房间的能量容量
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
+      for (let i = 0; i < Math.floor(energyCapacity / (HEAL_ENERGY * 2 + MOVE_ENERGY * 2)); i++) {
+        body.push(HEAL)
+        body.push(HEAL)
+        body.push(MOVE)
+        body.push(MOVE)
+      }
+      return body
+    },
+    // 7、预定工
+    generateClaimer: (ROOM, expedited = false) => {
+      // 因为生命只有100T，所以预定工只能有1个工作模块
+      return [CLAIM, CLAIM, MOVE, MOVE]
+    },
     // 普通通用工具人
   }
 }

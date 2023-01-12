@@ -35,6 +35,16 @@ const ROLE_WORKER = 'ROLE_WORKER';
 const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
 // 分配
 const ROLE_ASSIGN = 'ROLE_ASSIGN';
+// 外矿矿工
+const ROLE_EXTERNALMINE_WORKER = 'ROLE_EXTERNALMINE_WORKER';
+// 外矿运输者
+const ROLE_EXTERNALMINE_TRANSPORTER = 'ROLE_EXTERNALMINE_TRANSPORTER';
+// 外矿攻击者
+const ROLE_EXTERNALMINE_ATTACKER = 'ROLE_EXTERNALMINE_ATTACKER';
+// 外矿治疗者
+const ROLE_EXTERNALMINE_HEALER = 'ROLE_EXTERNALMINE_HEALER';
+// 外矿预定者
+const ROLE_EXTERNALMINE_RESERVER = 'ROLE_EXTERNALMINE_RESERVER';
 // 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
 const ROLE_HARVESTER = 'ROLE_HARVESTER';
 // 行为
@@ -50,6 +60,12 @@ const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
 const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
 // 分配
 const BEHAVIOR_ASSIGN = 'BEHAVIOR_ASSIGN';
+// 攻击
+const BEHAVIOR_ATTACK = 'BEHAVIOR_ATTACK';
+// 治疗
+const BEHAVIOR_HEAL = 'BEHAVIOR_HEAL';
+// 预定
+const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
 
 function createCreeps(ROOM, spawns, creeps) {
 
@@ -75,6 +91,11 @@ function createCreeps(ROOM, spawns, creeps) {
 
 // RCL4,分配者
 function LV4GenerateCreeps(ROOM, spawns, creeps) {
+  // 遍历creeps
+  const AllCreeps = []
+  for (const key in Game.creeps) {
+    AllCreeps.push(Game.creeps[key])
+  }
   const LV2CreateResult = LV2GenerateCreeps(ROOM, spawns, creeps);
   if (LV2CreateResult === 'no-create') {
     const spawn = spawns[0];
@@ -89,8 +110,87 @@ function LV4GenerateCreeps(ROOM, spawns, creeps) {
       GenerateCreep(ROOM, spawn, body, name, config);
       return 'create';
     }
-  } else {
-    return 'create';
+    // 分配者饱和后生成判断生成外矿
+    // 获取外矿旗子数量
+    // 获取key数量
+    let flagCount = 0;
+    for (const key in Game.flags) {
+      flagCount++;
+    }
+    if (flagCount > 0) {
+      // 遍历外矿旗子
+      for (const key in Game.flags) {
+        const flag = Game.flags[key];
+        // 获取外矿旗子所在房间
+        const flagRoomConfig = Memory.externalmineRoom ? Memory.externalmineRoom[flag.pos.roomName] : null
+        // 判断外矿旗子所在房间是否有外矿,是否被探索过了
+        if (flagRoomConfig && flagRoomConfig.sourceCount && flagRoomConfig.sourceCount > 0) {
+          // 存在视野
+          // 获取外矿攻击者数量
+          const externalmineAttackers = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_ATTACKER && creep.memory.bindRoom === flag.pos.roomName);
+          // 获取外矿治疗者数量
+          const externalmineHealers = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_HEALER && creep.memory.bindRoom === flag.pos.roomName);
+          // 如果该外矿没有攻击者
+          if (externalmineAttackers.length === 0) {
+            // 生成外矿攻击者
+            const body = Game.Config.creep.generateAttacker(ROOM);
+            const name = 'TouchFish_外矿攻击者' + Game.time;
+            const config = { memory: { role: ROLE_EXTERNALMINE_ATTACKER, behavior: BEHAVIOR_ATTACK, bindRoom: flag.pos.roomName } };
+            GenerateCreep(ROOM, spawn, body, name, config);
+            return 'create';
+          }
+          // 如果该外矿没有治疗者
+          if (externalmineHealers.length === 0) {
+            // 生成外矿治疗者
+            const body = Game.Config.creep.generateHealer(ROOM);
+            const name = 'TouchFish_外矿治疗者' + Game.time;
+            const config = { memory: { role: ROLE_EXTERNALMINE_HEALER, behavior: BEHAVIOR_HEAL, bindRoom: flag.pos.roomName } };
+            GenerateCreep(ROOM, spawn, body, name, config);
+            return 'create';
+          }
+          // 创建外矿房间外矿数量个矿工
+          const externalmineWorkers = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_WORKER && creep.memory.bindRoom === flag.pos.roomName);
+          // 获取外矿运输者数量
+          const externalmineTransporters = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_TRANSPORTER && creep.memory.bindRoom === flag.pos.roomName);
+          // 如果运输者数量小于矿工数量
+          if (externalmineTransporters.length < externalmineWorkers.length) {
+            // 生成运输者
+            const body = Game.Config.creep.generateTransporter(ROOM);
+            const name = 'TouchFish_外矿运输' + Game.time;
+            const config = { memory: { role: ROLE_EXTERNALMINE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT, bindRoom: flag.pos.roomName } };
+            GenerateCreep(ROOM, spawn, body, name, config);
+            return 'create';
+          }
+          if (externalmineWorkers.length < flagRoomConfig.sourceCount) {
+            const body = Game.Config.creep.generateHarvester(ROOM);
+            const name = 'TouchFish_外矿矿工' + Game.time;
+            const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flag.pos.roomName } };
+            GenerateCreep(ROOM, spawn, body, name, config);
+            return 'create';
+          }
+          // 获取外矿预定者数量
+          const externalmineReservers = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_RESERVER && creep.memory.bindRoom === flag.pos.roomName);
+          // 如果该外矿没有预定者
+          if (externalmineReservers.length === 0) {
+            // 生成外矿预定者
+            const body = Game.Config.creep.generateClaimer(ROOM);
+            const name = 'TouchFish_外矿预定者' + Game.time;
+            const config = { memory: { role: ROLE_EXTERNALMINE_RESERVER, behavior: BEHAVIOR_RESERVE, bindRoom: flag.pos.roomName } };
+            GenerateCreep(ROOM, spawn, body, name, config);
+            return 'create';
+          }
+
+        } else if (flagRoomConfig && !Memory.externalmineRoom[flag.pos.roomName]) {
+          // 不存在视野
+          // 创建一个外矿矿工
+          const body = Game.Config.creep.generateHarvester(ROOM);
+          const name = 'TouchFish_外矿矿工' + Game.time;
+          const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST } };
+          GenerateCreep(ROOM, spawn, body, name, config);
+          return 'create';
+        }
+      }
+    }
   }
   return 'no-create';
 }
@@ -145,6 +245,8 @@ function LV2GenerateCreeps(ROOM, spawns, creeps) {
       GenerateCreep(ROOM, spawn, body, name, config);
       return 'create';
     }
+  } else {
+    return 'create'
   }
   return 'no-create';
 }
@@ -214,6 +316,7 @@ function RoomCreepLengthIsSafe(ROOM, spawn, creeps) {
 
 // 接管创建creep，方便控制台输出了解详情
 function GenerateCreep(ROOM, spawn, body, name, config) {
+  config.memory.createRoom = ROOM.name;
   // 正则移除name后面的数值
   const nameZN = name.replace(/\d+$/, '');
   // 获取当前爬爬生成需要的能量
@@ -241,11 +344,15 @@ function logRoomSpawnState(ROOM) {
   let HatchingState = '孵化状态：';
   for (const spawn in spawns) {
     HatchingState = HatchingState + "【Spawn" + spawn + (!!spawns[spawn].spawning ? '-孵化中' : '-空闲') + "】"
+    if(spawns[spawn].spawning){
+      HatchingState = HatchingState + `【Name：${spawns[spawn].spawning.name}】【Time：${spawns[spawn].spawning.remainingTime}】`
+    }
   }
+  HatchingState += '\n'
   // 输出当前是否有附加爬爬
   // 循环输出该对象ROOM.memory.CreepNum
   for (const creep in ROOM.memory.CreepNum) {
-    HatchingState += ` ${creep}附加：${ROOM.memory.CreepNum[creep]}个 `
+    HatchingState += `${creep}附加：${ROOM.memory.CreepNum[creep]}个 `
   }
   console.log(HatchingState);
 }
