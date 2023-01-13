@@ -150,13 +150,13 @@ function externalmineHealer(ROOM, creep) {
       }
       return;
     }
-    // 如果没有敌人就走到旗子上
-    const flag = ROOM.find(FIND_FLAGS, {
-      filter: (flag) => true
-    })[0];
+    // 如果没有敌人就走到旗子3*3范围内的工地
+    const flag = Game.flags[creep.memory.flag];
     if (flag) {
-      creep.moveTo(flag, { visualizePathStyle: { stroke: '#ffffff' } });
-      return;
+      const target = flag.pos.findInRange(FIND_CONSTRUCTION_SITES, 3);
+      if (target.length) {
+        creep.moveTo(target[0], { visualizePathStyle: { stroke: '#ffffff' } });
+      }
     }
   }
 }
@@ -613,6 +613,25 @@ function Upgrade(ROOM, creep) {
       return
     }
     // 如果没有container
+    // 查找Storage,如果有则LV4注意需要创建一个分配者
+    const storage = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] > 0;
+      }
+    });
+    // 如果有Storage
+    if (storage.length > 0) {
+      // 从Storage中取出能量
+      if (creep.withdraw(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.say('🚚');
+        creep.moveTo(storage[0], {
+          visualizePathStyle: {
+            stroke: '#ffffff'
+          }
+        });
+      }
+      return
+    }
     HarvestSourceEnergy(creep, true);
   } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
     delete creep.memory.energyId;
@@ -782,6 +801,42 @@ function Harvest(ROOM, creep) {
     if (sourceId) {
       // 获取source
       const source = Game.getObjectById(sourceId);
+      // 这么做因为对穿会把矿工对穿了需要返岗
+      // 找到source3*3范围内的container
+      const container = source.pos.findInRange(FIND_STRUCTURES, 1, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_CONTAINER;
+        }
+      });
+      // 如果container存在
+      if (container.length) {
+        // 如果不是在container上
+        if (!creep.pos.isEqualTo(container[0].pos)) {
+          creep.say('⛑️');
+          // 移动到container上
+          creep.moveTo(container[0], { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          // 标记上岗，悲催的一生开始了，且没法结束
+          creep.memory.TakeUp = true;
+          creep.harvest(source);
+        }
+      } else {
+        // 找到source3*3范围内的工地
+        const constructionSite = source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1);
+        // 如果工地存在
+        if (constructionSite.length) {
+          // 如果不是在工地上
+          if (!creep.pos.isEqualTo(constructionSite[0].pos)) {
+            creep.say('⛑️');
+            // 移动到工地上
+            creep.moveTo(constructionSite[0], { visualizePathStyle: { stroke: '#ffffff' } });
+          } else {
+            // 标记上岗，悲催的一生开始了，且没法结束
+            creep.memory.TakeUp = true;
+            creep.harvest(source);
+          }
+        }
+      }
       // 当前source的能量剩余
       const energy = source.energy;
       // 如果当前source的能量剩余大于0
