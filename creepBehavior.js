@@ -152,13 +152,13 @@ const creepBehavior = {
     // 墓碑
     const tombstone = creep.room.find(FIND_TOMBSTONES, {
       filter: (tombstone) => {
-        return tombstone.store[RESOURCE_ENERGY] > 0;
+        return tombstone.store[RESOURCE_ENERGY] > 100;
       }
     });
     // 获取散落资源
     const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
       filter: (resource) => {
-        return resource.resourceType === RESOURCE_ENERGY;
+        return resource.resourceType === RESOURCE_ENERGY && resource > 100;
       }
     });
     // 获取storage
@@ -170,7 +170,7 @@ const creepBehavior = {
     // 获取container
     const container = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0;
+        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 100;
       }
     });
     // 获取link
