@@ -1,5 +1,5 @@
 // 引入移动优化
-// require('moveManager');
+require('moveManager');
 const Tools = require('tools');
 const Config = require('config');
 // 引入ROOM管理
@@ -17,11 +17,16 @@ module.exports.loop = function () {
   if (Game.Tools == undefined) {
     Game.Tools = Tools;
   }
+  // 排序房间
+  const ROOMS = _.sortBy(Game.rooms, (room) => {
+    // 根据房间等级降序
+    return -(room.controller ? room.controller.level : 0);
+  });
 
   // 遍历ROOM
-  for (let i in Game.rooms) {
+  for (let i in ROOMS) {
     // 获取房间
-    const ROOM = Game.rooms[i];
+    const ROOM = ROOMS[i];
     RoomManager.roomManager(ROOM);
   }
 
@@ -29,14 +34,12 @@ module.exports.loop = function () {
     Game.cpu.generatePixel();
   }
 
-  // 每500tick清理一次creep内存
-  if (Game.time % 500 === 0) {
-    clearMemory();
-  }
+  clearMemory();
 
   // 预留防止spawn防止方法
   // 分割线
-  console.log(`==========================${Game.time}==========================\n\n\n`);
+  // 绿色
+  console.log(`<font color="#00FF00">==========================${Game.time}==========================</font>\n\n\n`);
 }
 
 function clearMemory() {
