@@ -17,16 +17,11 @@ module.exports.loop = function () {
   if (Game.Tools == undefined) {
     Game.Tools = Tools;
   }
-  // 排序房间
-  const ROOMS = _.sortBy(Game.rooms, (room) => {
-    // 根据房间等级降序
-    return -(room.controller ? room.controller.level : 0);
-  });
 
   // 遍历ROOM
-  for (let i in ROOMS) {
+  for (let i in Game.rooms) {
     // 获取房间
-    const ROOM = ROOMS[i];
+    const ROOM = Game.rooms[i];
     RoomManager.roomManager(ROOM);
   }
 
