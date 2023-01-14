@@ -145,7 +145,7 @@ function createCreepForRCL1(Room, spawn) {
       }
     });
     // 如果建造爬爬数量小于1
-    if (builders.length < (Room.controller.level > 5 ? 1 : constructionSites.length / 15)) {
+    if (builders.length < ((Room.controller.level > 5 ? 1 : constructionSites.length / 15) || 1)) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
       const name = 'TouchFish_建造爬爬' + Game.time;
