@@ -29,7 +29,7 @@ const resourceManagement = {
           // 如果link不在storage3*3范围内
           if (!link.pos.inRangeTo(room.storage, 3)) {
             // 如果link的能量大于400
-            if (link.store[RESOURCE_ENERGY] > 400) {
+            if (link.store[RESOURCE_ENERGY] > 750) {
               // 如果link的能量大于storageLink的能量
               if (storageLink.store[RESOURCE_ENERGY] === 0) {
               
