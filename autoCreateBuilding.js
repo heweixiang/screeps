@@ -14,7 +14,7 @@ const autoCreateBuilding = {
   createExtension(Room) {
     // 获取该房间RCL
     const RCL = Room.controller ? Room.controller.level : 0;
-    if (Room.memory.extensionBuild < RCL) {
+    if (Room.memory.extensionBuild === RCL) {
       return;
     } else {
       Room.memory.extensionBuild = RCL;
@@ -93,7 +93,7 @@ const autoCreateBuilding = {
   createRoad(Room) {
     // 获取该房间RCL
     const RCL = Room.controller ? Room.controller.level : 0;
-    if (Room.memory.roadBuild < RCL) {
+    if (Room.memory.roadBuild === RCL) {
       return;
     } else {
       Room.memory.roadBuild = RCL;
