@@ -22,15 +22,15 @@ const creepBehavior = {
   getTransportEnergy(creep) {
     const room = creep.room;
     // 获取废墟中的资源
-    const tombstone = room.find(FIND_TOMBSTONES, {
+    let tombstone = room.find(FIND_TOMBSTONES, {
       filter: (tombstone) => {
         return tombstone.store[RESOURCE_ENERGY] > 0;
       }
     });
     // 如果有废墟
-    if (tombstone.length > 0) {
+    if (tombstone && tombstone.length > 0) {
       // 获取最近的废墟
-      const tombstone = roomFind.contrastPos(creep, tombstone);
+      tombstone = roomFind.contrastPos(creep, tombstone);
       // 如果废墟中的资源大于0
       if (tombstone.store[RESOURCE_ENERGY] > 0) {
         // 获取废墟的id
@@ -226,6 +226,9 @@ const creepBehavior = {
         if (creep.build(target) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target);
           return 'MOVE_TO'
+        } else if (creep.build(target) === ERR_NOT_ENOUGH_RESOURCES) {
+          creep.memory.building = false
+          this.build(creep)
         }
         return 'BUILDING'
       }
