@@ -7,6 +7,8 @@ const Creeps = require('creeps');
 const Building = require('building');
 // 引入attackAndDefense
 const AttackAndDefense = require('attackAndDefense');
+// 引入resourceManager
+const ResourceManagement = require('resourceManagement');
 
 const room = {
   // 该行由tick重复调用
@@ -52,6 +54,7 @@ const room = {
     }
     // 处理Creeps
     Creeps(ROOM);
+    ResourceManagement.loop(ROOM)
     if (ROOM.controller) {
       // 处理攻防
       AttackAndDefense.loop(ROOM)

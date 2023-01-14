@@ -1,33 +1,6 @@
 /**
  * 该文件用于生成处理creeps，接收loop调用
  */
-const creepsWorker = require('creepsWorker');
-
-const creeps = (ROOM) => {
-  // 获取当前房间空闲spawn
-  const spawns = ROOM.find(FIND_MY_SPAWNS).filter(spawn => !spawn.spawning);
-  // 获取当前房间的creeps
-  const creeps = ROOM.find(FIND_MY_CREEPS);
-  logRoomSpawnState(ROOM);
-
-  // 如果没有空闲spawn不执行生成creep 
-  if (spawns.length) {
-    // 判断当前房间是否属于紧急状态，如果是则不生成creep
-    if (!RoomCreepLengthIsSafe(ROOM, spawns[0], creeps)) {
-      // 100TICK执行一次
-      // if (Game.time % 2 === 0) {
-      // 生成creep
-      createCreeps(ROOM, spawns, creeps);
-      // }
-    } else {
-      console.log('当前房间Creep数量处于紧急状态！！！');
-    }
-  }
-
-  // this.createCreep(ROOM);
-  // 处理creep工作
-  creepsWorker(ROOM, spawns, creeps);
-}
 
 // 矿工：只能一辈子在Container上挖矿不可移动
 const ROLE_WORKER = 'ROLE_WORKER';
@@ -66,6 +39,36 @@ const BEHAVIOR_ATTACK = 'BEHAVIOR_ATTACK';
 const BEHAVIOR_HEAL = 'BEHAVIOR_HEAL';
 // 预定
 const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
+
+
+
+const creepsWorker = require('creepsWorker');
+
+const creeps = (ROOM) => {
+  // 获取当前房间空闲spawn
+  const spawns = ROOM.find(FIND_MY_SPAWNS).filter(spawn => !spawn.spawning);
+  // 获取当前房间的creeps
+  const creeps = ROOM.find(FIND_MY_CREEPS);
+  logRoomSpawnState(ROOM);
+
+  // 如果没有空闲spawn不执行生成creep 
+  if (spawns.length) {
+    // 判断当前房间是否属于紧急状态，如果是则不生成creep
+    if (!RoomCreepLengthIsSafe(ROOM, spawns[0], creeps)) {
+      // 100TICK执行一次
+      // if (Game.time % 2 === 0) {
+      // 生成creep
+      createCreeps(ROOM, spawns, creeps);
+      // }
+    } else {
+      console.log('当前房间Creep数量处于紧急状态！！！');
+    }
+  }
+
+  // this.createCreep(ROOM);
+  // 处理creep工作
+  creepsWorker(ROOM, spawns, creeps);
+}
 
 function createCreeps(ROOM, spawns, creeps) {
 
@@ -153,7 +156,7 @@ function LV4GenerateCreeps(ROOM, spawns, creeps) {
           // 获取外矿运输者数量
           const externalmineTransporters = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_TRANSPORTER && creep.memory.bindRoom === flag.pos.roomName);
           // 如果运输者数量小于矿工数量
-          if (externalmineTransporters.length < externalmineWorkers.length) {
+          if (externalmineTransporters.length < 1) {
             // 生成运输者
             const body = Game.Config.creep.generateTransporter(ROOM);
             const name = 'TouchFish_外矿运输' + Game.time;
@@ -263,7 +266,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
   // 获取矿物数量
   const sources = ROOM.find(FIND_SOURCES);
   // 有几个采集者就生成几个运输者
-  if (transporters.length < harvesters.length + Game.Tools.GetCreepNum(ROOM, '运输')) {
+  if (transporters.length < 1 + Game.Tools.GetCreepNum(ROOM, '运输')) {
     const body = Game.Config.creep.generateTransporter(ROOM);
     const name = 'TouchFish_运输' + Game.time;
     const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
@@ -279,7 +282,7 @@ function LV1GenerateCreeps(ROOM, spawns, creeps) {
     return 'create';
   }
   // 有几个矿物就生成几个升级者
-  if (upgraders.length < sources.length + Game.Tools.GetCreepNum(ROOM, '升级')) {
+  if (upgraders.length < 1 + Game.Tools.GetCreepNum(ROOM, '升级')) {
     const body = Game.Config.creep.generateInitialWorker(ROOM);
     const name = 'TouchFish_升级' + Game.time;
     const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };

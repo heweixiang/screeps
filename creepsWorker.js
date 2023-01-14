@@ -2,18 +2,9 @@
   worker规则：
     1、每个房间都有一个creepsWorker，负责该房间的creeps管理
     2、creeps由creeps.js生成，creepsWorker负责工作处理
-    3、工作者分为：综合工（前期）、采集者、运输者、修理工、建筑工、升级工、战斗工、探索工、治疗工、预备工
-    4、综合工（前期）：采集 > 运输 > 修理 > 升级 > 建筑
-    5、采集者：采集
-    6、运输者：运输
-    7、修理工：修理 > 运输
-    8、建筑工：建筑 > 运输
-    9、升级工：升级
-    10、战斗工：战斗 > 防御
-    11、探索工：探索（跑）
-    12、治疗工：治疗
-    13、预备工：预备
 */
+const behavior = require('behavior');
+const roomFind = require('roomFind');
 
 // 矿工：只能一辈子在Container上挖矿不可移动
 const ROLE_WORKER = 'ROLE_WORKER';
@@ -85,7 +76,7 @@ const creepsWorker = (ROOM, spawns, creeps) => {
         Assign(ROOM, creep);
         break;
       case ROLE_TRANSPORTER:
-        Transport(ROOM, creep);
+        Transport(creep);
         break;
       // 综合工
       case ROLE_HARVESTER:
@@ -117,7 +108,7 @@ function RoleHarvesterWorker(ROOM, spawns, creep) {
   } else if (creep.memory.behavior === BEHAVIOR_UPGRADE) {
     Upgrade(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_TRANSPORT) {
-    Transport(ROOM, creep);
+    Transport(creep);
   } else if (creep.memory.behavior === BEHAVIOR_BUILD) {
     Building(ROOM, creep);
   } else if (creep.memory.behavior === BEHAVIOR_REPAIR) {
@@ -150,13 +141,13 @@ function externalmineHealer(ROOM, creep) {
       }
       return;
     }
-    // 如果没有敌人就走到旗子3*3范围内的工地
-    const flag = Game.flags[creep.memory.flag];
+    // 如果没有敌人就走到旗子上
+    const flag = ROOM.find(FIND_FLAGS, {
+      filter: (flag) => true
+    })[0];
     if (flag) {
-      const target = flag.pos.findInRange(FIND_CONSTRUCTION_SITES, 3);
-      if (target.length) {
-        creep.moveTo(target[0], { visualizePathStyle: { stroke: '#ffffff' } });
-      }
+      creep.moveTo(flag.pos.x - 1, flag.pos.y, { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
     }
   }
 }
@@ -178,6 +169,19 @@ function externalmineAttacker(ROOM, creep) {
         return structure.structureType === STRUCTURE_EXTENSION && structure.store[RESOURCE_ENERGY] === 0 && !structure.my;
       }
     })
+    // 找到墙壁
+    // let wall = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+    //   filter: (structure) => {
+    //     return structure.structureType === STRUCTURE_WALL && !structure.my;
+    //   }
+    // })
+    // // 攻击墙壁
+    // if (wall) {
+    //   if (creep.attack(wall) === ERR_NOT_IN_RANGE) {
+    //     creep.moveTo(wall, { visualizePathStyle: { stroke: '#ffffff' } });
+    //   }
+    //   return;
+    // }
     if (extension) {
       if (creep.attack(extension) === ERR_NOT_IN_RANGE) {
         creep.moveTo(extension, { visualizePathStyle: { stroke: '#ffffff' } });
@@ -206,26 +210,10 @@ function externalmineWorker(ROOM, creep) {
 
 // 外矿运输者
 function externalmineTransporter(ROOM, creep) {
-  if (creep.store.getFreeCapacity() > 0) {
-    if (externalmineEnter(creep)) {
-      HarvestSourceEnergy(creep);
-    }
-  } else {
-    // 找到初始ROOM回去
-    const target = Game.rooms[creep.memory.createRoom];
-    if (target && gotoRoom(creep, target)) {
-      // 获取最近的我的storage
-      const storage = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType === STRUCTURE_STORAGE;
-        }
-      });
-      if (storage) {
-        if (creep.transfer(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff' } });
-        }
-      }
-    }
+  if (!creep.memory.isFull) {
+    behavior.transportGetEnergy(creep);
+  } else if (behavior.ensureCreateRoom(creep) === 'inRoom' && !!creep.memory.isFull) {
+    behavior.transportStoreEnergy(creep);
   }
 }
 
@@ -291,6 +279,28 @@ function externalmineEnter(creep) {
 
 // Assign 分配者工作
 function Assign(ROOM, creep) {
+  // 找到Storage3*3内的link并获取能量
+  const link = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+    filter: (structure) => {
+      // 查找Storage3*3内的link
+      return (structure.structureType === STRUCTURE_LINK) && structure.store[RESOURCE_ENERGY] && structure.pos.inRangeTo(creep.room.storage, 3);
+    }
+  });
+  if (link && creep.carry.energy < creep.carryCapacity) {
+    if (creep.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(link, { visualizePathStyle: { stroke: '#ffaa00' } });
+    }
+    return
+  }
+  // 如果link还有能量就将能量转移到storage
+  if (link && link.store[RESOURCE_ENERGY] > 0) {
+    // 存储到Storage
+    if (creep.transfer(ROOM.storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍');
+      creep.moveTo(ROOM.storage, { visualizePathStyle: { stroke: '#ffaa00' } });
+      return
+    }
+  }
   // 首先获取能量
   if (creep.carry.energy === 0) {
     // 找到最近的Storage
@@ -352,28 +362,13 @@ function Assign(ROOM, creep) {
       }
       return
     }
-    // 寻找controller3*3附近的container
-    const controllerContainer = creep.room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
-      }
-    });
-    // 如果有controllerContainer
-    if (controllerContainer.length > 0) {
-      // 运输到controllerContainer
-      if (creep.transfer(controllerContainer[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.say('🚚');
-        creep.moveTo(controllerContainer[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
+    // 存储到Storage
+    if (creep.transfer(ROOM.storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      creep.say('🔍');
+      creep.moveTo(ROOM.storage, { visualizePathStyle: { stroke: '#ffaa00' } });
       return
     }
-
   }
-
 }
 
 function Repair(ROOM, creep) {
@@ -436,121 +431,17 @@ function Repair(ROOM, creep) {
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
-      Transport(ROOM, creep);
+      Transport(creep);
     }
   }
 }
 
-function Transport(ROOM, creep) {
-  // 如果creep没有满
-  if (creep.carry.energy === 0) {
-    HarvestSourceEnergy(creep);
-  } else {
-    // 获取分配者数量
-    const assignCount = creepsList.filter(creep => creep.memory.role === ROLE_ASSIGN).length;
-    // 如果RCL高于3则优先storage储存
-    if (ROOM.controller.level > 3 && assignCount > 0) {
-      // 查找Storage,如果有则LV4注意需要创建一个分配者
-      const storage = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
-        }
-      });
-      // 如果有Storage
-      if (storage.length > 0) {
-        // 运输到Storage
-        if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.say('🚚');
-          creep.moveTo(storage[0], {
-            visualizePathStyle: {
-              stroke: '#ffffff'
-            }
-          });
-        }
-        return
-      }
-    }
-    // 寻找附exits或者spawn的建筑
-    const exitsOrSpawnBuildings = creep.room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) &&
-          structure.energy < structure.energyCapacity;
-      }
-    });
-    // 如果有exits建筑
-    if (exitsOrSpawnBuildings.length > 0) {
-      // 优先运输到exits建筑
-      if (creep.transfer(exitsOrSpawnBuildings[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.say('🚚');
-        creep.moveTo(exitsOrSpawnBuildings[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
-      return
-    }
-    // 寻找controller3*3附近的container
-    const controllerContainer = creep.room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
-      }
-    });
-    // 如果有controllerContainer
-    if (controllerContainer.length > 0) {
-      // 运输到controllerContainer
-      if (creep.transfer(controllerContainer[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.say('🚚');
-        creep.moveTo(controllerContainer[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
-      return
-    }
-    // 寻找controller3*3附近的工地
-    const controllerConstructionSite = creep.room.find(FIND_CONSTRUCTION_SITES, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER;
-      }
-    });
-    // 如果有controllerConstructionSite
-    if (controllerConstructionSite.length > 0) {
-      // 判断在不在旁边
-      if (creep.pos.isNearTo(controllerConstructionSite[0])) {
-        // 在旁边就丢弃能量
-        creep.drop(RESOURCE_ENERGY);
-      } else {
-        // 不在旁边就移动到旁边
-        creep.say('🚚');
-        creep.moveTo(controllerConstructionSite[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
-      return
-    }
-    // 查找Storage,如果有则LV4注意需要创建一个分配者
-    const storage = creep.room.find(FIND_STRUCTURES, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_STORAGE && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
-      }
-    });
-    // 如果有Storage
-    if (storage.length > 0) {
-      // 运输到Storage
-      if (creep.transfer(storage[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.say('🚚');
-        creep.moveTo(storage[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
-      return
-    }
+// 普通运输者不需要房间判断
+function Transport(creep) {
+  if (creep && creep.memory.isFull) {
+    behavior.transportStoreEnergy(creep);
+  } else if (behavior.transportGetEnergy(creep) === 'full') {
+    behavior.transportStoreEnergy(creep);
   }
 }
 
@@ -593,25 +484,6 @@ function Building(ROOM, creep) {
 function Upgrade(ROOM, creep) {
   // 如果creep的carry没有满
   if (creep.carry.energy === 0) {
-    // 查找controller附近的3*3范围内的container
-    const container = creep.pos.findInRange(FIND_STRUCTURES, 3, {
-      filter: (structure) => {
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0;
-      }
-    });
-    // 如果有container
-    if (container.length > 0) {
-      // 从container中取出能量
-      if (creep.withdraw(container[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.say('🚚');
-        creep.moveTo(container[0], {
-          visualizePathStyle: {
-            stroke: '#ffffff'
-          }
-        });
-      }
-      return
-    }
     // 如果没有container
     // 查找Storage,如果有则LV4注意需要创建一个分配者
     const storage = creep.room.find(FIND_STRUCTURES, {
@@ -863,6 +735,40 @@ function Harvest(ROOM, creep) {
           }
           // 如果是container
         } else {
+          // 如果旁边有link则填充link
+          const link = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: (structure) => {
+
+              return structure.structureType === STRUCTURE_LINK;
+            }
+          });
+          if (link.length) {
+            if (creep.transfer(link[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+              creep.moveTo(link[0], { visualizePathStyle: { stroke: '#ffffff' } });
+            }
+          } else {
+            // 如果carry没有满
+            if (creep.carry.energy === 0) {
+              // 获取脚下的能量
+              const energy = creep.pos.lookFor(LOOK_ENERGY);
+              // 如果脚下有能量
+              if (energy.length) {
+                // 拾取能量
+                creep.pickup(energy[0]);
+              } else {
+                // 获取脚下的container
+                const container = creep.pos.lookFor(LOOK_STRUCTURES);
+                // 如果脚下有container
+                if (container.length) {
+                  // 如果container的能量大于0
+                  if (container[0].store.energy > 0) {
+                    // 从container中取出能量
+                    creep.withdraw(container[0], RESOURCE_ENERGY);
+                  }
+                }
+              }
+            }
+          }
           // 获取脚下的container
           const container = creep.pos.lookFor(LOOK_STRUCTURES).filter(structure => structure.structureType === STRUCTURE_CONTAINER);
           // 如果脚下有container
