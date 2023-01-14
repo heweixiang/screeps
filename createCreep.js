@@ -46,7 +46,7 @@ const createCreep = {
         return !spawn.spawning;
       }
     });
-    if (emergency(Room)) {
+    if (emergency(Room, spawns[0]) === 'create') {
       return
     }
     // 如果有空闲的spawn
@@ -142,7 +142,7 @@ function createCreepForRCL1(Room, spawn) {
       }
     });
     // 如果建造爬爬数量小于1
-    if (builders.length < ((Room.controller.level > 5 ? 1 : constructionSites.length / 15) || 1)) {
+    if (builders.length < (constructionSites.length ? 1 : 0)) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
       const name = 'TouchFish_建造爬爬' + Game.time;
@@ -156,7 +156,7 @@ function createCreepForRCL1(Room, spawn) {
 }
 
 // 如果房间内发生了紧急情况
-function emergency(Room) {
+function emergency(Room, spawn) {
   // 获取矿工数量
   const workers = Room.find(FIND_MY_CREEPS, {
     filter: (creep) => {
@@ -189,6 +189,7 @@ function emergency(Room) {
     GenerateCreep(Room, spawn, body, name, config);
     return 'create'
   }
+  return 'no-create'
 }
 
 // 接管创建creep，方便控制台输出了解详情
