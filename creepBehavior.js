@@ -41,7 +41,7 @@ const creepBehavior = {
     // 获取散落资源
     const droppedEnergy = room.find(FIND_DROPPED_RESOURCES, {
       filter: (resource) => {
-        return resource.resourceType === RESOURCE_ENERGY;
+        return resource.resourceType === RESOURCE_ENERGY && resource.store > 100;
       }
     });
     // 获取container中的资源
@@ -53,7 +53,7 @@ const creepBehavior = {
             return structure.structureType === STRUCTURE_LINK;
           }
         });
-        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0 && link.length === 0;
+        return structure.structureType === STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 100 && link.length === 0;
       }
     });
     // 对比最近的返回
