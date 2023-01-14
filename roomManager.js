@@ -2,6 +2,7 @@
 
 const createCreep = require('createCreep')
 const creepWrok = require('creepWrok')
+const autoCreateBuilding = require('autoCreateBuilding')
 const roomManager = {
   // 两种房间，一种是有spawn的占领房间，一种是没有spawn的外矿房间
   loop(Room) {
@@ -25,6 +26,7 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
+    autoCreateBuilding.loop(Room);
   },
   // 可控房间
   ownRoom(Room) {
@@ -37,6 +39,7 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
+    autoCreateBuilding.loop(Room);
   }
 }
 
