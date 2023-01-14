@@ -45,7 +45,7 @@ const config = {
       // 计算当前房间的能量容量
       let energyCapacity = ROOM.energyCapacityAvailable
       // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
-      if (expedited) energyCapacity = ROOM.energyAvailable
+      if (!expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
       const body = [CARRY]
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
