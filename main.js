@@ -19,7 +19,7 @@ module.exports.loop = function () {
   }
 
   if (Game.cpu.bucket == 10000) {
-    Game.cpu.generatePixel();
+    Game.cpu.generatePixel ? Game.cpu.generatePixel() : null;
   }
   clearMemory();
   // 预留防止spawn防止方法

@@ -46,11 +46,12 @@ const createCreep = {
         return !spawn.spawning;
       }
     });
-    if (emergency(Room, spawns[0]) === 'create') {
-      return
-    }
+
     // 如果有空闲的spawn
     if (spawns.length > 0) {
+      if (emergency(Room, spawns[0]) === 'create') {
+        return
+      }
       switch (Room.controller.level) {
         case 8:
         case 7:
@@ -142,7 +143,7 @@ function createCreepForRCL1(Room, spawn) {
       }
     });
     // 如果建造爬爬数量小于1
-    if (builders.length < (constructionSites.length ? 1 : 0)) {
+    if (builders.length < (constructionSites.length < 5 ? 1 : 2)) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
       const name = 'TouchFish_建造爬爬' + Game.time;
