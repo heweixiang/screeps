@@ -56,16 +56,15 @@ function logRoomInfo(Room) {
   // ProgressTotal - Progress 转换成K和M
   const ProgressTotalMinusProgress = ProgressTotal - Progress;
   let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
-  console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}% </font>`);
-  console.log(`当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}`);
+  console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}%   当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}</font>`);
   // 所有spawn状态
   const spawns = Room.find(FIND_MY_SPAWNS);
   let HatchingState = ''
   for (let i in spawns) {
     const spawn = spawns[i];
-    HatchingState = HatchingState + "<font color='#8bf600'>【Spawn" + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "】</font>"
+    HatchingState = HatchingState + "<font color='#8bf600'>【" + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "】</font>"
     if (spawn.spawning) {
-      HatchingState = HatchingState + `<font color='#f6c100'>【Name：${spawn.spawning.name}】【Time：${spawn.spawning.remainingTime}】</font>`
+      HatchingState = HatchingState + `<font color='#f6c100'>【爬爬名：${spawn.spawning.name}】【需要：${spawn.spawning.remainingTime}Tick】</font>`
     }
   }
   console.log(HatchingState);

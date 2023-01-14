@@ -40,31 +40,28 @@ const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
 
 const createCreep = {
   loop(Room) {
-    // 如果该房间有空闲的spawn，5tikc执行一次
-    if (Game.time % 5 == 0) {
-      // 获取房间内所有空闲的spawn
-      const spawns = Room.find(FIND_MY_SPAWNS, {
-        filter: (spawn) => {
-          return !spawn.spawning;
-        }
-      });
-      if(emergency(Room)){
-        return
+    // 获取房间内所有空闲的spawn
+    const spawns = Room.find(FIND_MY_SPAWNS, {
+      filter: (spawn) => {
+        return !spawn.spawning;
       }
-      // 如果有空闲的spawn
-      if (spawns.length > 0) {
-        switch (Room.controller.level) {
-          case 8:
-          case 7:
-          case 6:
-          case 5:
-          case 4:
-          case 3:
-          case 2:
-          case 1:
-            createCreepForRCL1(Room, spawns[0]);
-            break;
-        }
+    });
+    if (emergency(Room)) {
+      return
+    }
+    // 如果有空闲的spawn
+    if (spawns.length > 0) {
+      switch (Room.controller.level) {
+        case 8:
+        case 7:
+        case 6:
+        case 5:
+        case 4:
+        case 3:
+        case 2:
+        case 1:
+          createCreepForRCL1(Room, spawns[0]);
+          break;
       }
     }
   }
@@ -159,7 +156,7 @@ function createCreepForRCL1(Room, spawn) {
 }
 
 // 如果房间内发生了紧急情况
-function emergency(Room){
+function emergency(Room) {
   // 获取矿工数量
   const workers = Room.find(FIND_MY_CREEPS, {
     filter: (creep) => {
@@ -207,11 +204,11 @@ function GenerateCreep(Room, spawn, body, name, config) {
       console.log(`生成爬爬成功【${nameZN}】【${body.length}模块】，本次消耗 ${computedResult.NeedEnergy} 能量`);
       return true
     } else {
-      console.log(`生成爬爬失败【${nameZN}】【${body.length}模块】，生成需要 ${computedResult.NeedEnergy} 能量,当前房间能量：${computedResult.AvailableEnergy} ...`);
+      console.log(`生成爬爬失败【${nameZN}】【${body.length}模块】，生成需要 ${computedResult.NeedEnergy} 能量`);
       return false
     }
   } else if (computedResult.CanGenerate === false) {
-    console.log(`即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量,当前房间能量：${computedResult.AvailableEnergy} ...`);
+    console.log(`即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量`);
     return false
   }
 }
