@@ -144,6 +144,12 @@ const creepBehavior = {
   // 获取房间内可以被使用的能量
   getUseEnergy(creep) {
     // 获取废墟
+    const ruin = creep.room.find(FIND_RUINS, {
+      filter: (ruin) => {
+        return ruin.store[RESOURCE_ENERGY] > 0;
+      } 
+    });    
+    // 墓碑
     const tombstone = creep.room.find(FIND_TOMBSTONES, {
       filter: (tombstone) => {
         return tombstone.store[RESOURCE_ENERGY] > 0;
@@ -174,7 +180,7 @@ const creepBehavior = {
       }
     });
     // 整合对比
-    return roomFind.contrastPos(creep, storage.concat(container, link, droppedEnergy, tombstone));
+    return roomFind.contrastPos(creep, storage.concat(container, link, droppedEnergy, tombstone, ruin));
   },
   upgrade(creep) {
     if (creep.memory.upgrading === true) {
