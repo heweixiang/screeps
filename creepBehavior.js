@@ -143,6 +143,12 @@ const creepBehavior = {
   },
   // 获取房间内可以被使用的能量
   getUseEnergy(creep) {
+    // 获取废墟
+    const tombstone = creep.room.find(FIND_TOMBSTONES, {
+      filter: (tombstone) => {
+        return tombstone.store[RESOURCE_ENERGY] > 0;
+      }
+    });
     // 获取散落资源
     const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
       filter: (resource) => {
@@ -168,16 +174,16 @@ const creepBehavior = {
       }
     });
     // 整合对比
-    return roomFind.contrastPos(creep, storage.concat(container, link, droppedEnergy));
+    return roomFind.contrastPos(creep, storage.concat(container, link, droppedEnergy, tombstone));
   },
   upgrade(creep) {
-    if(creep.memory.upgrading === true){
-      if(creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+    if (creep.memory.upgrading === true) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
         return 'MOVE_TO'
-      }else if(creep.upgradeController(creep.room.controller) === ERR_NOT_ENOUGH_RESOURCES){
+      } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_ENOUGH_RESOURCES) {
         creep.memory.upgrading = false;
-      }    
+      }
       return 'UPGRADING'
     }
     // 当前是否有能量
@@ -206,6 +212,51 @@ const creepBehavior = {
       return 'GET_ENERGY'
     } else {
       creep.memory.upgrading = true;
+    }
+  },
+  build(creep) {
+    if (creep.memory.building === true) {
+      // 获取所有建筑工地
+      const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+      // 如果有工地
+      if (targets.length > 0) {
+        // 获取最近的工地
+        const target = roomFind.contrastPos(creep, targets);
+        // 建造
+        if (creep.build(target) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target);
+          return 'MOVE_TO'
+        }
+        return 'BUILDING'
+      }
+      return 'NO-BUILDING'
+    }
+    // 当前是否有能量
+    if (creep.store.getUsedCapacity() === 0) {
+      let target = null
+      // 是否存在绑定
+      if (creep.memory.transportId) {
+        target = Game.getObjectById(creep.memory.transportId)
+      }
+      // 获取能量
+      else {
+        target = this.getUseEnergy(creep);
+      }
+      // 如果有能量
+      if (target) {
+        // 获取能量
+        const getEnergyResult = this.getEnergyFrom(creep, target);
+        // 没有能量了就清除绑定
+        if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
+          creep.memory.transportId = null;
+        } else if (getEnergyResult === ERR_FULL) {
+          creep.memory.transportId = null;
+          creep.memory.building = true;
+        }
+      }
+      return 'GET_ENERGY'
+    } else {
+      creep.memory.building = true;
     }
   }
 }

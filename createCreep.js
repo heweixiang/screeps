@@ -131,6 +131,27 @@ function createCreepForRCL1(Room, spawn) {
     GenerateCreep(Room, spawn, body, name, config);
     return 'create'
   }
+  // 获取工地数量
+  const constructionSites = Room.find(FIND_CONSTRUCTION_SITES);
+  // 如果工地数量大于0
+  if (constructionSites.length > 0) {
+    // 获取建造爬爬数量
+    const builders = Room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return creep.memory.role == ROLE_HARVESTER && creep.memory.behavior == BEHAVIOR_BUILD;
+      }
+    });
+    // 如果建造爬爬数量小于1
+    if (builders.length < 1) {
+      // 生成建造爬爬
+      const body = Game.Config.creep.generateInitialWorker(Room);
+      const name = 'TouchFish_建造爬爬' + Game.time;
+      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
+      // 创建建造爬爬
+      GenerateCreep(Room, spawn, body, name, config);
+      return 'create'
+    }
+  }
   return 'no-create'
 }
 

@@ -61,6 +61,9 @@ const creepWrok = {
       case BEHAVIOR_UPGRADE:
         creepBehavior.upgrade(creep);
         break;
+      case BEHAVIOR_BUILD:
+        creepBehavior.build(creep);
+        break;
     }
   },
   // 矿工
