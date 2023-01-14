@@ -142,15 +142,15 @@ function LV4GenerateCreeps(ROOM, spawns, creeps) {
             GenerateCreep(ROOM, spawn, body, name, config);
             return 'create';
           }
-          // 如果该外矿没有治疗者
-          if (externalmineHealers.length === 0) {
-            // 生成外矿治疗者
-            const body = Game.Config.creep.generateHealer(ROOM);
-            const name = 'TouchFish_外矿治疗者' + Game.time;
-            const config = { memory: { role: ROLE_EXTERNALMINE_HEALER, behavior: BEHAVIOR_HEAL, bindRoom: flag.pos.roomName } };
-            GenerateCreep(ROOM, spawn, body, name, config);
-            return 'create';
-          }
+          // // 如果该外矿没有治疗者
+          // if (externalmineHealers.length === 0) {
+          //   // 生成外矿治疗者
+          //   const body = Game.Config.creep.generateHealer(ROOM);
+          //   const name = 'TouchFish_外矿治疗者' + Game.time;
+          //   const config = { memory: { role: ROLE_EXTERNALMINE_HEALER, behavior: BEHAVIOR_HEAL, bindRoom: flag.pos.roomName } };
+          //   GenerateCreep(ROOM, spawn, body, name, config);
+          //   return 'create';
+          // }
           // 创建外矿房间外矿数量个矿工
           const externalmineWorkers = AllCreeps.filter(creep => creep.memory.role === ROLE_EXTERNALMINE_WORKER && creep.memory.bindRoom === flag.pos.roomName);
           // 获取外矿运输者数量

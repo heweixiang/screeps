@@ -210,7 +210,12 @@ function externalmineWorker(ROOM, creep) {
 
 // 外矿运输者
 function externalmineTransporter(ROOM, creep) {
-  if (!creep.memory.isFull) {
+  const ensureRoom = behavior.ensureRoom(creep) === 'inRoom'
+  if (!ensureRoom) {
+    return
+  }
+
+  if (!creep.memory.isFull && ensureRoom) {
     behavior.transportGetEnergy(creep);
   } else if (behavior.ensureCreateRoom(creep) === 'inRoom' && !!creep.memory.isFull) {
     behavior.transportStoreEnergy(creep);
@@ -736,16 +741,17 @@ function Harvest(ROOM, creep) {
           // 如果是container
         } else {
           // 如果旁边有link则填充link
-          const link = creep.pos.findInRange(FIND_STRUCTURES, 1, {
+          const link = ROOM.find(FIND_STRUCTURES, {
             filter: (structure) => {
-
-              return structure.structureType === STRUCTURE_LINK;
+              // 不在store 3*3范围内的link
+              return structure.structureType === STRUCTURE_LINK && structure.pos.inRangeTo(creep.pos, 3);
             }
           });
           if (link.length) {
             if (creep.transfer(link[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
               creep.moveTo(link[0], { visualizePathStyle: { stroke: '#ffffff' } });
             }
+            return
           } else {
             // 如果carry没有满
             if (creep.carry.energy === 0) {

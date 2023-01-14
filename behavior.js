@@ -69,7 +69,7 @@ const behavior = {
         return 'moveTo';
       }
       // 如果矿物没有就向上反馈
-      if(source.energy === 0) {
+      if (source.energy === 0) {
         return 'noEnergy';
       }
     }
@@ -78,19 +78,29 @@ const behavior = {
   // 确保creep在绑定的房间，这个自己人不用调，外矿才会调用
   ensureRoom: (Creep) => {
     if (Creep.room.name !== Creep.memory.bindRoom) {
-      Creep.moveTo(new RoomPosition(25, 25, Creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffffff' } });
-      return 'moveTo';
+      return gotoRoom(Creep, Game.rooms[Creep.memory.bindRoom]);
     }
     return 'inRoom';
   },
   // 确保creep在创建房间
   ensureCreateRoom: (Creep) => {
     if (Creep.room.name !== Creep.memory.createRoom) {
-      Creep.moveTo(new RoomPosition(25, 25, Creep.memory.createRoom), { visualizePathStyle: { stroke: '#ffffff' } });
-      return 'moveTo';
+      return gotoRoom(Creep, Creep.memory.createRoom);
     }
     return 'inRoom';
   }
+}
+
+function gotoRoom(creep, ROOM) {
+  // 如果不在目标房间
+  if (creep.room.name !== ROOM.name) {
+    // 移动到该房间
+    const exitDir = creep.room.findExitTo(ROOM);
+    const exit = creep.pos.findClosestByRange(exitDir);
+    creep.moveTo(exit, { visualizePathStyle: { stroke: '#ffffff' } });
+    return 'moveTo';
+  }
+  return 'inRoom';
 }
 
 // 将creep移动到存储器
