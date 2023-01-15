@@ -267,6 +267,69 @@ const creepBehavior = {
     } else {
       creep.memory.building = true;
     }
+  },
+  // 判断当前是否在指定房间，如果不在就移动到指定房间
+  moveToRoom(creep) {
+    // bindRoom为绑定的房间
+    if (creep.memory.bindRoom) {
+      // 如果当前房间不是绑定房间
+      if (creep.room.name !== creep.memory.bindRoom) {
+        // 获取绑定房间的出口
+        const exit = creep.room.findExitTo(creep.memory.bindRoom);
+        // 移动到出口
+        creep.moveTo(creep.pos.findClosestByRange(exit));
+        return 'MOVE_TO'
+      }
+    }
+    return 'IN_ROOM'
+  },
+  // 判断当前是否在生成房间，如果不在就移动到生成房间
+  moveToSpawnRoom(creep) {
+    // createRoom为生成房间
+    if (creep.memory.createRoom) {
+      // 如果当前房间不是生成房间
+      if (creep.room.name !== creep.memory.createRoom) {
+        // 获取生成房间的出口
+        const exit = creep.room.findExitTo(creep.memory.createRoom);
+        // 移动到出口
+        creep.moveTo(creep.pos.findClosestByRange(exit));
+        return 'MOVE_TO'
+      }
+    }
+    return 'IN_ROOM'
+  },
+  getAttackTarget(creep) {
+    const targets = creep.room.find(FIND_HOSTILE_CREEPS);
+    if (targets.length > 0) {
+      const target = roomFind.contrastPos(creep, targets);
+      creep.memory.attackTarget = target.id;
+      return target
+    }
+    // 不属于我的空的建筑
+    const targets2 = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType !== STRUCTURE_CONTROLLER;
+      }
+    });
+    if (targets2.length > 0) {
+      const target = roomFind.contrastPos(creep, targets2);
+      creep.memory.attackTarget = target.id;
+      return target
+    }
+    return null
+  },
+  getHealTarget(creep) {
+    const targets = creep.room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return creep.hits < creep.hitsMax;
+      }
+    });
+    if (targets.length > 0) {
+      const target = roomFind.contrastPos(creep, targets);
+      creep.memory.healTarget = target.id;
+      return target
+    }
+    return null
   }
 }
 module.exports = creepBehavior

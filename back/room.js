@@ -62,6 +62,5 @@ const room = {
   }
 }
 
-// TODO 整合房间输出函数
 
 module.exports = room;

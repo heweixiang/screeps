@@ -623,7 +623,7 @@ function bypassRouteCallback(nextRoomName, fromRoomName) {
  * @param {string} toRoomName 
  * @param {boolean} bypass
  */
-function findRoute(fromRoomName, toRoomName, bypass) {  // TODO 以后跨shard寻路也放在这个函数里
+function findRoute(fromRoomName, toRoomName, bypass) {  
   //console.log('findRoute', fromRoomName, toRoomName, bypass);
   return Game.map.findRoute(fromRoomName, toRoomName, { routeCallback: bypass ? bypassRouteCallback : routeCallback });
 }
@@ -1471,7 +1471,7 @@ module.exports = {
     delete costMatrixCache[roomName];
     return OK;
   },
-  deltePath: function (fromPos, toPos, opts) {   // TODO
+  deltePath: function (fromPos, toPos, opts) {
     //if(!(fromPos instanceof RoomPosition))
     return 'not implemented'
   },

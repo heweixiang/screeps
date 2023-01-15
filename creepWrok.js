@@ -52,8 +52,139 @@ const creepWrok = {
         case ROLE_TRANSPORTER:
           this.transporter(creep);
           break;
+        // 外矿矿工
+        case ROLE_EXTERNALMINE_WORKER:
+          this.externalMineWorker(creep);
+          break;
+        // 外矿运输者
+        case ROLE_EXTERNALMINE_TRANSPORTER:
+          this.externalMineTransporter(creep);
+          break;
+        // 外矿攻击者
+        case ROLE_EXTERNALMINE_ATTACKER:
+          this.externalMineAttacker(creep);
+          break;
+        // 外矿预定者
+        case ROLE_EXTERNALMINE_RESERVER:
+          this.externalMineReserver(creep);
+          break;
       }
     });
+  },
+  // 外矿预定者
+  externalMineReserver(creep) {
+    // 到达指定房间执行保护
+    if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
+      return;
+    }
+    // 预定
+    if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
+    }
+  },
+  // 外矿攻击者
+  externalMineAttacker(creep) {
+    // 到达指定房间执行保护
+    if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
+      return;
+    }
+    // 获取目标
+    let target = creepBehavior.getAttackTarget(creep);
+    // 治疗
+    let healTarget = creepBehavior.getHealTarget(creep);
+    if (target) {
+      // 攻击
+      if (creep.attack(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target);
+      }
+    } else if (healTarget) {
+      if (creep.heal(healTarget) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(healTarget);
+      }
+    } else {
+      // 没有目标就移动到指定旗子处
+      // 获取黄色旗子坐标
+      let flag = Game.flags[creep.memory.flag];
+      if (flag) {
+        creep.moveTo(flag);
+      }
+    }
+  },
+  // 外矿运输者
+  externalMineTransporter(creep) {
+    // 如果满了，状态机切换
+    if (creep.store.getFreeCapacity() === 0) {
+      // 标记为运输状态
+      creep.memory.transport = true;
+    } else if (creep.store.getUsedCapacity() === 0) {
+      creep.memory.transport = false;
+    }
+    // 如果运输状态为true就运输到指定位置
+    if (creep.memory.transport) {
+      // 判断是否在生成房间
+      if (creepBehavior.moveToSpawnRoom(creep) === 'MOVE_TO') {
+        return;
+      }
+      // 判断是否绑定存储目标
+      let target;
+      if (creep.memory.storageTarget) {
+        target = Game.getObjectById(creep.memory.storageTarget);
+      } else {
+        // 如果没有绑定就获取房间内的storage
+        target = creepBehavior.getTransportStore(creep);
+      }
+      // 如果目标存在就运输
+      if (target) {
+        const storage = creepBehavior.storeEnergyTo(creep, target);
+        if (storage === OK) {
+          return 'store';
+          // 满了
+        } else if (storage === ERR_FULL) {
+          // 如果是link就将link中的能量转移到container中,否则清除找下一个
+          if (target.structureType !== STRUCTURE_LINK) {
+            creep.memory.storageTarget = null;
+          }
+        }
+      } else {
+        // 这时候没有地方存，将能量转移到controller旁边
+        creepBehavior.upgrade(creep);
+      }
+    } else {
+      // 判断是否在生成房间
+      if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
+        return;
+      }
+      let target = null
+      if (creep.memory.transportId) {
+        target = Game.getObjectById(creep.memory.transportId);
+      }
+      if (!target) {
+        // 获取需要运输的资源
+        target = creepBehavior.getTransportEnergy(creep);
+        // 如果有资源就去获取
+        if (target) {
+          // 绑定目标
+          creep.memory.transportId = target.id;
+        }
+      }
+      // 如果有资源就去获取
+      if (target) {
+        const getEnergyResult = creepBehavior.getEnergyFrom(creep, target)
+        // 没有能量了就清除绑定
+        if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
+          creep.memory.transportId = null;
+        } else if (getEnergyResult === ERR_FULL) {
+          creep.memory.transportId = null;
+          creep.memory.transport = true;
+        }
+      }
+    }
+  },
+  // 外矿矿工
+  externalMineWorker(creep) {
+    if (creepBehavior.moveToRoom(creep) === 'IN_ROOM') {
+      this.worker(creep);
+    }
   },
   // 综合工
   roleHarvesterd(creep) {
@@ -109,8 +240,6 @@ const creepWrok = {
   },
   // 运输者：一辈子东奔西走运输资源
   transporter(creep) {
-    // 将房间内的资源整合
-    const room = Game.rooms[creep.memory.roomName];
     // 如果满了，状态机切换
     if (creep.store.getFreeCapacity() === 0) {
       // 标记为运输状态
