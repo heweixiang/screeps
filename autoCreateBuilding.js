@@ -236,25 +236,16 @@ const autoCreateBuilding = {
   createRoad(Room) {
     // 获取该房间RCL
     const RCL = Room.controller ? Room.controller.level : 0;
-    // if (Room.memory.roadBuild === RCL) {
-    //   return;
-    // } else {
-    //   Room.memory.roadBuild = RCL;
-    // }
     // 获取该房间spawn坐标
     const spawn = Room.find(FIND_MY_SPAWNS)[0];
     if (Room.controller && spawn) {
       for (let x = -RCL * 2; x <= RCL * 2; x++) {
         for (let y = -RCL * 2; y <= RCL * 2; y++) {
           if (createRoad(x, y)) {
-            // 获取该坐标是否为空地
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标是否有建筑
-            const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标建筑工地
-            const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
+            // 获取该坐标类型
+            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y)[0];
             // 三者都没有则创建extension
-            if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
+            if (terrain.terrain === "swamp" && terrain.terrain === "plain") {
               // 创建道路
               Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_ROAD);
             }
