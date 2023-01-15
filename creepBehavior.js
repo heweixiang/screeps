@@ -223,7 +223,11 @@ const creepBehavior = {
   build(creep) {
     if (creep.memory.building === true) {
       // 获取所有建筑工地
-      const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+      const targets = []
+      // 获取所有建筑工地
+      for (const key in Game.constructionSites) {
+        targets.push(Game.constructionSites[key])
+      }
       // 如果有工地
       if (targets.length > 0) {
         // 获取最近的工地

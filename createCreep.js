@@ -72,7 +72,7 @@ const createCreep = {
 
 // 二级可以发展外矿了
 function createCreepForRCL2(Room, spawn) {
-  if(createCreepForRCL1(Room, spawn) === 'create') {
+  if (createCreepForRCL1(Room, spawn) === 'create') {
     return 'create'
   }
   const CreepList = []
@@ -96,7 +96,7 @@ function createCreepForRCL2(Room, spawn) {
     if (!flagRoom) {
       // 查询是否有绑定该房间的creep
       const creep = CreepList.filter((creep) => {
-      
+
         return creep.memory.bindRoom == flags[i].pos.roomName;
       });
       // 如果没有绑定该房间的creep
@@ -235,7 +235,10 @@ function createCreepForRCL1(Room, spawn) {
     return 'create'
   }
   // 获取工地数量
-  const constructionSites = Room.find(FIND_CONSTRUCTION_SITES);
+  const constructionSites = []
+  for (const key in Game.constructionSites) {
+    constructionSites.push(Game.constructionSites[key]);
+  }
   // 如果工地数量大于0
   if (constructionSites.length > 0) {
     // 获取建造爬爬数量
