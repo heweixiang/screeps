@@ -66,7 +66,6 @@ const createCreep = {
           break;
       }
     }
-    roomCreepInfoLog(Room);
   }
 }
 
@@ -102,7 +101,7 @@ function createCreepForRCL2(Room, spawn) {
         const name = 'TouchFish_外矿矿工' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flagRoom.name } };
         // 创造creep
-        spawn.spawnCreep(body, name, config);
+        GenerateCreep(Room, spawn, body, name, config);
         return 'create';
       }
     } else if (flagRoom) {
@@ -115,7 +114,7 @@ function createCreepForRCL2(Room, spawn) {
         const name = 'TouchFish_外矿攻击者' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_ATTACKER, behavior: BEHAVIOR_ATTACK, bindRoom: flagRoom.name } };
         // 创造creep
-        spawn.spawnCreep(body, name, config);
+        GenerateCreep(Room, spawn, body, name, config);
         return 'create';
       }
       // 根据房间内的外矿数量生成外矿矿工
@@ -123,13 +122,13 @@ function createCreepForRCL2(Room, spawn) {
         return creep.memory.role == ROLE_EXTERNALMINE_WORKER && creep.memory.bindRoom == flagRoom.name;
       });
       // flagRoom source数量生成矿工
-      const sourceLen = flagRoom.find(FIND_SOURCES).length;      
+      const sourceLen = flagRoom.find(FIND_SOURCES).length;
       if (workers.length < sourceLen) {
         const body = Game.Config.creep.generateHarvester(Room);
         const name = 'TouchFish_外矿矿工' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flagRoom.name } };
         // 创造creep
-        spawn.spawnCreep(body, name, config);
+        GenerateCreep(Room, spawn, body, name, config);
         return 'create';
       }
       // 如果有了这些配置给房间配个外矿运输者
@@ -141,7 +140,7 @@ function createCreepForRCL2(Room, spawn) {
         const name = 'TouchFish_外矿运输者' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT, bindRoom: flagRoom.name } };
         // 创造creep
-        spawn.spawnCreep(body, name, config);
+        GenerateCreep(Room, spawn, body, name, config);
         return 'create';
       }
       // 如果该房间有控制器
@@ -151,12 +150,15 @@ function createCreepForRCL2(Room, spawn) {
           return creep.memory.role == ROLE_EXTERNALMINE_RESERVER && creep.memory.bindRoom == flagRoom.name;
         });
         if (reservers.length == 0) {
+        console.log('Room.energyCapacityAvailable: ', Room.energyCapacityAvailable);
           if (Room.energyCapacityAvailable >= 1300) {
+          
+          
             const body = Game.Config.creep.generateReserver(Room);
             const name = 'TouchFish_外矿预定者' + Game.time;
-            const config = { memory: { role: ROLE_EXTERNALMINE_RESERVER, behavior: BEHAVIOR_RESERVE, bindRoom: flags[i].pos.roomName } };
+            const config = { memory: { role: ROLE_EXTERNALMINE_RESERVER, behavior: BEHAVIOR_RESERVE, bindRoom: flagRoom.name } };
             // 创造creep
-            spawn.spawnCreep(body, name, config);
+            GenerateCreep(Room, spawn, body, name, config);
             return 'create';
           }
         }
@@ -323,27 +325,4 @@ function GenerateCreep(Room, spawn, body, name, config) {
     return false
   }
 }
-
-function roomCreepInfoLog(Room) {
-  // 获取房间所有爬爬
-  let creeps = Room.find(FIND_MY_CREEPS);
-  const creepsNameList = creeps.map(creep => creep.name.replace(/\d+$/, '').replace('TouchFish_', ''));
-  const creepsNameListCount = {};
-  creepsNameList.forEach(name => {
-    creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
-  });
-  console.log(`爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
-  // 输出附加爬爬
-  if (Room.memory.CreepNum) {
-    let addCreepStr = '手动附加: ';
-    for (const iterator in Room.memory.CreepNum) {
-      if (Room.memory.CreepNum[iterator] === 0) continue
-      addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "
-    }
-    if (addCreepStr.length > 5) {
-      console.log(addCreepStr);
-    }
-  }
-}
-
 module.exports = createCreep;

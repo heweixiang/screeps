@@ -58,7 +58,7 @@ const config = {
       }
       // 多加个carry用来填充快些
       if (workNum === 5) body.push(CARRY)
-      return body
+      return body === [CARRY] ? [] : body
     },
     // 3、运输者
     generateTransporter: (ROOM, expedited = false) => {
@@ -74,7 +74,7 @@ const config = {
         body.push(CARRY)
         body.push(MOVE)
       }
-      return body
+      return body === [WORK, MOVE] ? [WORK, CARRY, MOVE] : body
     },
     // 4、攻击者
     generateAttacker: (ROOM, expedited = false, powerful = false) => {

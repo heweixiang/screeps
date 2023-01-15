@@ -318,6 +318,7 @@ const creepBehavior = {
     }
     // 不属于我的建筑工地
     targets = creep.room.find(FIND_CONSTRUCTION_SITES, {
+    
       filter: (structure) => {
         return structure.my === false;
       }

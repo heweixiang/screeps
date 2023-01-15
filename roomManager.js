@@ -67,6 +67,32 @@ function logRoomInfo(Room) {
       HatchingState = HatchingState + `<font color='#f6c100'>【爬爬名：${spawn.spawning.name}】【需要：${spawn.spawning.remainingTime}Tick】</font>`
     }
   }
+  if (!HatchingState) HatchingState = '没有spawn'
   console.log(HatchingState);
+  roomCreepInfoLog(Room);
 }
+
+
+function roomCreepInfoLog(Room) {
+  // 获取房间所有爬爬
+  let creeps = Room.find(FIND_MY_CREEPS);
+  const creepsNameList = creeps.map(creep => creep.name.replace(/\d+$/, '').replace('TouchFish_', ''));
+  const creepsNameListCount = {};
+  creepsNameList.forEach(name => {
+    creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
+  });
+  console.log(`爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
+  // 输出附加爬爬
+  if (Room.memory.CreepNum) {
+    let addCreepStr = '手动附加: ';
+    for (const iterator in Room.memory.CreepNum) {
+      if (Room.memory.CreepNum[iterator] === 0) continue
+      addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "
+    }
+    if (addCreepStr.length > 5) {
+      console.log(addCreepStr);
+    }
+  }
+}
+
 module.exports = roomManager;

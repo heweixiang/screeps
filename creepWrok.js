@@ -167,7 +167,6 @@ const creepWrok = {
           creep.memory.transportId = target.id;
         }
       }
-      console.log('target: ', target);
       // 如果有资源就去获取
       if (target) {
       
