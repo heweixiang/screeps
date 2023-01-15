@@ -241,12 +241,13 @@ function createCreepForRCL1(Room, spawn) {
   }
   // 如果工地数量大于0
   if (constructionSites.length > 0) {
-    // 获取建造爬爬数量
-    const builders = Room.find(FIND_MY_CREEPS, {
-      filter: (creep) => {
-        return creep.memory.role == ROLE_HARVESTER && creep.memory.behavior == BEHAVIOR_BUILD;
+    // 获取游戏所有爬
+    const builders = []
+    for (const key in Game.creeps) {
+      if (Game.creeps[key].memory.createRoom == Room.name && Game.creeps[key].memory.behavior == BEHAVIOR_BUILD) {
+        builders.push(Game.creeps[key]);
       }
-    });
+    }
     // 如果建造爬爬数量小于1
     if (builders.length < (constructionSites.length < 5 ? 1 : 2) + Game.Tools.GetCreepNum(Room, '建造')) {
       // 生成建造爬爬
