@@ -65,6 +65,7 @@ const createCreep = {
           break;
       }
     }
+    roomCreepInfoLog(Room);
   }
 }
 
@@ -95,7 +96,7 @@ function createCreepForRCL1(Room, spawn) {
     }
   });
   // 保证运输者数量有一个
-  if (transporters.length == 0) {
+  if (transporters.length < 1 + Game.Tools.GetCreepNum(Room, '运输')) {
     // 加急生成运输者
     const body = Game.Config.creep.generateTransporter(Room, true);
     const name = 'TouchFish_运输爬爬' + Game.time;
@@ -123,7 +124,7 @@ function createCreepForRCL1(Room, spawn) {
     }
   });
   // 如果升级爬爬数量小于1
-  if (upgraders.length < 1) {
+  if (upgraders.length < 1 + Game.Tools.GetCreepNum(Room, '升级')) {
     // 生成升级爬爬
     const body = Game.Config.creep.generateInitialWorker(Room);
     const name = 'TouchFish_升级爬爬' + Game.time;
@@ -143,7 +144,7 @@ function createCreepForRCL1(Room, spawn) {
       }
     });
     // 如果建造爬爬数量小于1
-    if (builders.length < (constructionSites.length < 5 ? 1 : 2)) {
+    if (builders.length < (constructionSites.length < 5 ? 1 : 2) + Game.Tools.GetCreepNum(Room, '建造')) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
       const name = 'TouchFish_建造爬爬' + Game.time;
@@ -212,6 +213,28 @@ function GenerateCreep(Room, spawn, body, name, config) {
   } else if (computedResult.CanGenerate === false) {
     console.log(`即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量`);
     return false
+  }
+}
+
+function roomCreepInfoLog(Room) {
+  // 获取房间所有爬爬
+  let creeps = Room.find(FIND_MY_CREEPS);
+  const creepsNameList = creeps.map(creep => creep.name.replace(/\d+$/, '').replace('TouchFish_', ''));
+  const creepsNameListCount = {};
+  creepsNameList.forEach(name => {
+    creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
+  });
+  console.log(`爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
+  // 输出附加爬爬
+  if (Room.memory.CreepNum) {
+    let addCreepStr = '手动附加: ';
+    for (const iterator in Room.memory.CreepNum) {
+      if(Room.memory.CreepNum[iterator] === 0) continue
+      addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "
+    }
+    if (addCreepStr.length > 5) {
+      console.log(addCreepStr);
+    }
   }
 }
 

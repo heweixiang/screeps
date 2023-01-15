@@ -37,7 +37,7 @@ const tools = {
   },
   // 获取角色产生数量
   GetCreepNum(ROOM, CreepName) {
-    if (ROOM.memory.CreepNum == undefined) {
+    if (ROOM.memory.CreepNum === undefined) {
       ROOM.memory.CreepNum = {};
     }
     if (ROOM.memory.CreepNum[CreepName] == undefined) {

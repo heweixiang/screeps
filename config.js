@@ -67,9 +67,9 @@ const config = {
       // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
       if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
-      const body = []
+      const body = [WORK]
       // 最大限度的生成一个包含 运输模块、移动模块 的运输者
-      for (let i = 0; i < Math.floor(energyCapacity / (CARRY_ENERGY * 2 + MOVE_ENERGY)); i++) {
+      for (let i = 0; i < Math.floor((energyCapacity - WORK_ENERGY)/ (CARRY_ENERGY * 2 + MOVE_ENERGY)); i++) {
         body.push(CARRY)
         body.push(CARRY)
         body.push(MOVE)

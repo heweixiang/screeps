@@ -45,7 +45,7 @@ const creepWrok = {
       switch (creep.memory.role) {
         case ROLE_HARVESTER:
           this.roleHarvesterd(creep);
-          break;  
+          break;
         case ROLE_WORKER:
           this.worker(creep);
           break;
@@ -127,7 +127,6 @@ const creepWrok = {
       } else {
         // 如果没有绑定就获取房间内的storage
         target = creepBehavior.getTransportStore(creep);
-        
       }
       // 如果目标存在就运输
       if (target) {
@@ -141,13 +140,16 @@ const creepWrok = {
             creep.memory.storageTarget = null;
           }
         }
+      } else {
+        // 这时候没有地方存，将能量转移到controller旁边
+        creepBehavior.upgrade(creep);
       }
     } else {
       let target = null
       if (creep.memory.transportId) {
         target = Game.getObjectById(creep.memory.transportId);
-      } 
-      if(!target){
+      }
+      if (!target) {
         // 获取需要运输的资源
         target = creepBehavior.getTransportEnergy(creep);
         // 如果有资源就去获取
