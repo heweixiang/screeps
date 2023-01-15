@@ -12,7 +12,7 @@ const creepBehavior = {
     // 不在工位坐标上
     if (workSite && (creep.pos.x !== workSite.pos.x || creep.pos.y !== workSite.pos.y)) {
       // 移动到工位
-      creep.moveTo(workSite);
+      creep.moveTo(workSite, { visualizePathStyle: { stroke: '#ffaa00' } });
       return 'MOVE_TO'
     } else {
       return harvestReult
@@ -277,7 +277,7 @@ const creepBehavior = {
         // 获取绑定房间的出口
         const exit = creep.room.findExitTo(creep.memory.bindRoom);
         // 移动到出口
-        creep.moveTo(creep.pos.findClosestByRange(exit));
+        creep.moveTo(creep.pos.findClosestByRange(exit), { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       }
     }
@@ -292,7 +292,7 @@ const creepBehavior = {
         // 获取生成房间的出口
         const exit = creep.room.findExitTo(creep.memory.createRoom);
         // 移动到出口
-        creep.moveTo(creep.pos.findClosestByRange(exit));
+        creep.moveTo(creep.pos.findClosestByRange(exit), { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       }
     }

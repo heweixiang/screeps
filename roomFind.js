@@ -61,7 +61,7 @@ const roomFind = {
                 creepx.memory.workSiteId === structure.id
               }
             }).length;
-            return structure.structureType === STRUCTURE_CONTAINER && count === 0;            
+            return structure.structureType === STRUCTURE_CONTAINER && count === 0 
           }
         })[0];
         // 如果有

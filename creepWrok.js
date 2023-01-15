@@ -79,7 +79,7 @@ const creepWrok = {
     }
     // 预定
     if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
     }
   },
   // 外矿攻击者
@@ -95,18 +95,18 @@ const creepWrok = {
     if (target) {
       // 攻击
       if (creep.attack(target) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target);
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else if (healTarget) {
       if (creep.heal(healTarget) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(healTarget);
+        creep.moveTo(healTarget, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     } else {
       // 没有目标就移动到指定旗子处
       // 获取黄色旗子坐标
       let flag = Game.flags[creep.memory.flag];
       if (flag) {
-        creep.moveTo(flag);
+        creep.moveTo(flag, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
   },

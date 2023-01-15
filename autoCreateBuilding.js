@@ -76,7 +76,7 @@ const autoCreateBuilding = {
       }
     });
     // 获取该房间允许的extension数量
-    const towerNum = Game.Config.RCL["LV" + RCL].Tower;
+    const towerNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Tower : 0;
     if (Room.controller && spawn && towers.length < towerNum) {
       const getPos = getCreateBuildingPos(Room, RCL, spawn)
       if (getPos) {
@@ -102,7 +102,7 @@ const autoCreateBuilding = {
       }
     });
     // 获取该房间允许的extension数量
-    const extensionNum = Game.Config.RCL["LV" + RCL].Extension;
+    const extensionNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Extension : 0;
     if (Room.controller && spawn && extensions.length < extensionNum) {
       for (let x = 0; x <= RCL * 2; x++) {
         for (let y = 0; y <= RCL * 2; y++) {

@@ -72,12 +72,14 @@ const createCreep = {
 
 // 二级可以发展外矿了
 function createCreepForRCL2(Room, spawn) {
-  // 获取所有黄色旗子，黄颜色绿底色为外矿旗子
-  const flags = Room.find(FIND_FLAGS, {
-    filter: (flag) => {
-      return flag.color == COLOR_YELLOW;
+  // 获取全图黄色旗子
+  const flagObj = Game.flags;
+  const flags = [];
+  for (let key in flagObj) {
+    if (flagObj[key].color == COLOR_YELLOW) {
+      flags.push(flagObj[key]);
     }
-  });
+  }
   // 遍历所有黄色旗子
   for (let i = 0; i < flags.length; i++) {
     // 获取旗子所在房间
