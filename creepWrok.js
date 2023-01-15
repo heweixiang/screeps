@@ -109,6 +109,9 @@ const creepWrok = {
       // 如果有，走上去
       if (target) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      } else {
+        // 走到房间中间
+        creep.moveTo(25, 25, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
   },
@@ -222,20 +225,22 @@ const creepWrok = {
       })[0];
       // 地上的能量
       const energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0];
+      if(energy&& creep.pickup(energy) !== ERR_FULL){
+        return
+      }
+      if(container && creep.transfer(container, RESOURCE_ENERGY) !== ERR_FULL){
+        return
+      }
       // 如果container存在且血量小于70%就修理
       if (container && container.hits < container.hitsMax * 0.7) {
-        creepBehavior.repair(creep, container);
+        creep.repair(container);
         return 'repair';
       } else if (constructionSite) {
-        creepBehavior.build(creep, constructionSite);
+        creep.build(constructionSite);
         return 'build';
         // FIEXME: 此处转移只有可能存在问题后续需要修改逻辑
         // 将地上的能量和container中的能量转移到link中
-      } else if (link && energy) {
-        creepBehavior.pickup(creep, energy);
-        creepBehavior.transfer(creep, link, RESOURCE_ENERGY);
-        return 'transfer';
-      } else if (link && container) {
+      } else if (link) {
         creepBehavior.transfer(creep, link, RESOURCE_ENERGY);
         return 'transfer';
       }

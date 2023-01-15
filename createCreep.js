@@ -96,6 +96,7 @@ function createCreepForRCL2(Room, spawn) {
     if (!flagRoom) {
       // 查询是否有绑定该房间的creep
       const creep = CreepList.filter((creep) => {
+      
         return creep.memory.bindRoom == flags[i].pos.roomName;
       });
       // 如果没有绑定该房间的creep

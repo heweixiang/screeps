@@ -58,7 +58,7 @@ const config = {
       }
       // 多加个carry用来填充快些
       if (workNum === 5) body.push(CARRY)
-      return body === [CARRY] ? [] : body
+      return body.length === 1 ? [] : body
     },
     // 3、运输者
     generateTransporter: (ROOM, expedited = false) => {
