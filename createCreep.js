@@ -140,7 +140,7 @@ function createCreepForRCL2(Room, spawn) {
       const transporters = CreepList.filter((creep) => {
         return creep.memory.role == ROLE_EXTERNALMINE_TRANSPORTER && creep.memory.bindRoom == flagRoom.name;
       });
-      if (transporters.length == 0) {
+      if (transporters.length < sourceLen) {
         const body = Game.Config.creep.generateTransporter(Room);
         const name = 'TouchFish_外矿运输者' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT, bindRoom: flagRoom.name } };
