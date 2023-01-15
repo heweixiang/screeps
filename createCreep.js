@@ -103,7 +103,7 @@ function createCreepForRCL2(Room, spawn) {
         // 生产矿工并绑定旗子所在房间
         const body = Game.Config.creep.generateHarvester(Room);
         const name = 'TouchFish_外矿矿工' + Game.time;
-        const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flagRoom.name } };
+        const config = { memory: { role: ROLE_EXTERNALMINE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: flags[i].pos.roomName } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
         return 'create';
