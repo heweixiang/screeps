@@ -61,6 +61,7 @@ const createCreep = {
         case 3:
         case 2:
           createCreepForRCL2(Room, spawns[0]);
+          break;
         case 1:
           createCreepForRCL1(Room, spawns[0]);
           break;
