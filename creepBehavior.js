@@ -308,19 +308,7 @@ const creepBehavior = {
     // 不属于我的建筑
     targets = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return structure.my === false;
-      }
-    });
-    if (targets.length > 0) {
-      const target = roomFind.contrastPos(creep, targets);
-      creep.memory.attackTarget = target.id;
-      return target
-    }
-    // 不属于我的建筑工地
-    targets = creep.room.find(FIND_CONSTRUCTION_SITES, {
-    
-      filter: (structure) => {
-        return structure.my === false;
+        return structure.my === false && structure.structureType !== STRUCTURE_CONTROLLER;
       }
     });
     if (targets.length > 0) {
