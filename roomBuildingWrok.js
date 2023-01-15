@@ -1,6 +1,8 @@
 /**
  * 针对房间管理
  */
+// TODO 自动建筑需要优化，自动修路需要添加对角线节点，不然范围扩大会出问题
+// TODO extension的建造需要优化，需要考虑到extension的位置，不然会出现extension竖着排列的情况
 
 const roomBuildingWrok = {
   // 该行由tick重复调用
