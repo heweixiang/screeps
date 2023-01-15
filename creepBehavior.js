@@ -41,7 +41,7 @@ const creepBehavior = {
     // 获取散落资源
     const droppedEnergy = room.find(FIND_DROPPED_RESOURCES, {
       filter: (resource) => {
-        return resource.resourceType === RESOURCE_ENERGY && resource.store > 100;
+        return resource.resourceType === RESOURCE_ENERGY && resource.amount > 100;
       }
     });
     // 获取container中的资源
@@ -158,7 +158,7 @@ const creepBehavior = {
     // 获取散落资源
     const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
       filter: (resource) => {
-        return resource.resourceType === RESOURCE_ENERGY && resource > 100;
+        return resource.resourceType === RESOURCE_ENERGY && resource.amount > 100;
       }
     });
     // 获取storage
@@ -299,20 +299,31 @@ const creepBehavior = {
     return 'IN_ROOM'
   },
   getAttackTarget(creep) {
-    const targets = creep.room.find(FIND_HOSTILE_CREEPS);
+    let targets = creep.room.find(FIND_HOSTILE_CREEPS);
     if (targets.length > 0) {
       const target = roomFind.contrastPos(creep, targets);
       creep.memory.attackTarget = target.id;
       return target
     }
-    // 不属于我的空的建筑
-    const targets2 = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+    // 不属于我的建筑
+    targets = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
-        return structure.structureType !== STRUCTURE_CONTROLLER;
+        return structure.my === false;
       }
     });
-    if (targets2.length > 0) {
-      const target = roomFind.contrastPos(creep, targets2);
+    if (targets.length > 0) {
+      const target = roomFind.contrastPos(creep, targets);
+      creep.memory.attackTarget = target.id;
+      return target
+    }
+    // 不属于我的建筑工地
+    targets = creep.room.find(FIND_CONSTRUCTION_SITES, {
+      filter: (structure) => {
+        return structure.my === false;
+      }
+    });
+    if (targets.length > 0) {
+      const target = roomFind.contrastPos(creep, targets);
       creep.memory.attackTarget = target.id;
       return target
     }

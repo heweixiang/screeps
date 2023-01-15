@@ -167,8 +167,10 @@ const creepWrok = {
           creep.memory.transportId = target.id;
         }
       }
+      console.log('target: ', target);
       // 如果有资源就去获取
       if (target) {
+      
         const getEnergyResult = creepBehavior.getEnergyFrom(creep, target)
         // 没有能量了就清除绑定
         if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {

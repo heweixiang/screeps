@@ -61,7 +61,7 @@ const roomFind = {
                 creepx.memory.workSiteId === structure.id
               }
             }).length;
-            return structure.structureType === STRUCTURE_CONTAINER && count === 0 
+            return structure.structureType === STRUCTURE_CONTAINER && count === 0
           }
         })[0];
         // 如果有
@@ -75,7 +75,13 @@ const roomFind = {
     } else {
       // 如果没有
       // 获取当前creep绑定的矿
-      return Game.getObjectById(creep.memory.workSiteId);
+      const workSite = Game.getObjectById(creep.memory.workSiteId)
+      if (workSite) {
+        return workSite;
+      } else {
+        creep.memory.workSiteId = null
+        this.findMinerWorkSite(creep)
+      }
     }
   }
 }

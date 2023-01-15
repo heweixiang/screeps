@@ -44,18 +44,81 @@ const autoCreateBuilding = {
         continue;
       }
       // 获取source周围的空地
-      const posList = source.room.lookForAtArea(LOOK_TERRAIN, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
-      // 遍历
-      for (const pos in posList) {
-      console.log('pos: ', posList[pos].terrain);
-        // 如果是plain
-        if (posList[pos].terrain == "plain") {
-          // 创建container
-          Room.createConstructionSite(posList[pos].x, posList[pos].y, STRUCTURE_CONTAINER);
-          // 跳出循环
-          break;
-        }
+      // 获取上面是否为空地或者沼泽
+      const terrainTop = Room.lookForAt(LOOK_TERRAIN, source.pos.x, source.pos.y - 1);
+      // 获取右边是否为空地或者沼泽
+      const terrainRight = Room.lookForAt(LOOK_TERRAIN, source.pos.x + 1, source.pos.y);
+      // 获取下面是否为空地或者沼泽
+      const terrainBottom = Room.lookForAt(LOOK_TERRAIN, source.pos.x, source.pos.y + 1);
+      // 获取左边是否为空地或者沼泽
+      const terrainLeft = Room.lookForAt(LOOK_TERRAIN, source.pos.x - 1, source.pos.y);
+      // 如果上面为空地或者沼泽
+      if (terrainTop[0] == "plain" || terrainTop[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x, source.pos.y - 1, STRUCTURE_CONTAINER);
+        continue;
       }
+      // 如果右边为空地或者沼泽
+      if (terrainRight[0] == "plain" || terrainRight[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x + 1, source.pos.y, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 如果下面为空地或者沼泽
+      if (terrainBottom[0] == "plain" || terrainBottom[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x, source.pos.y + 1, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 如果左边为空地或者沼泽
+      if (terrainLeft[0] == "plain" || terrainLeft[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x - 1, source.pos.y, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 获取左上
+      const terrainTopLeft = Room.lookForAt(LOOK_TERRAIN, source.pos.x - 1, source.pos.y - 1);
+      // 获取右上
+      const terrainTopRight = Room.lookForAt(LOOK_TERRAIN, source.pos.x + 1, source.pos.y - 1);
+      // 获取左下
+      const terrainBottomLeft = Room.lookForAt(LOOK_TERRAIN, source.pos.x - 1, source.pos.y + 1);
+      // 获取右下
+      const terrainBottomRight = Room.lookForAt(LOOK_TERRAIN, source.pos.x + 1, source.pos.y + 1);
+      // 如果左上为空地或者沼泽
+      if (terrainTopLeft[0] == "plain" || terrainTopLeft[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x - 1, source.pos.y - 1, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 如果右上为空地或者沼泽
+      if (terrainTopRight[0] == "plain" || terrainTopRight[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x + 1, source.pos.y - 1, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 如果左下为空地或者沼泽
+      if (terrainBottomLeft[0] == "plain" || terrainBottomLeft[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x - 1, source.pos.y + 1, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // 如果右下为空地或者沼泽
+      if (terrainBottomRight[0] == "plain" || terrainBottomRight[0] == "swamp") {
+        // 创建container
+        Room.createConstructionSite(source.pos.x + 1, source.pos.y + 1, STRUCTURE_CONTAINER);
+        continue;
+      }
+      // const posList = source.room.lookForAtArea(LOOK_TERRAIN, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
+      // // 遍历
+      // for (const pos in posList) {
+      //   // 如果是plain
+      //   if (posList[pos].terrain == "plain") {
+      //     // 创建container
+      //     Room.createConstructionSite(posList[pos].x, posList[pos].y, STRUCTURE_CONTAINER);
+      //     // 跳出循环
+      //     break;
+      //   }
+      // }
     }
   },
   // 创建tower
@@ -75,9 +138,15 @@ const autoCreateBuilding = {
         structureType: STRUCTURE_TOWER
       }
     });
+    // 获取该房间的tower工地数量
+    const towerConstructionSites = Room.find(FIND_MY_CONSTRUCTION_SITES, {
+      filter: {
+        structureType: STRUCTURE_TOWER
+      }
+    });
     // 获取该房间允许的extension数量
     const towerNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Tower : 0;
-    if (Room.controller && spawn && towers.length < towerNum) {
+    if (Room.controller && spawn && towers.length < towerNum + towerConstructionSites.length) {
       const getPos = getCreateBuildingPos(Room, RCL, spawn)
       if (getPos) {
         Room.createConstructionSite(getPos.x, getPos.y, STRUCTURE_TOWER);
