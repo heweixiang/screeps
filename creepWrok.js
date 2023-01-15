@@ -73,7 +73,7 @@ const creepWrok = {
   },
   // 外矿预定者
   externalMineReserver(creep) {
-    // 记得签名
+    // TODO 记得签名
     // 到达指定房间执行保护
     if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
       return;
