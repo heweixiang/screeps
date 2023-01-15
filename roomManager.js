@@ -3,7 +3,7 @@
 const createCreep = require('createCreep')
 const creepWrok = require('creepWrok')
 const autoCreateBuilding = require('autoCreateBuilding')
-const roomBuildingWrok  = require('roomBuildingWrok')
+const roomBuildingWrok = require('roomBuildingWrok')
 const roomManager = {
   // 两种房间，一种是有spawn的占领房间，一种是没有spawn的外矿房间
   loop(Room) {
@@ -65,13 +65,14 @@ function logRoomInfo(Room) {
   let HatchingState = ''
   for (let i in spawns) {
     const spawn = spawns[i];
-    HatchingState = HatchingState + "<font color='#8bf600'>【" + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "】</font>"
+    HatchingState = HatchingState + "<font color='#8bf600'>     " + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "</font>"
     if (spawn.spawning) {
-      HatchingState = HatchingState + `<font color='#f6c100'>【爬爬名：${spawn.spawning.name}】【需要：${spawn.spawning.remainingTime}Tick】</font>`
+      HatchingState = HatchingState + `<font color='#f6c100'>   [爬爬名：${spawn.spawning.name}]   [需要：${spawn.spawning.remainingTime}Tick]</font>`
     }
   }
-  if (!HatchingState) HatchingState = '没有spawn'
-  console.log(HatchingState);
+  if (HatchingState) {
+    console.log(HatchingState);
+  }
   roomCreepInfoLog(Room);
 }
 
@@ -84,7 +85,7 @@ function roomCreepInfoLog(Room) {
   creepsNameList.forEach(name => {
     creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
   });
-  console.log(`爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
+  console.log(`       爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
   // 输出附加爬爬
   if (Room.memory.CreepNum) {
     let addCreepStr = '手动附加: ';
@@ -92,7 +93,7 @@ function roomCreepInfoLog(Room) {
       if (Room.memory.CreepNum[iterator] === 0) continue
       addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "
     }
-    if (addCreepStr.length > 5) {
+    if (addCreepStr.length > 6) {
       console.log(addCreepStr);
     }
   }

@@ -316,14 +316,14 @@ function GenerateCreep(Room, spawn, body, name, config) {
   if (computedResult.CanGenerate === true) {
     const SpawnCreateResult = spawn.spawnCreep(body, name, config);
     if (SpawnCreateResult === OK) {
-      console.log(`生成爬爬成功【${nameZN}】【${body.length}模块】，本次消耗 ${computedResult.NeedEnergy} 能量`);
+      console.log(`     生成爬爬成功【${nameZN}】【${body.length}模块】，本次消耗 ${computedResult.NeedEnergy} 能量`);
       return true
     } else {
-      console.log(`生成爬爬失败【${nameZN}】【${body.length}模块】，生成需要 ${computedResult.NeedEnergy} 能量`);
+      console.log(`     生成爬爬失败【${nameZN}】【${body.length}模块】，生成需要 ${computedResult.NeedEnergy} 能量`);
       return false
     }
   } else if (computedResult.CanGenerate === false) {
-    console.log(`即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量`);
+    console.log(`     即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量`);
     return false
   }
 }
