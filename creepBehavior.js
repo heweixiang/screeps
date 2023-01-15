@@ -231,10 +231,12 @@ const creepBehavior = {
       // 如果有工地
       if (targets.length > 0) {
         // 获取最近的工地
-        const target = roomFind.contrastPos(creep, targets);
+        const target = targets.reduce((a, b) => {
+          return creep.pos.getRangeTo(a) < creep.pos.getRangeTo(b) ? a : b
+        })
         // 建造
         if (creep.build(target) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(target);
+          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
           return 'MOVE_TO'
         } else if (creep.build(target) === ERR_NOT_ENOUGH_RESOURCES) {
           creep.memory.building = false
