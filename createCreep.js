@@ -71,6 +71,9 @@ const createCreep = {
 
 // 二级可以发展外矿了
 function createCreepForRCL2(Room, spawn) {
+  if(createCreepForRCL1(Room, spawn) === 'create') {
+    return 'create'
+  }
   const CreepList = []
   // 遍历 Game.creeps
   for (let name in Game.creeps) {
