@@ -154,10 +154,7 @@ function createCreepForRCL2(Room, spawn) {
           return creep.memory.role == ROLE_EXTERNALMINE_RESERVER && creep.memory.bindRoom == flagRoom.name;
         });
         if (reservers.length == 0) {
-        console.log('Room.energyCapacityAvailable: ', Room.energyCapacityAvailable);
           if (Room.energyCapacityAvailable >= 1300) {
-          
-          
             const body = Game.Config.creep.generateReserver(Room);
             const name = 'TouchFish_外矿预定者' + Game.time;
             const config = { memory: { role: ROLE_EXTERNALMINE_RESERVER, behavior: BEHAVIOR_RESERVE, bindRoom: flagRoom.name } };
