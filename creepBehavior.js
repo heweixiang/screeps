@@ -282,8 +282,9 @@ const creepBehavior = {
       if (creep.room.name !== creep.memory.bindRoom) {
         // 获取绑定房间
         const bindRoom = Game.rooms[creep.memory.bindRoom]
+        console.log('bindRoom: ', bindRoom);
         // 移动到出口
-        console.log(creep.moveTo(bindRoom, { visualizePathStyle: { stroke: '#ffffff' } }))
+        creep.moveTo(bindRoom, { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       }
     }
