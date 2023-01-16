@@ -153,25 +153,6 @@ const creepWrok = {
           }
         }
       } else {
-        // 找到附近的升级爬爬
-        const upgraderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
-        });
-        let targetCreep = upgraderCreep[0]
-        if (targetCreep && creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
-          return 'store'
-        }
-        // 找到附近的建造爬爬
-        const builderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
-        });
-        targetCreep = builderCreep[0]
-        if (targetCreep && creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
-          return 'store'
-        }
-
         // 到controller附近
         if(creep.pos.getRangeTo(creep.room.controller) > 3) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
