@@ -127,6 +127,7 @@ const creepWrok = {
     }
     // 如果运输状态为true就运输到指定位置
     if (creep.memory.transport) {
+    console.log('creep.memory.transport: ', creep.memory.transport);
       // 判断是否在生成房间
       if (creepBehavior.moveToSpawnRoom(creep) === 'MOVE_TO') {
         return;
