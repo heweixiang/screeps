@@ -282,7 +282,7 @@ const creepBehavior = {
       if (creep.room.name !== creep.memory.bindRoom) {
         // 获取绑定房间
         // 获取生成房间的出口
-        const exit = creep.room.findExitTo(creep.memory.createRoom);
+        const exit = creep.room.findExitTo(creep.memory.bindRoom);
         // 移动到出口
         creep.moveTo(creep.pos.findClosestByRange(exit), { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
