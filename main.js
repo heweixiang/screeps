@@ -26,9 +26,10 @@ module.exports.loop = function () {
   // 分割线
   // 绿色
   console.log(`<font color="#00FF00">==========================${Game.time}==========================</font>\n\n\n`);
-  if(Game.time % 1000 == 0) {
     GameNotify(`当前时间：${Game.time}`, '#00FF00');
 
+  if(Game.time % 1000 == 0) {
+    GameNotify(`当前时间：${Game.time}`, '#00FF00');
   }
 }
 
