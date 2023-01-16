@@ -1,4 +1,8 @@
 // 自动建筑
+// TODO 一个循环作为环线，一个循环作为x轴一个循环作为Y轴，如果x等与环线或者y等与环线则是当前环，注意控制x,y均不超过环线
+
+
+
 const autoCreateBuilding = {
   loop(Room) {
     // 创建extension
