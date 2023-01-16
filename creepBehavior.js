@@ -280,7 +280,10 @@ const creepBehavior = {
     if (creep.memory.bindRoom) {
       // 如果当前房间不是绑定房间
       if (creep.room.name !== creep.memory.bindRoom) {
-        creep.moveTo(Game.rooms[creep.room.name])
+        // 获取绑定房间
+        const bindRoom = Game.rooms[creep.memory.bindRoom]
+        // 移动到出口
+        creep.moveTo(bindRoom, { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       }
     }
