@@ -281,10 +281,10 @@ const creepBehavior = {
       // 如果当前房间不是绑定房间
       if (creep.room.name !== creep.memory.bindRoom) {
         // 获取绑定房间
-        const bindRoom = Game.rooms[creep.memory.bindRoom]
-        console.log('bindRoom: ', bindRoom);
+        // 获取生成房间的出口
+        const exit = creep.room.findExitTo(creep.memory.createRoom);
         // 移动到出口
-        creep.moveTo(bindRoom, { visualizePathStyle: { stroke: '#ffffff' } });
+        creep.moveTo(creep.pos.findClosestByRange(exit), { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       }
     }
