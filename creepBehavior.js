@@ -70,6 +70,7 @@ const creepBehavior = {
       result = creep.pickup(target);
     }
     if (result === ERR_NOT_IN_RANGE) {
+    console.log('result: ', result);
       creep.moveTo(target);
       return 'MOVE_TO'
     }
