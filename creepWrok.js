@@ -1,5 +1,6 @@
 // 这里主管creep运转，无害的工作者
 const creepBehavior = require('creepBehavior');
+const roomFind = require('roomFind');
 
 // 矿工：只能一辈子在Container上挖矿不可移动
 const ROLE_WORKER = 'ROLE_WORKER';
@@ -152,13 +153,32 @@ const creepWrok = {
           }
         }
       } else {
-        // 到controller附近
-        if(creep.pos.getRangeTo(creep.room.controller) > 3) {
-          creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-        } else {
-          // 丢弃资源
-          creep.drop(RESOURCE_ENERGY);
+        // 找到附近的升级爬爬
+        const upgraderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+          filter: c => c.memory.role === ROLE_UPGRADER && c.getFreeCapacity() > 0
+        });
+        let targetCreep = roomFind.contrastPos(upgraderCreep)
+        if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
+          return 'store'
         }
+        // 找到附近的建造爬爬
+        const builderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+          filter: c => c.memory.role === ROLE_BUILDER && c.getFreeCapacity() > 0
+        });
+        targetCreep = roomFind.contrastPos(builderCreep)
+        if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
+          return 'store'
+        }
+
+        // // 到controller附近
+        // if(creep.pos.getRangeTo(creep.room.controller) > 3) {
+        //   creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        // } else {
+        //   // 丢弃资源
+        //   creep.drop(RESOURCE_ENERGY);
+        // }
       }
     } else {
       // 判断是否在生成房间
@@ -215,8 +235,8 @@ const creepWrok = {
     // 2.如果矿没了就检查脚底下是否存在container，如果不存在就建造
     // 3.如果矿没了且有container就扫描3*3范围内的link并将container中的资源转移到link中，同时获取地上的资源
     // 获取该房间内所有creep
-    if(creepBehavior.miner(creep) !== 'IN_ROOM'){
-      return ;
+    if (creepBehavior.miner(creep) !== 'IN_ROOM') {
+      return;
     }
     if (creepBehavior.miner(creep) === ERR_NOT_ENOUGH_RESOURCES) {
       // 获取脚下的container
@@ -233,10 +253,10 @@ const creepWrok = {
       })[0];
       // 地上的能量
       const energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES, 1)[0];
-      if(energy&& creep.pickup(energy) !== ERR_FULL){
+      if (energy && creep.pickup(energy) !== ERR_FULL) {
         return
       }
-      if(container && creep.transfer(container, RESOURCE_ENERGY) !== ERR_FULL){
+      if (container && creep.transfer(container, RESOURCE_ENERGY) !== ERR_FULL) {
         return
       }
       // 如果container存在且血量小于70%就修理
