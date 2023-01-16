@@ -157,7 +157,9 @@ const creepWrok = {
       }
     } else {
       // 判断是否在生成房间
+      console.log('creepBehavior.moveToRoom(creep): ', creepBehavior.moveToRoom(creep));
       if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
+      
         return;
       }
       let target = null
