@@ -45,7 +45,7 @@ const config = {
       // 计算当前房间的能量容量
       let energyCapacity = ROOM.energyCapacityAvailable
       // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
-      if (!expedited) energyCapacity = ROOM.energyAvailable
+      if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
       const body = [CARRY]
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
@@ -58,7 +58,7 @@ const config = {
       }
       // 多加个carry用来填充快些
       if (workNum === 5) body.push(CARRY)
-      return body.length === 1 ? [] : body
+      return body.length === 1 ? [CARRY, WORK, MOVE] : body
     },
     // 3、运输者
     generateTransporter: (ROOM, expedited = false) => {
@@ -74,7 +74,7 @@ const config = {
         body.push(CARRY)
         body.push(MOVE)
       }
-      return body === [WORK, MOVE] ? [WORK, CARRY, MOVE] : body
+      return body.length === 2 ? [WORK, CARRY, MOVE] : body
     },
     // 4、攻击者
     generateAttacker: (ROOM, expedited = false, powerful = false) => {
