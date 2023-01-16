@@ -157,7 +157,7 @@ const creepWrok = {
         const upgraderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
           filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
         });
-        let targetCreep = roomFind.contrastPos(upgraderCreep)
+        let targetCreep = upgraderCreep[0]
         if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
           return 'store'
@@ -166,7 +166,7 @@ const creepWrok = {
         const builderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
           filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
         });
-        targetCreep = roomFind.contrastPos(builderCreep)
+        targetCreep = builderCreep[0]
         if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
           return 'store'
