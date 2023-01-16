@@ -158,7 +158,7 @@ const creepWrok = {
           filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
         });
         let targetCreep = upgraderCreep[0]
-        if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
+        if (targetCreep && creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
           return 'store'
         }
@@ -167,7 +167,7 @@ const creepWrok = {
           filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.store.getFreeCapacity() > 0
         });
         targetCreep = builderCreep[0]
-        if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
+        if (targetCreep && creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targetCreep, { visualizePathStyle: { stroke: '#ffffff' } })
           return 'store'
         }
