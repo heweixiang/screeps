@@ -155,7 +155,7 @@ const creepWrok = {
       } else {
         // 找到附近的升级爬爬
         const upgraderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: c => c.memory.role === ROLE_UPGRADER && c.getFreeCapacity() > 0
+          filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.getFreeCapacity() > 0
         });
         let targetCreep = roomFind.contrastPos(upgraderCreep)
         if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
@@ -164,7 +164,7 @@ const creepWrok = {
         }
         // 找到附近的建造爬爬
         const builderCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-          filter: c => c.memory.role === ROLE_BUILDER && c.getFreeCapacity() > 0
+          filter: c => c.memory.behavior === BEHAVIOR_UPGRADE && c.getFreeCapacity() > 0
         });
         targetCreep = roomFind.contrastPos(builderCreep)
         if (creep.transfer(targetCreep) === ERR_NOT_IN_RANGE) {
