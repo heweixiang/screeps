@@ -1,5 +1,5 @@
 // 自动建筑
-// TODO 一个循环作为环线，一个循环作为x轴一个循环作为Y轴，如果x等与环线或者y等与环线则是当前环，注意控制x,y均不超过环线
+// TODO 自动创建Storage
 
 
 
@@ -112,17 +112,6 @@ const autoCreateBuilding = {
         Room.createConstructionSite(source.pos.x + 1, source.pos.y + 1, STRUCTURE_CONTAINER);
         continue;
       }
-      // const posList = source.room.lookForAtArea(LOOK_TERRAIN, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true);
-      // // 遍历
-      // for (const pos in posList) {
-      //   // 如果是plain
-      //   if (posList[pos].terrain == "plain") {
-      //     // 创建container
-      //     Room.createConstructionSite(posList[pos].x, posList[pos].y, STRUCTURE_CONTAINER);
-      //     // 跳出循环
-      //     break;
-      //   }
-      // }
     }
   },
   // 创建tower
@@ -148,12 +137,23 @@ const autoCreateBuilding = {
         structureType: STRUCTURE_TOWER
       }
     });
-    // 获取该房间允许的extension数量
+    // 获取该房间允许的tower数量
     const towerNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Tower : 0;
     if (Room.controller && spawn && towers.length < towerNum + towerConstructionSites.length) {
-      const getPos = getCreateBuildingPos(Room, RCL, spawn)
-      if (getPos) {
-        Room.createConstructionSite(getPos.x, getPos.y, STRUCTURE_TOWER);
+      // 遍历环数
+      for (let ring = 1; ring <= RCL * 2; ring++) {
+        const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
+        for (let i = 0; i < posList.length; i++) {
+          const pos = posList[i];
+          if (!createRoad(pos.x - spawn.pos.x, pos.y - spawn.pos.y)) {
+            // 获取该坐标是否为空地
+            const terrain = Room.lookForAt(LOOK_TERRAIN, pos.x, pos.y)[0];
+            // 三者都没有则创建tower
+            if (terrain === "swamp" || terrain === "plain") {
+              Room.createConstructionSite(pos.x, pos.y, STRUCTURE_EXTENSION);
+            }
+          }
+        }
       }
     }
   },
@@ -177,62 +177,19 @@ const autoCreateBuilding = {
     // 获取该房间允许的extension数量
     const extensionNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Extension : 0;
     if (Room.controller && spawn && extensions.length < extensionNum) {
-      for (let x = 0; x <= RCL * 2; x++) {
-        for (let y = 0; y <= RCL * 2; y++) {
-          if (!createRoad(x, y)) {
+      // 遍历环数
+      for (let ring = 1; ring <= RCL * 2; ring++) {
+        const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
+        for (let i = 0; i < posList.length; i++) {
+          const pos = posList[i];
+          if (!createRoad(pos.x - spawn.pos.x, pos.y - spawn.pos.y)) {
             // 获取该坐标是否为空地
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标是否有建筑
-            const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标建筑工地
-            const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
+            const terrain = Room.lookForAt(LOOK_TERRAIN, pos.x, pos.y)[0];
             // 三者都没有则创建extension
-            if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-              Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_EXTENSION);
+            if (terrain === "swamp" || terrain === "plain") {
+              Room.createConstructionSite(pos.x, pos.y, STRUCTURE_EXTENSION);
             }
           }
-          y = -y
-          if (!createRoad(x, y)) {
-            // 获取该坐标是否为空地
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标是否有建筑
-            const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标建筑工地
-            const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-            // 三者都没有则创建extension
-            if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-              Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_EXTENSION);
-            }
-          }
-          y = -y
-          x = -x
-          if (!createRoad(x, y)) {
-            // 获取该坐标是否为空地
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标是否有建筑
-            const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标建筑工地
-            const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-            // 三者都没有则创建extension
-            if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-              Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_EXTENSION);
-            }
-          }
-          y = -y
-          if (!createRoad(x, y)) {
-            // 获取该坐标是否为空地
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标是否有建筑
-            const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-            // 获取该坐标建筑工地
-            const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-            // 三者都没有则创建extension
-            if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-              Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_EXTENSION);
-            }
-          }
-          x = -x
-          y = -y
         }
       }
     }
@@ -243,84 +200,24 @@ const autoCreateBuilding = {
     // 获取该房间spawn坐标
     const spawn = Room.find(FIND_MY_SPAWNS)[0];
     if (Room.controller && spawn) {
-      for (let x = -RCL * 2; x <= RCL * 2; x++) {
-        for (let y = -RCL * 2; y <= RCL * 2; y++) {
-          if (createRoad(x, y)) {
+      // 遍历环数
+      for (let ring = 1; ring <= RCL * 2; ring++) {
+        const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
+        for (let i = 0; i < posList.length; i++) {
+          const pos = posList[i];
+          if (createRoad(pos.x - spawn.pos.x, pos.y - spawn.pos.y)) {
             // 获取该坐标类型
-            const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y)[0];
+            const terrain = Room.lookForAt(LOOK_TERRAIN, pos.x, pos.y)[0];
             // 三者都没有则创建extension
-            if (terrain.terrain === "swamp" && terrain.terrain === "plain") {
+            if (terrain === "swamp" || terrain === "plain") {
               // 创建道路
-              Room.createConstructionSite(spawn.pos.x + x, spawn.pos.y + y, STRUCTURE_ROAD);
+              Room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
             }
           }
         }
       }
     }
   }
-}
-
-// 传入Room RCL spawn 返回是否可以生成建筑
-function getCreateBuildingPos(Room, RCL, spawn) {
-  for (let x = 0; x <= RCL * 2; x++) {
-    for (let y = 0; y <= RCL * 2; y++) {
-      if (!createRoad(x, y)) {
-        // 获取该坐标是否为空地
-        const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标是否有建筑
-        const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标建筑工地
-        const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-        // 三者都没有则创建extension
-        if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-          return { x, y };
-        }
-      }
-      y = -y
-      if (!createRoad(x, y)) {
-        // 获取该坐标是否为空地
-        const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标是否有建筑
-        const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标建筑工地
-        const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-        // 三者都没有则创建extension
-        if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-          return { x, y };
-        }
-      }
-      y = -y
-      x = -x
-      if (!createRoad(x, y)) {
-        // 获取该坐标是否为空地
-        const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标是否有建筑
-        const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标建筑工地
-        const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-        // 三者都没有则创建extension
-        if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-          return { x, y };
-        }
-      }
-      y = -y
-      if (!createRoad(x, y)) {
-        // 获取该坐标是否为空地
-        const terrain = Room.lookForAt(LOOK_TERRAIN, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标是否有建筑
-        const structures = Room.lookForAt(LOOK_STRUCTURES, spawn.pos.x + x, spawn.pos.y + y);
-        // 获取该坐标建筑工地
-        const constructionSites = Room.lookForAt(LOOK_CONSTRUCTION_SITES, spawn.pos.x + x, spawn.pos.y + y);
-        // 三者都没有则创建extension
-        if (terrain[0].terrain !== "wall" && structures.length === 0 && constructionSites.length === 0) {
-          return { x, y };
-        }
-      }
-      x = -x
-      y = -y
-    }
-  }
-  return null
 }
 
 // 传入坐标判断是否生成道路
@@ -334,8 +231,24 @@ function createRoad(x, y) {
   if (Math.abs(x) % 2 === 1 && Math.abs(y) <= Math.abs(x) || Math.abs(y) % 2 === 1 && Math.abs(x) <= Math.abs(y)) {
     return true;
   }
+  if (Math.abs(x) === Math.abs(y) && Math.abs(x) > 3) {
+    return true;
+  }
   return false;
 }
 
+// 传入一个坐标以及一个环线半径，返回圆环上的所有坐标
+function getCirclePos(x, y, r) {
+  const pos = [];
+  // 一个循环作为x轴一个循环作为Y轴，如果x等与环线或者y等与环线则是当前环，注意控制x,y均不超过环线
+  for (let i = -r; i <= r; i++) {
+    for (let j = -r; j <= r; j++) {
+      if (Math.abs(i) === r || Math.abs(j) === r) {
+        pos.push({ x: x + i, y: y + j })
+      }
+    }
+  }
+  return pos;
+}
 
 module.exports = autoCreateBuilding;
