@@ -131,12 +131,12 @@ const creepWrok = {
       // 运输者修补外矿道路
       // 获取血量低于50%的道路
       let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: s => s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax * 0.5
+        filter: s => (s.structureType === STRUCTURE_ROAD || s.structureType === STRUCTURE_CONTAINER) && s.hits < s.hitsMax * 0.5
       });
       // 如果有，就修补
       if (target) {
         if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-          creep.say("🚧老子要修路！")
+          creep.say("🚧")
           creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
         }
         return 'repair'

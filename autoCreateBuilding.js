@@ -5,16 +5,22 @@
 
 const autoCreateBuilding = {
   loop(Room) {
-    // 创建extension
-    this.createExtension(Room);
-    // 创建road
-    this.createRoad(Room);
-    // 创建tower
-    this.createTower(Room);
-    // 创建container
-    this.createContainer(Room);
+    // 500tick执行一次
+    if (Game.time % 500) {
+      // 创建extension
+      this.createExtension(Room);
+      // 创建road
+      this.createRoad(Room);
+      // 创建tower
+      this.createTower(Room);
+      // 创建container
+      this.createContainer(Room);
+    }
+
     // 如果房间没有spawn
     if (!Room.find(FIND_MY_SPAWNS).length) {
+      // 创建container
+      this.createContainer(Room);
       // 外矿房间
       return;
     }
@@ -139,7 +145,7 @@ const autoCreateBuilding = {
     });
     // 获取该房间允许的tower数量
     const towerNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Tower : 0;
-    if (Room.controller && spawn && towers.length  + towerConstructionSites.length < towerNum) {
+    if (Room.controller && spawn && towers.length + towerConstructionSites.length < towerNum) {
       const towerCount = towers.length + towerConstructionSites.length;
       // 遍历环数
       for (let ring = 1; ring <= RCL * 2; ring++) {
