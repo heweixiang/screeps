@@ -172,13 +172,13 @@ const creepWrok = {
           return 'store'
         }
 
-        // // 到controller附近
-        // if(creep.pos.getRangeTo(creep.room.controller) > 3) {
-        //   creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
-        // } else {
-        //   // 丢弃资源
-        //   creep.drop(RESOURCE_ENERGY);
-        // }
+        // 到controller附近
+        if(creep.pos.getRangeTo(creep.room.controller) > 3) {
+          creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          // 丢弃资源
+          creep.drop(RESOURCE_ENERGY);
+        }
       }
     } else {
       // 判断是否在生成房间
