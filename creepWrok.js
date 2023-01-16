@@ -127,7 +127,6 @@ const creepWrok = {
     }
     // 如果运输状态为true就运输到指定位置
     if (creep.memory.transport) {
-    console.log('creep.memory.transport: ', creep.memory.transport);
       // 判断是否在生成房间
       if (creepBehavior.moveToSpawnRoom(creep) === 'MOVE_TO') {
         return;
@@ -158,9 +157,7 @@ const creepWrok = {
       }
     } else {
       // 判断是否在生成房间
-      console.log('creepBehavior.moveToRoom(creep): ', creepBehavior.moveToRoom(creep));
       if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
-      
         return;
       }
       let target = null
@@ -176,8 +173,10 @@ const creepWrok = {
           creep.memory.transportId = target.id;
         }
       }
+      console.log('target: ', target);
       // 如果有资源就去获取
       if (target) {
+      
 
         const getEnergyResult = creepBehavior.getEnergyFrom(creep, target)
         // 没有能量了就清除绑定
