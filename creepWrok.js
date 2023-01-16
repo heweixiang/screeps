@@ -210,6 +210,9 @@ const creepWrok = {
     // 2.如果矿没了就检查脚底下是否存在container，如果不存在就建造
     // 3.如果矿没了且有container就扫描3*3范围内的link并将container中的资源转移到link中，同时获取地上的资源
     // 获取该房间内所有creep
+    if(creepBehavior.miner(creep) !== 'IN_ROOM'){
+      return ;
+    }
     if (creepBehavior.miner(creep) === ERR_NOT_ENOUGH_RESOURCES) {
       // 获取脚下的container
       const container = creep.pos.findInRange(FIND_STRUCTURES, 0, {
