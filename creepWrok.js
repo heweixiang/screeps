@@ -128,12 +128,24 @@ const creepWrok = {
     }
     // 如果运输状态为true就运输到指定位置
     if (creep.memory.transport) {
+      // 运输者修补外矿道路
+      // 获取血量低于50%的道路
+      let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_ROAD && s.hits < s.hitsMax * 0.5
+      });
+      // 如果有，就修补
+      if (target) {
+        if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+          creep.say("🚧老子要修路！")
+          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+        return 'repair'
+      }
       // 判断是否在生成房间
       if (creepBehavior.moveToSpawnRoom(creep) === 'MOVE_TO') {
         return;
       }
       // 判断是否绑定存储目标
-      let target;
       if (creep.memory.storageTarget) {
         target = Game.getObjectById(creep.memory.storageTarget);
       } else {
@@ -216,7 +228,7 @@ const creepWrok = {
     // 2.如果矿没了就检查脚底下是否存在container，如果不存在就建造
     // 3.如果矿没了且有container就扫描3*3范围内的link并将container中的资源转移到link中，同时获取地上的资源
     // 获取该房间内所有creep
-    if (creepBehavior.miner(creep) !== 'IN_ROOM') {
+    if (creepBehavior.miner(creep) == 'MOVE_TO') {
       return;
     }
     if (creepBehavior.miner(creep) === ERR_NOT_ENOUGH_RESOURCES) {
