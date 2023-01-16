@@ -139,7 +139,8 @@ const autoCreateBuilding = {
     });
     // 获取该房间允许的tower数量
     const towerNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Tower : 0;
-    if (Room.controller && spawn && towers.length < towerNum + towerConstructionSites.length) {
+    if (Room.controller && spawn && towers.length  + towerConstructionSites.length < towerNum) {
+      const towerCount = towers.length + towerConstructionSites.length;
       // 遍历环数
       for (let ring = 1; ring <= RCL * 2; ring++) {
         const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
@@ -151,6 +152,10 @@ const autoCreateBuilding = {
             // 三者都没有则创建tower
             if (terrain === "swamp" || terrain === "plain") {
               Room.createConstructionSite(pos.x, pos.y, STRUCTURE_EXTENSION);
+              towerCount++;
+              if (towerCount >= towerNum) {
+                return;
+              }
             }
           }
         }
@@ -174,9 +179,16 @@ const autoCreateBuilding = {
         structureType: STRUCTURE_EXTENSION
       }
     });
+    // 获取该房间的extension工地数量
+    const extensionConstructionSites = Room.find(FIND_MY_CONSTRUCTION_SITES, {
+      filter: {
+        structureType: STRUCTURE_EXTENSION
+      }
+    });
     // 获取该房间允许的extension数量
     const extensionNum = Game.Config.RCL["LV" + RCL] ? Game.Config.RCL["LV" + RCL].Extension : 0;
-    if (Room.controller && spawn && extensions.length < extensionNum) {
+    if (Room.controller && spawn && extensions.length + extensionConstructionSites.length < extensionNum) {
+      const extCount = extensions.length + extensionConstructionSites.length;
       // 遍历环数
       for (let ring = 1; ring <= RCL * 2; ring++) {
         const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
@@ -188,6 +200,10 @@ const autoCreateBuilding = {
             // 三者都没有则创建extension
             if (terrain === "swamp" || terrain === "plain") {
               Room.createConstructionSite(pos.x, pos.y, STRUCTURE_EXTENSION);
+              extCount++;
+              if (extCount >= extensionNum) {
+                return;
+              }
             }
           }
         }
