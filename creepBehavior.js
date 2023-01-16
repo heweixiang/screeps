@@ -11,7 +11,6 @@ const creepBehavior = {
     const harvestReult = creep.harvest(source)
     // 不在工位坐标上
     if (workSite && (creep.pos.x !== workSite.pos.x || creep.pos.y !== workSite.pos.y)) {
-    console.log('workSite: ', workSite);
       // 移动到工位
       creep.moveTo(workSite, { visualizePathStyle: { stroke: '#ffaa00' } });
       return 'MOVE_TO'
