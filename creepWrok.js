@@ -145,6 +145,8 @@ const creepWrok = {
     if (creepBehavior.moveToRoom(creep) === 'MOVE_TO') {
       return;
     }
+    // 获取当前房间controller
+    const target = creep.room.controller;
     // 预定
     if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
       creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
