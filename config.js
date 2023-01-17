@@ -27,7 +27,7 @@ const config = {
     // 1、综合工/修理工/建筑工/升级工/预备工/分配
     generateInitialWorker: (ROOM, expedited = false) => {
       // 计算当前房间的能量容量
-      const energyCapacity = ROOM.energyCapacityAvailable
+      let energyCapacity = ROOM.energyCapacityAvailable
       // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
       if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
