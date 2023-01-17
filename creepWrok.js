@@ -111,11 +111,11 @@ const creepWrok = {
           }
         }
       }
-      console.log('filltarget: ', filltarget);
       // 判断是否有填充目标
       if (filltarget) {
         // 填充目标
         const transferRes = creep.transfer(filltarget, RESOURCE_ENERGY);
+        console.log('transferRes: ', transferRes);
         if (transferRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(filltarget, { visualizePathStyle: { stroke: '#ffffff' } });
           return 'MOVE';
