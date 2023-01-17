@@ -122,6 +122,9 @@ const creepWrok = {
         } else if (transferRes === ERR_FULL) {
           creep.memory.store = false;
           this.assign(creep);
+        } else if (transferRes === ERR_NOT_ENOUGH_RESOURCES) {
+          creep.memory.store = false;
+          this.assign(creep);
         }
         return 'FILL';
       }
