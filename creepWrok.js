@@ -78,7 +78,7 @@ const creepWrok = {
   },
   assign(creep) {
     // 判断当前store标记
-    if (creep.memory.store === true) {
+    if (creep.memory.store && creep.memory.store === true) {
       let filltarget = ''
       // 填充各种容器
       // 获取该房间extension
