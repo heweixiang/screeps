@@ -77,7 +77,6 @@ const creepWrok = {
     });
   },
   assign(creep) {
-  console.log('creep.memory.store && creep.memory.store === true: ', creep.memory.store && creep.memory.store === true);
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
     
@@ -112,6 +111,7 @@ const creepWrok = {
           }
         }
       }
+      console.log('filltarget: ', filltarget);
       // 判断是否有填充目标
       if (filltarget) {
         // 填充目标
