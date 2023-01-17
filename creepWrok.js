@@ -126,6 +126,7 @@ const creepWrok = {
     } else {
       // 从storage中取出资源
       const withdrawRes = creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+      console.log('withdrawRes: ', withdrawRes);
       if (withdrawRes === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.storage, { visualizePathStyle: { stroke: '#ffffff' } });
       } else if (withdrawRes === ERR_FULL) {
