@@ -24,7 +24,7 @@ const config = {
   },
   // creeps配置
   creep: {
-    // 1、综合工/修理工/建筑工/升级工/预备工
+    // 1、综合工/修理工/建筑工/升级工/预备工/分配
     generateInitialWorker: (ROOM, expedited = false) => {
       // 计算当前房间的能量容量
       const energyCapacity = ROOM.energyCapacityAvailable

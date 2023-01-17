@@ -58,6 +58,8 @@ const createCreep = {
         case 6:
         case 5:
         case 4:
+          createCreepForRCL4(Room, spawns[0]);
+          break;
         case 3:
         case 2:
           createCreepForRCL2(Room, spawns[0]);
@@ -68,6 +70,33 @@ const createCreep = {
       }
     }
   }
+}
+
+// 四级房间
+function createCreepForRCL4(Room, spawn) {
+  if (createCreepForRCL2(Room, spawn) === 'create') {
+    return 'create'
+  }
+  // 四级了如果有Storge就需要有分配者
+  if (Room.storage) {
+    // 获取房间内的分配者数量
+    const assignNum = Room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return creep.memory.role === ROLE_ASSIGN;
+      }
+    }).length;
+    // 如果分配者数量小于1
+    if (assignNum < 2) {
+      // 创建分配者
+      const body = Game.Config.creep.generateInitialWorker(Room);
+      const name = 'TouchFish_分配者' + Game.time;
+      const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
+      // 创造creep
+      GenerateCreep(Room, spawn, body, name, config);
+      return 'create'
+    }
+  }
+  return 'no-create'
 }
 
 // 二级可以发展外矿了
@@ -292,6 +321,25 @@ function emergency(Room, spawn) {
         return creep.memory.role == ROLE_HARVESTER && creep.memory.behavior == BEHAVIOR_UPGRADE;
       }
     });
+    // 四级了如果有Storge就需要有分配者
+    if (Room.storage) {
+      // 获取房间内的分配者数量
+      const assignNum = Room.find(FIND_MY_CREEPS, {
+        filter: (creep) => {
+          return creep.memory.role === ROLE_ASSIGN;
+        }
+      }).length;
+      // 如果分配者数量小于1
+      if (assignNum < 1) {
+        // 创建分配者
+        const body = Game.Config.creep.generateInitialWorker(Room, true);
+        const name = 'TouchFish_分配者' + Game.time;
+        const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
+        // 创造creep
+        GenerateCreep(Room, spawn, body, name, config);
+        return 'create'
+      }
+    }
     // 如果运输者数量小于1
     if (transporters.length < 1) {
       // 生成运输者

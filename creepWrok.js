@@ -69,8 +69,70 @@ const creepWrok = {
         case ROLE_EXTERNALMINE_RESERVER:
           this.externalMineReserver(creep);
           break;
+        // 分配者
+        case ROLE_ASSIGN:
+          this.assign(creep);
+          break;
       }
     });
+  },
+  assign(creep) {
+    // 判断当前store标记
+    if (creep.memory.store === true) {
+      let filltarget = ''
+      // 填充各种容器
+      // 获取该房间extension
+      const extensions = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_EXTENSION;
+        }
+      });
+      if (extensions.length > 0) {
+        filltarget = roomFind.contrastPos(creep, extensions)
+      } else {
+        // 获取该房间spawn
+        const spawns = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_SPAWN;
+          }
+        });
+        if (spawns.length > 0) {
+          filltarget = roomFind.contrastPos(creep, spawns)
+        } else {
+          // 获取该房间tower
+          const towers = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return structure.structureType === STRUCTURE_TOWER;
+            }
+          });
+          if (towers.length > 0) {
+            filltarget = roomFind.contrastPos(creep, towers)
+          }
+        }
+      }
+      // 判断是否有填充目标
+      if (filltarget) {
+        // 填充目标
+        const transferRes = creep.transfer(filltarget, RESOURCE_ENERGY);
+        if (transferRes === ERR_NOT_IN_RANGE) {
+          creep.moveTo(filltarget, { visualizePathStyle: { stroke: '#ffffff' } });
+          return 'MOVE';
+        } else if (transferRes === ERR_FULL) {
+          creep.memory.store = false;
+          this.assign(creep);
+        }
+        return 'FILL';
+      }
+    } else {
+      // 从storage中取出资源
+      const withdrawRes = creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+      if (withdrawRes === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.storage, { visualizePathStyle: { stroke: '#ffffff' } });
+      } else if (withdrawRes === ERR_FULL) {
+        creep.memory.store = true;
+        this.assign(creep);
+      }
+    }
   },
   // 外矿预定者
   externalMineReserver(creep) {
@@ -166,7 +228,7 @@ const creepWrok = {
         }
       } else {
         // 到controller附近
-        if(creep.pos.getRangeTo(creep.room.controller) > 3) {
+        if (creep.pos.getRangeTo(creep.room.controller) > 3) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         } else {
           // 丢弃资源
