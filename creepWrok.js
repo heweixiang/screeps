@@ -77,8 +77,10 @@ const creepWrok = {
     });
   },
   assign(creep) {
+  console.log('creep.memory.store && creep.memory.store === true: ', creep.memory.store && creep.memory.store === true);
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
+    
       let filltarget = ''
       // 填充各种容器
       // 获取该房间extension
