@@ -312,13 +312,7 @@ function emergency(Room, spawn) {
     // 获取运输者数量
     const transporters = Room.find(FIND_MY_CREEPS, {
       filter: (creep) => {
-        return creep.memory.role == ROLE_TRANSPORTER;
-      }
-    });
-    // 升级爬爬爬
-    const upgraders = Room.find(FIND_MY_CREEPS, {
-      filter: (creep) => {
-        return creep.memory.role == ROLE_HARVESTER && creep.memory.behavior == BEHAVIOR_UPGRADE;
+        return creep.memory.behavior == BEHAVIOR_TRANSPORT;
       }
     });
     // 四级了如果有Storge就需要有分配者
@@ -357,16 +351,6 @@ function emergency(Room, spawn) {
       const name = 'TouchFish_矿工爬爬' + Game.time;
       const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST } };
       // 创建矿工
-      GenerateCreep(Room, spawn, body, name, config);
-      return 'create'
-    }
-    // 如果升级爬爬数量小于1
-    if (upgraders.length < 1) {
-      // 生成升级爬爬
-      const body = Game.Config.creep.generateHarvester(Room, true);
-      const name = 'TouchFish_升级爬爬' + Game.time;
-      const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };
-      // 创建升级爬爬
       GenerateCreep(Room, spawn, body, name, config);
       return 'create'
     }
