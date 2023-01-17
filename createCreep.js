@@ -185,7 +185,7 @@ function createCreepForRCL2(Room, spawn) {
         });
         if (reservers.length == 0) {
           if (Room.energyCapacityAvailable >= 1300) {
-            const body = Game.Config.creep.generateReserver(Room);
+            const body = Game.Config.creep.generateClaimer(Room);
             const name = 'TouchFish_外矿预定者' + Game.time;
             const config = { memory: { role: ROLE_EXTERNALMINE_RESERVER, behavior: BEHAVIOR_RESERVE, bindRoom: flagRoom.name } };
             // 创造creep
