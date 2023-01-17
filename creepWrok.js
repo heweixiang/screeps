@@ -79,7 +79,6 @@ const creepWrok = {
   assign(creep) {
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
-    
       let filltarget = ''
       // 填充各种容器
       // 获取该房间extension
@@ -393,6 +392,14 @@ const creepWrok = {
         } else if (getEnergyResult === ERR_FULL) {
           creep.memory.transportId = null;
           creep.memory.transport = true;
+        } else if (getEnergyResult === ERR_INVALID_TARGET) {
+          creep.memory.transportId = null;
+          target = creepBehavior.getTransportEnergy(creep);
+          // 如果有资源就去获取
+          if (target) {
+            // 绑定目标
+            creep.memory.transportId = target.id;
+          }
         }
       }
     }

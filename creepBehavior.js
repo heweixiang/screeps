@@ -31,12 +31,7 @@ const creepBehavior = {
     if (tombstone && tombstone.length > 0) {
       // 获取最近的废墟
       tombstone = roomFind.contrastPos(creep, tombstone);
-      // 如果废墟中的资源大于0
-      if (tombstone.store[RESOURCE_ENERGY] > 0) {
-        // 获取废墟的id
-        creep.memory.transportEnergyId = tombstone.id;
-        return tombstone;
-      }
+      return tombstone;
     }
     // 获取散落资源
     const droppedEnergy = room.find(FIND_DROPPED_RESOURCES, {
@@ -44,6 +39,18 @@ const creepBehavior = {
         return resource.resourceType === RESOURCE_ENERGY && resource.amount > 100;
       }
     });
+    if (droppedEnergy.length > 0) {
+      return roomFind.contrastPos(creep, droppedEnergy);
+    }
+    // 获取ruin中的资源
+    const ruin = room.find(FIND_RUINS, {
+      filter: (ruin) => {
+        return ruin.store[RESOURCE_ENERGY] > 0;
+      }
+    });
+    if (ruin.length > 0) {
+      return roomFind.contrastPos(creep, ruin);
+    }
     // 获取container中的资源
     const container = room.find(FIND_STRUCTURES, {
       filter: (structure) => {
@@ -57,13 +64,13 @@ const creepBehavior = {
       }
     });
     // 对比最近的返回
-    return roomFind.contrastPos(creep, droppedEnergy.concat(container));
+    return roomFind.contrastPos(creep, container);
   },
   // 从指定建筑或坐标获取能量
   getEnergyFrom(creep, target) {
     let result;
     // 如果是建筑
-    if (target.structureType) {
+    if (target.store) {
       result = creep.withdraw(target, RESOURCE_ENERGY);
     } else {
       // 从散落资源中获取能量
