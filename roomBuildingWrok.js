@@ -43,9 +43,9 @@ function TowerManagerLoop(ROOM, tower) {
   const structures = ROOM.find(FIND_STRUCTURES, {
     filter: (structure) => {
       // 如果是墙壁
-      if (structure.structureType === STRUCTURE_WALL) {
+      if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
         // 如果血量低于
-        return structure.hits < Game.Config.RCL['LV' + ROOM.controller.level].Ramparts * 0.3 * 1000;
+        return structure.hits < Game.Config.RCL['LV' + ROOM.controller.level].Ramparts * 10000 * 0.25;
       }
       return structure.hits < structure.hitsMax * 0.7;
     }
