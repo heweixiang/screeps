@@ -56,8 +56,6 @@ const config = {
         body.push(WORK)
         body.push(MOVE)
       }
-      // 多加个carry用来填充快些
-      if (workNum > 5) body.push(CARRY)
       return body.length === 1 ? [CARRY, WORK, MOVE] : body
     },
     // 3、运输者
