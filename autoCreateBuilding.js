@@ -227,7 +227,7 @@ const autoCreateBuilding = {
     const RCL = Room.controller ? Room.controller.level : 0;
     // 获取该房间spawn坐标
     const spawn = Room.find(FIND_MY_SPAWNS)[0];
-    if (Room.controller && spawn) {
+    if (Room.controller && spawn && RCL < 5) {
       // 遍历环数
       for (let ring = 1; ring <= RCL * 2; ring++) {
         const posList = getCirclePos(spawn.pos.x, spawn.pos.y, ring);
