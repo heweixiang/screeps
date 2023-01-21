@@ -27,7 +27,7 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
-    autoCreateBuilding.loop(Room);
+    // autoCreateBuilding.loop(Room);
     roomBuildingWrok.loop(Room);
   },
   // 可控房间
@@ -41,7 +41,7 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
-    autoCreateBuilding.loop(Room);
+    // autoCreateBuilding.loop(Room);
     roomBuildingWrok.loop(Room);
   }
 }
