@@ -106,13 +106,13 @@ const creepBehavior = {
     // 如果两者都存在
     if (link.length > 0 && storage.length > 0) {
       // 获取最近的
-      const link = roomFind.contrastPos(creep, link);
-      const storage = roomFind.contrastPos(creep, storage);
+      const linkx = roomFind.contrastPos(creep, link);
+      const storagex = roomFind.contrastPos(creep, storage);
       // 如果link距离storage近
-      if (creep.pos.getRangeTo(link) < creep.pos.getRangeTo(storage)) {
-        target = link;
+      if (creep.pos.getRangeTo(linkx) < creep.pos.getRangeTo(storagex)) {
+        target = linkx;
       } else {
-        target = storage;
+        target = storagex;
       }
     }
     // extension
