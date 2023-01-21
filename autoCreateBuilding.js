@@ -5,6 +5,7 @@
 
 const autoCreateBuilding = {
   loop(Room) {
+    return ;
     // 获取所有建筑工地
     const constructionSites = Room.find(FIND_MY_CONSTRUCTION_SITES);
     // 如果建筑工地数量大于100
