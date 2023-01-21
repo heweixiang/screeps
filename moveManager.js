@@ -1,6 +1,6 @@
 /*
 creep对穿+跨房间寻路+寻路缓存 
-跑的比香港记者还快从你做起
+跑的比香港记者还快从你做起 
 应用此模块会导致creep.moveTo可选参数中这些项失效：reusePath、serializeMemory、noPathFinding、ignore、avoid、serialize
 保留creep.moveTo中其他全部可选参数如visualizePathStyle、range、ignoreDestructibleStructures、ignoreCreeps、ignoreRoad等
 新增creep.moveTo中可选参数ignoreSwamps，会无视swamp与road的移动力损耗差异，一律与plain相同处理，用于方便pc和眼，默认false
