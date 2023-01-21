@@ -74,7 +74,7 @@ require('超级移动优化').deletePathInRoom(roomName);
 let config = {
   地图房号最大数字超过100: false,
   changeMove: true,   // 【未启用】为creep.move增加对穿能力
-  changeMoveTo: true, // 全面优化creep.moveTo，跨房移动也可以一个moveTo解决问题
+  changeMoveTo: false, // 全面优化creep.moveTo，跨房移动也可以一个moveTo解决问题
   changeFindClostestByPath: true,     // 【未启用】轻度修改findClosestByPath，使得默认按照ignoreCreeps寻找最短
   autoVisual: false,  // 【未启用】
   enableFlee: false   // 【未启用】是否添加flee()函数，注意这会在Creep.prototype上添加官方未有键值，flee()用法见最底下module.exports处
