@@ -16,9 +16,38 @@ const roomBuildingWrok = {
     towers.forEach((tower) => {
       TowerManagerLoop(ROOM, tower);
     })
+    // 管理link的发送
+    linkSend(ROOM);
   }
 }
 
+// 管理link的发送
+function linkSend(ROOM) {
+  if (!ROOM.storage) {
+    return
+  }
+  // 获取storage周围的link
+  const storageLink = ROOM.storage.pos.findInRange(FIND_MY_STRUCTURES, 2, {
+    filter: (structure) => {
+      return structure.structureType === STRUCTURE_LINK && structure.store[RESOURCE_ENERGY] === 0;
+    }
+  })[0];
+  if (storageLink) {
+    // 找到一个满的link
+    const fullLink = ROOM.find(FIND_MY_STRUCTURES, {
+      filter: (structure) => {
+        return structure.structureType === STRUCTURE_LINK && structure.store[RESOURCE_ENERGY] > 700 && structure.my && structure.cooldown === 0
+      }
+    })[0];
+    if (fullLink) {
+      // 如果storageLink的能量小于800
+      if (storageLink.store[RESOURCE_ENERGY] === 0) {
+        // 发送能量
+        fullLink.transferEnergy(storageLink);
+      }
+    }
+  }
+}
 
 // 暂时让塔动起来，// TODO 后面需要优化的
 function TowerManagerLoop(ROOM, tower) {

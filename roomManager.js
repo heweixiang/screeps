@@ -7,7 +7,8 @@ const roomBuildingWrok = require('roomBuildingWrok')
 const roomManager = {
   // 两种房间，一种是有spawn的占领房间，一种是没有spawn的外矿房间
   loop(Room) {
-
+    // 处理房间初始化挂载查询问题，将一些定下来的值挂载到房间上，避免多次查询
+    this.roomInit(Room);
     // 如果房间没有spawn
     if (!Room.find(FIND_MY_SPAWNS).length) {
       // 外矿房间
@@ -16,6 +17,20 @@ const roomManager = {
     }
     // 如果房间有spawn
     this.ownRoom(Room);
+  },
+  // 房间初始化,只能存ID位置
+  roomInit(Room) {
+    // 判断房间内存是否存在storageLink
+    if (!Room.memory.storageLink && Room.storage) {
+      // 获取storage 3*3 范围内的link
+      const storageLink = Room.storage.pos.findInRange(FIND_STRUCTURES, 3, {
+        filter: (structure) => {
+          return structure.structureType == STRUCTURE_LINK;
+        }
+      })
+      Room.memory.storageLink = storageLink[0].id
+    }
+
   },
   // 非可控房间
   outRoom(Room) {
@@ -28,7 +43,6 @@ const roomManager = {
       creepWrok.loop(creeps);
     }
     // autoCreateBuilding.loop(Room);
-    roomBuildingWrok.loop(Room);
   },
   // 可控房间
   ownRoom(Room) {

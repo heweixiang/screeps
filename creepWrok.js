@@ -79,6 +79,21 @@ const creepWrok = {
   assign(creep) {
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
+      // 保证link中是空的
+      if (creep.room.storageLink) {
+        // 如果storageLink中有能量则存入storage并继续取出
+        const storageLink = Game.getObjectById(creep.room.storageLink);
+        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          // 将能量给Storage并修改标记
+          const transferRes = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
+          if (transferRes === ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.storage);
+          } else if (transferRes === OK) {
+            creep.memory.store = false;
+          }
+          return 'transfer';
+        }
+      }
       let filltarget = ''
       // 填充各种容器
       // 获取该房间extension
@@ -127,6 +142,22 @@ const creepWrok = {
         return 'FILL';
       }
     } else {
+      // 保证link中是空的
+      if (creep.room.storageLink) {
+        // 如果storageLink中有能量则从storageLink中取出
+        const storageLink = Game.getObjectById(creep.room.storageLink);
+        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          const withdrawRes = creep.withdraw(storageLink, RESOURCE_ENERGY)
+          if (withdrawRes === ERR_NOT_IN_RANGE) {
+            creep.moveTo(storageLink, { visualizePathStyle: { stroke: '#ffffff' } });
+          } else if (withdrawRes === ERR_FULL) {
+            creep.memory.store = true;
+            this.assign(creep);
+          }
+          return 'WITHDRAW';
+        }
+      }
+
       // 从storage中取出资源
       const withdrawRes = creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
       if (withdrawRes === ERR_NOT_IN_RANGE) {
@@ -146,10 +177,17 @@ const creepWrok = {
     }
     // 获取当前房间controller
     const target = creep.room.controller;
-    // 预定
-    if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+    // 获取当前creep的预定模块数量
+    const reserveNum = creep.body.filter((item) => item.type === 'claim').length;
+    // 获取预定时间
+    const reservation = target.reservation;
+    if (reservation && reservation.ticksToEnd <= 5000 - reserveNum) {
+      // 预定
+      if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
     }
+
   },
   // 外矿攻击者
   externalMineAttacker(creep) {
