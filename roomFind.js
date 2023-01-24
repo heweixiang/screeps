@@ -2,6 +2,9 @@
 const roomFind = {
   // 对比一个实体和一个目标实体列表,返回最近的目标实体
   contrastPos: (Entity, TargetEntityList) => {
+    if(!TargetEntityList) return null
+    if (TargetEntityList.length === 0) return null;
+    if (TargetEntityList.length === 1) return TargetEntityList[0];
     TargetEntityList = TargetEntityList.filter(x => x !== undefined && x !== null && x !== false);
     let target = null;
     let min = 9999;
