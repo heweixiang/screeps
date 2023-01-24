@@ -34,9 +34,10 @@ function linkSend(ROOM) {
   })[0];
   if (storageLink) {
     // 找到一个满的link
+    // TODO 如果是矿物的绑定link则到了100才发送，并且逐步废弃container
     const fullLink = ROOM.find(FIND_MY_STRUCTURES, {
       filter: (structure) => {
-        return structure.structureType === STRUCTURE_LINK && structure.store[RESOURCE_ENERGY] > 700 && structure.my && structure.cooldown === 0
+        return structure.structureType === STRUCTURE_LINK && structure.store[RESOURCE_ENERGY] >= 600 && structure.my && structure.cooldown === 0
       }
     })[0];
     if (fullLink) {

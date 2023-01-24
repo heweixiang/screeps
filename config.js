@@ -83,13 +83,17 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       let workNum = Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2))
-      if (!powerful) workNum = workNum > 5 ? 5 : workNum // 普通清理野怪使用
+      if (powerful) workNum = workNum > 5 ? 5 : workNum // 普通清理野怪使用
       // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
       for (let i = 0; i < workNum; i++) {
         body.push(ATTACK)
         body.push(ATTACK)
         body.push(MOVE)
         body.push(MOVE)
+      }
+      if(powerful && Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)) > 5){
+        body.push(WORK)
+        body.push(CARRY)
       }
       return body
     },

@@ -80,15 +80,15 @@ const creepWrok = {
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
       // 保证link中是空的
-      if (creep.room.storageLink) {
+      if (creep.room.memory.storageLink) {
         // 如果storageLink中有能量则存入storage并继续取出
-        const storageLink = Game.getObjectById(creep.room.storageLink);
+        const storageLink = Game.getObjectById(creep.room.memory.storageLink);
         if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
           // 将能量给Storage并修改标记
           const transferRes = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
           if (transferRes === ERR_NOT_IN_RANGE) {
             creep.moveTo(creep.room.storage);
-          } else if (transferRes === OK) {
+          } else if (transferRes === OK || transferRes === ERR_NOT_ENOUGH_RESOURCES) {
             creep.memory.store = false;
           }
           return 'transfer';
@@ -143,16 +143,15 @@ const creepWrok = {
       }
     } else {
       // 保证link中是空的
-      if (creep.room.storageLink) {
+      if (creep.room.memory.storageLink) {
         // 如果storageLink中有能量则从storageLink中取出
-        const storageLink = Game.getObjectById(creep.room.storageLink);
+        const storageLink = Game.getObjectById(creep.room.memory.storageLink);
         if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
           const withdrawRes = creep.withdraw(storageLink, RESOURCE_ENERGY)
           if (withdrawRes === ERR_NOT_IN_RANGE) {
             creep.moveTo(storageLink, { visualizePathStyle: { stroke: '#ffffff' } });
           } else if (withdrawRes === ERR_FULL) {
             creep.memory.store = true;
-            this.assign(creep);
           }
           return 'WITHDRAW';
         }
@@ -217,7 +216,43 @@ const creepWrok = {
       if (target) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
       } else {
-        // 走到房间中间
+        // TODO 兼职修理
+        // 获取血量低于50%的道路
+        // let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        //   filter: s => (s.structureType === STRUCTURE_ROAD || s.structureType === STRUCTURE_CONTAINER) && s.hits < s.hitsMax * 0.5
+        // });
+        // // 如果有，就修补
+        // if (target) {
+        //   if (creep.energy > 0) {
+        //     if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+        //       creep.say("🚧")
+        //       creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+        //     }
+        //     return 'repair'
+        //   } else {
+        //     // 获取散落的能量
+        //     const energy = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+        //     if (energy) {
+        //       if (creep.pickup(energy) === ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(energy, { visualizePathStyle: { stroke: '#ffffff' } });
+        //       }
+        //       return 'pickup';
+        //     }
+        //     // 获取container中的能量
+        //     const container = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        //       filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
+        //     });
+        //     if (container) {
+        //       if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        //         creep.moveTo(container, { visualizePathStyle: { stroke: '#ffffff' } });
+        //       }
+        //       return 'withdraw';
+        //     }
+        //   }
+        // } else {
+        //   // 走到房间中间
+        //   creep.moveTo(25, 25, { visualizePathStyle: { stroke: '#ffffff' } });
+        // }
         creep.moveTo(25, 25, { visualizePathStyle: { stroke: '#ffffff' } });
       }
     }
@@ -233,19 +268,19 @@ const creepWrok = {
     }
     // 如果运输状态为true就运输到指定位置
     if (creep.memory.transport) {
-      // 运输者修补外矿道路
-      // 获取血量低于50%的道路
-      let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: s => (s.structureType === STRUCTURE_ROAD || s.structureType === STRUCTURE_CONTAINER) && s.hits < s.hitsMax * 0.5
-      });
-      // 如果有，就修补
-      if (target) {
-        if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-          creep.say("🚧")
-          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-        }
-        return 'repair'
-      }
+      // // 运输者修补外矿道路 ，修补工作后续交给攻击者
+      // // 获取血量低于50%的道路
+      // let target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      //   filter: s => (s.structureType === STRUCTURE_ROAD || s.structureType === STRUCTURE_CONTAINER) && s.hits < s.hitsMax * 0.5
+      // });
+      // // 如果有，就修补
+      // if (target) {
+      //   if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+      //     creep.say("🚧")
+      //     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      //   }
+      //   return 'repair'
+      // }
       // 判断是否在生成房间
       if (creepBehavior.moveToSpawnRoom(creep) === 'MOVE_TO') {
         return;
@@ -335,7 +370,8 @@ const creepWrok = {
     // 获取该房间内所有creep
     if (creepBehavior.miner(creep) == 'MOVE_TO') {
       return;
-    }
+    } 
+    // TODO 需要改成矿工满了就去搞事业，并且如果是本房间矿工就要判断放进link中
     if (creepBehavior.miner(creep) === ERR_NOT_ENOUGH_RESOURCES) {
       // 获取脚下的container
       const container = creep.pos.findInRange(FIND_STRUCTURES, 0, {

@@ -89,12 +89,12 @@ const creepBehavior = {
     const link = creep.room.find(FIND_STRUCTURES, {
       filter: (structure) => {
         // 3*3内没有storage
-        const storage = structure.pos.findInRange(FIND_STRUCTURES, 1, {
+        const storage = structure.pos.findInRange(FIND_STRUCTURES, 3, {
           filter: (structure) => {
             return structure.structureType === STRUCTURE_STORAGE;
           }
         });
-        return structure.structureType === STRUCTURE_LINK && structure.energy < structure.energyCapacity && storage.length === 0;
+        return structure.structureType === STRUCTURE_LINK && storage.length === 0;
       }
     });
     // 获取storage

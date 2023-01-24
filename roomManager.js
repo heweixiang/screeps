@@ -31,6 +31,10 @@ const roomManager = {
       Room.memory.storageLink = storageLink[0].id
     }
 
+    // TODO 房间出口link绑定
+
+    // TODO 房间矿物link绑定
+
   },
   // 非可控房间
   outRoom(Room) {

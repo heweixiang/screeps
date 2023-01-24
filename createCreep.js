@@ -143,8 +143,9 @@ function createCreepForRCL2(Room, spawn) {
       const attackers = CreepList.filter((creep) => {
         return creep.memory.role == ROLE_EXTERNALMINE_ATTACKER && creep.memory.bindRoom == flagRoom.name;
       });
-      if (attackers.length == 0) {
-        const body = Game.Config.creep.generateAttacker(Room);
+      // FIXME: 外矿攻击者在新手区不需要
+      if (attackers.length == 0 || false) {
+        const body = Game.Config.creep.generateAttacker(Room, false, true);
         const name = 'TouchFish_外矿攻击者' + Game.time;
         const config = { memory: { role: ROLE_EXTERNALMINE_ATTACKER, behavior: BEHAVIOR_ATTACK, bindRoom: flagRoom.name } };
         // 创造creep
