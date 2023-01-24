@@ -267,7 +267,7 @@ function createCreepForRCL1(Room, spawn) {
   // 获取工地数量
   const constructionSites = []
   for (const key in Game.constructionSites) {
-    constructionSites.push(Game.constructionSites[key]);
+    constructionSites.push(Game.constructionSites[key] && Game.constructionSites[key].structureType != 'container');
   }
   // 如果工地数量大于0
   if (constructionSites.length > 0) {
