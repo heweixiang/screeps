@@ -180,7 +180,7 @@ const creepWrok = {
     const reserveNum = creep.body.filter((item) => item.type === 'claim').length;
     // 获取预定时间
     const reservation = target.reservation;
-    if (reservation && reservation.ticksToEnd <= 5000 - reserveNum) {
+    if (reservation && reservation.ticksToEnd <= 5000 - reserveNum || !reservation) {
       // 预定
       if (creep.reserveController(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });

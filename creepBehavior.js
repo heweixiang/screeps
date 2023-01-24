@@ -77,7 +77,7 @@ const creepBehavior = {
       result = creep.pickup(target);
     }
     if (result === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
       return 'MOVE_TO'
     }
     return result
@@ -193,7 +193,7 @@ const creepBehavior = {
     if (creep.memory.upgrading === true) {
       // 到controller附近
       if (creep.pos.getRangeTo(creep.room.controller) > 3) {
-        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' }});
+        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_ENOUGH_RESOURCES) {
         creep.memory.upgrading = false;
