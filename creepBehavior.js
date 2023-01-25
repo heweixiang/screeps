@@ -251,6 +251,8 @@ const creepBehavior = {
           this.build(creep)
         }
         return 'BUILDING'
+      } else {
+        this.upgrade(creep)
       }
       return 'NO-BUILDING'
     }
