@@ -294,6 +294,12 @@ const creepBehavior = {
         // 移动到出口
         creep.moveTo(creep.pos.findClosestByRange(exit), { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
+      } else{
+        // 不要卡着房间出口
+        if(creep.pos.x === 0 || creep.pos.x === 49 || creep.pos.y === 0 || creep.pos.y === 49){
+          creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+          return 'MOVE_TO'
+        }
       }
     }
     return 'IN_ROOM'
