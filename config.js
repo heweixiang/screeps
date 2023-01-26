@@ -161,7 +161,7 @@ const config = {
       return body
     },
     // 7、预定工
-    generateClaimer: (ROOM, expedited = false) => {
+    generateManager: (ROOM, expedited = false) => {
       // 因为生命只有100T，所以预定工只能有1个工作模块
       return [CLAIM, CLAIM, MOVE, MOVE]
     },
