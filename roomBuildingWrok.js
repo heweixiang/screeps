@@ -62,7 +62,7 @@ function TowerManagerLoop(ROOM, tower) {
   }
   // 如果没有敌人
   // 获取最近的爬爬
-  const creeps = ROOM.find(FIND_MY_CREEPS).filter((creep) => creep.hits < creep.hitsMax * 0.5);
+  const creeps = ROOM.find(FIND_MY_CREEPS).filter((creep) => creep.hits < creep.hitsMax);
   // 如果有爬爬
   if (creeps.length > 0) {
     // 治疗爬爬

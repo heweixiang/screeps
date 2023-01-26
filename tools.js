@@ -20,6 +20,58 @@ const tools = {
       AvailableEnergy
     };
   },
+  // 设置所有房间标签的更新状态为false
+  SetAllRoomTagUpdateFalse() {
+    for (let i in Game.rooms) {
+      if(Game.rooms[i].memory.my == undefined) continue;
+      Game.rooms[i].memory.roomTypeIsUpdate = false;
+    }
+  },
+  // 设置援建房间
+  SetHelpBuildRoom(ROOMName) {
+    if (Memory.HelpBuildRoom == undefined) {
+      Memory.HelpBuildRoom = [];
+    }
+    Memory.HelpBuildRoom.push(ROOMName);
+    Memory.HelpBuildRoom = [...new Set(Memory.HelpBuildRoom)]
+    console.log(`SetHelpBuildRoom[${ROOMName}]`, Memory.HelpBuildRoom);
+  },
+  // 设置预占领房间
+  SetPreRoom(ROOMName) {
+    if (Memory.PreRoom == undefined) {
+      Memory.PreRoom = [];
+    }
+    Memory.PreRoom.push(ROOMName); 
+    Memory.PreRoom = [...new Set(Memory.PreRoom)]
+    console.log(`SetPreRoom[${ROOMName}]`, Memory.PreRoom);
+  },
+  // 移除预占领房间
+  RemovePreRoom(ROOMName) {
+    if (Memory.PreRoom == undefined) {
+      Memory.PreRoom = [];
+    }
+    Memory.PreRoom = Memory.PreRoom.filter(item => item !== ROOMName);
+    console.log(`RemovePreRoom[${ROOMName}]`, Memory.PreRoom);
+  },
+  // 手动绑定外矿房
+  SetOutRoom(ROOMName, OutRoomName) {
+    const ROOM = Game.rooms[ROOMName];
+    if (ROOM.memory.OutRoom == undefined) {
+      ROOM.memory.OutRoom = [];
+    }
+    ROOM.memory.OutRoom.push(OutRoomName);
+    ROOM.memory.OutRoom = [...new Set(ROOM.memory.OutRoom)]
+    console.log(`SetOutRoom[${ROOMName}]`, ROOM.memory.OutRoom);
+  },
+  // 手动移除外矿房
+  RemoveOutRoom(ROOMName, OutRoomName) {
+    const ROOM = Game.rooms[ROOMName];
+    if (ROOM.memory.OutRoom == undefined) {
+      ROOM.memory.OutRoom = [];
+    }
+    ROOM.memory.OutRoom = ROOM.memory.OutRoom.filter(item => item !== OutRoomName);
+    console.log(`RemoveOutRoom[${ROOMName}]`, ROOM.memory.OutRoom);
+  },
   SCN(R, C, N) {
     this.SetCreepNum(R, C, N)
   },

@@ -12,11 +12,7 @@ const TOUGH_ENERGY = 10
 const CLAIM_ENERGY = 600
 
 const config = {
-
-
-
-
-
+  RoomType: 'touchfish room test type',
 
   RCL: {
     LV1: { Upgrade: 200, Roads: true, Spawn: 1 },
@@ -80,6 +76,30 @@ const config = {
       }
       return body.length === 2 ? [WORK, CARRY, MOVE] : body
     },
+    // 一体机
+    generateAllInOne: (ROOM, expedited = false) => {
+      // 计算当前房间的能量容量
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 远程攻击模块、治疗模块、移动模块 的一体机
+      for (let i = 0; i < Math.floor(energyCapacity / (RANGED_ATTACK_ENERGY + HEAL_ENERGY + MOVE_ENERGY)); i++) {
+        body.push(RANGED_ATTACK)
+        body.push(HEAL)
+        body.push(MOVE)
+      }
+      // 排序，保证攻击模块在前，治疗模块在后，移动模块在最后
+      body.sort((a, b) => {
+        if (a === RANGED_ATTACK && b === HEAL) return -1
+        if (a === HEAL && b === RANGED_ATTACK) return 1
+        if (a === HEAL && b === MOVE) return -1
+        if (a === MOVE && b === HEAL) return 1
+        return 0
+      })
+      return body
+    },
     // 4、攻击者
     generateAttacker: (ROOM, expedited = false, powerful = false) => {
       // 计算当前房间的能量容量
@@ -97,7 +117,7 @@ const config = {
         body.push(MOVE)
         body.push(MOVE)
       }
-      if(powerful && Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)) > 5){
+      if (powerful && Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)) > 5) {
         body.push(WORK)
         body.push(CARRY)
       }
