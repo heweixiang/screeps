@@ -5,7 +5,6 @@
 
 const autoCreateBuilding = {
   loop(Room) {
-    return ;
     // 获取所有建筑工地
     const constructionSites = Room.find(FIND_MY_CONSTRUCTION_SITES);
     // 如果建筑工地数量大于100
@@ -15,11 +14,11 @@ const autoCreateBuilding = {
     // 500tick执行一次
     if (Game.time % 500) {
       // 创建extension
-      this.createExtension(Room);
+      // this.createExtension(Room);
       // 创建road
-      this.createRoad(Room);
+      // this.createRoad(Room);
       // 创建tower
-      this.createTower(Room);
+      // this.createTower(Room);
       // 创建container
       this.createContainer(Room);
     }

@@ -163,6 +163,10 @@ const creepWrok = {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         }
       }
+    } else if (creep.room.controller.my === true && !Room.find(FIND_MY_SPAWNS).length) {
+      // 如果没有spawn
+      // 在房间中心向右两点创建spawn
+      Room.createConstructionSite(Room.memory.center.x + 2, Room.memory.center.y, STRUCTURE_SPAWN);
     }
   },
   assign(creep) {

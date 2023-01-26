@@ -19,6 +19,8 @@ const roomManager = {
     this.ownRoom(Room);
     // 处理房间内存
     this.roomMemory(Room);
+    // 处理房间建筑
+    autoCreateBuilding.loop(Room);
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
@@ -107,7 +109,6 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
-    // autoCreateBuilding.loop(Room);
   },
   // 可控房间
   ownRoom(Room) {
@@ -120,7 +121,6 @@ const roomManager = {
       // 创建creep
       creepWrok.loop(creeps);
     }
-    // autoCreateBuilding.loop(Room);
     roomBuildingWrok.loop(Room);
   }
 }

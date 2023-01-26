@@ -118,13 +118,13 @@ function createCreepForRCL2(Room, spawn) {
     // 外矿房间
     const externalRoom = Game.rooms[externalRoomList[i]];
     // 如果外矿房间没有视野
-    if (externalRoom === undefined) {
+    if (!externalRoom) {
       // 查询是否有绑定该房间的creep
       const creep = CreepList.filter((creep) => {
         return creep.memory.bindRoom == externalRoomList[i];
       });
       // 如果没有绑定该房间的creep
-      if (creep.length == 0) {
+      if (creep.length < 1) {
         // 如果房间内的扩展数量大于等与5
         if (Room.find(FIND_MY_STRUCTURES, {
           filter: (structure) => {
@@ -148,26 +148,22 @@ function createCreepForRCL2(Room, spawn) {
           return 'create';
         }
       }
-    } else if (externalRoom ) {
+    } else if (externalRoom) {
       // 按照规格创建creep
-      // 扫描该房间内的敌人
-      const enemy = externalRoom.find(FIND_HOSTILE_CREEPS);
       // 如果敌人数量大于0且没有一体机
-      if (enemy.length > 0) {
-        // 获取该房间内的一体机数量
-        const allInOneNum = CreepList.filter((creep) => {
-          return creep.memory.role == ROLE_ALL_IN_ONE && creep.bindRoom == externalRoomList[i];
-        }).length;
-        // 如果没有一体机
-        if (allInOneNum == 0) {
-          // 派个一体机过去
-          const body = Game.Config.creep.ROLE_ALL_IN_ONE(Room, false);
-          const name = 'TouchFish_一体机' + '【' + externalRoomList[i] + '】' + Game.time;
-          const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: externalRoomList[i] } };
-          // 创造creep
-          GenerateCreep(Room, spawn, body, name, config);
-          return 'create';
-        }
+      // 获取该房间内的一体机数量
+      const allInOneNum = CreepList.filter((creep) => {
+        return creep.memory.role == ROLE_ALL_IN_ONE && creep.memory.bindRoom == externalRoomList[i];
+      }).length;
+      // 如果没有一体机
+      if (allInOneNum == 0) {
+        // 派个一体机过去
+        const body = Game.Config.creep.generateAllInOne(Room, false);
+        const name = 'TouchFish_一体机' + '【' + externalRoomList[i] + '】' + Game.time;
+        const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: externalRoomList[i] } };
+        // 创造creep
+        GenerateCreep(Room, spawn, body, name, config);
+        return 'create';
       }
       // 获取该房间内的采集者数量
       const workerNum = CreepList.filter((creep) => {
@@ -235,7 +231,7 @@ function createCreepForRCL2(Room, spawn) {
     for (let i = 0; i < PreRoomList.length; i++) {
       // 获取该房间管理者数量
       const managerNum = CreepList.filter((creep) => {
-        return creep.memory.role == ROLE_MANAGER;
+        return creep.memory.role == ROLE_MANAGER && creep.memory.bindRoom == PreRoomList[i];
       })
       // 如果管理者数量小于待占领房间数量
       if (managerNum.length === 0) {
@@ -350,8 +346,8 @@ function emergency(Room, spawn) {
   });
   // 获取 storage剩余能量
   const storageEnergy = Room.storage ? Room.storage.store.getUsedCapacity(RESOURCE_ENERGY) : 0
-  // 如果分配者数量小于1或者storage剩余能量小于10000
-  if (assigners.length < 1 || storageEnergy < 10000) {
+  // 如果分配者数量小于2或者storage剩余能量小于10000
+  if (assigners.length < 2 || storageEnergy < 10000) {
     // 四级了如果有Storge就需要有分配者
     if (Room.storage && storageEnergy > 10000) {
       // 获取房间内的分配者数量
@@ -361,7 +357,7 @@ function emergency(Room, spawn) {
         }
       }).length;
       // 如果分配者数量小于1
-      if (assignNum < 1) {
+      if (assignNum < 2) {
         // 创建分配者
         const body = Game.Config.creep.generateInitialWorker(Room, true);
         const name = 'TouchFish_分配者' + Game.time;
