@@ -12,6 +12,12 @@ const TOUGH_ENERGY = 10
 const CLAIM_ENERGY = 600
 
 const config = {
+
+
+
+
+
+
   RCL: {
     LV1: { Upgrade: 200, Roads: true, Spawn: 1 },
     LV2: { Upgrade: 45000, Roads: true, Spawn: 1, Extension: 5, ExtensionEnergy: 50, Ramparts: 0.3, Walls: true },

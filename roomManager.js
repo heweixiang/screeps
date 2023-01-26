@@ -17,6 +17,8 @@ const roomManager = {
     }
     // 如果房间有spawn
     this.ownRoom(Room);
+    // 处理房间内存
+    this.roomMemory(Room);
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
@@ -31,10 +33,55 @@ const roomManager = {
       Room.memory.storageLink = storageLink[0].id
     }
 
-    // TODO 房间出口link绑定
-
-    // TODO 房间矿物link绑定
-
+    // ================= 给房间内建筑也挂上memory ==============
+    {
+      // 不需要上内存的建筑
+      const notMemoryBuilding = [STRUCTURE_ROAD, STRUCTURE_EXTENSION, STRUCTURE_RAMPART, STRUCTURE_WALL]
+      // 判断房间内存是否存在building
+      if (!Room.memory.building) Room.memory.building = {}
+      // 扫描房间内除了道路和extension外的建筑
+      const building = Room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
+        }
+      })
+      // 给房间内存挂载building
+      building.forEach((item, index) => {
+        // 如果房间内存中没有该建筑，就挂载，如果有就回显
+        if (!Room.memory.building[item.id]) {
+          building[index].memory = {}
+        } else {
+          building[index].memory = Room.memory.building[item.id]
+        }
+      })
+      // 如果房间内存中有建筑，但是房间中没有，就删除
+      for (let key in Room.memory.building) {
+        if (!building.find((item) => item.id == key)) {
+          delete Room.memory.building[key]
+        }
+      }
+    }
+  },
+  // 房间内存处理
+  roomMemory(Room) {
+    // ================ 将房间内存中的建筑挂载到房间中 ================
+    {
+      // 有内存的建筑
+      const building = Room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.memory != undefined && structure.id && structure.my
+        }
+      })
+      // 给房间内存挂载building
+      building.forEach((item, index) => {
+        // 如果房间内存中没有该建筑，就挂载，如果有就回显
+        if (!Room.memory.building[item.id]) {
+          Room.memory.building[item.id] = {}
+        } else {
+          Room.memory.building[item.id] = item.memory
+        }
+      })
+    }
   },
   // 非可控房间
   outRoom(Room) {

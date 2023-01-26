@@ -17,7 +17,6 @@ module.exports.loop = function () {
   for (let i in Game.rooms) {
     RoomManager.loop(Game.rooms[i]);
   }
-
   if (Game.cpu.bucket == 10000) {
     Game.cpu.generatePixel ? Game.cpu.generatePixel() : null;
   }
@@ -26,11 +25,6 @@ module.exports.loop = function () {
   // 分割线
   // 绿色
   console.log(`<font color="#00FF00">==========================${Game.time}==========================</font>\n\n\n`);
-}
-
-
-function GameNotify(message) {
-  Game.notify(message);
 }
 
 function clearMemory() {
