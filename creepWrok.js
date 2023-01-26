@@ -339,7 +339,6 @@ const creepWrok = {
       let target = null
       if (creep.memory.transportId) {
         target = Game.getObjectById(creep.memory.transportId);
-
       }
       if (target === null || target.store && target.store.getUsedCapacity() === 0) {
         // 判断是否在工作房间

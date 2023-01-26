@@ -22,7 +22,7 @@ const roomManager = {
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
-    // 判断房间内存是否存在storageLink
+    // ================= 判断房间内存是否存在storageLink =================
     if (!Room.memory.storageLink && Room.storage) {
       // 获取storage 3*3 范围内的link
       const storageLink = Room.storage.pos.findInRange(FIND_STRUCTURES, 3, {
@@ -31,6 +31,20 @@ const roomManager = {
         }
       })
       Room.memory.storageLink = storageLink[0].id
+    }
+
+    // ================= 创建房间中心点，中心布局 =================
+    if (!Room.memory.center && Room.controller && Room.controller.my) {
+      // 如果有storage就以storage为中心，如果没有就以spawn[0]左两格为中心
+      let center = Room.storage ? Room.storage.pos : Room.find(FIND_MY_SPAWNS)[0] ? Room.find(FIND_MY_SPAWNS)[0].pos : null
+      // 生成中心点
+      let generateCenter = getRoomDeepCenter(Room)
+      if (center === null) {
+        center = generateCenter
+      } else {
+        center.max = generateCenter.max
+      }
+      Room.memory.center = center
     }
 
     // ================= 给房间内建筑也挂上memory ==============
@@ -109,6 +123,88 @@ const roomManager = {
     // autoCreateBuilding.loop(Room);
     roomBuildingWrok.loop(Room);
   }
+}
+
+// 获取房间最深处中心点
+function getRoomDeepCenter(room) {
+  // 获取房间地形
+  const terrain = new Room.Terrain(room.name);
+  // 获取房间中心点
+  let center = null
+  // 判断房间内存是否存在center
+  if (room.memory.center) {
+    center = room.memory.center
+  } else {
+    // 如果房间内存中没有center，就获取房间中心点
+    // 获取房间地形数组中最深处的点
+    let max = 0
+    let maxPos = null
+    let terrainArr = []
+    // 遍历每行标记墙体为0
+    for (let y = 0; y < 50; y++) {
+      terrainArr[y] = []
+      for (let x = 0; x < 50; x++) {
+        if (terrain.get(x, y) == TERRAIN_MASK_WALL || x == 0 || x == 49 || y == 0 || y == 49) {
+          terrainArr[y][x] = 0
+        } else {
+          terrainArr[y][x] = null
+        }
+      }
+    }
+
+    // 墙体多层泛洪
+    let count = 0
+    let isNull = false
+    do {
+      for (let y = 0; y < 50; y++) {
+        for (let x = 0; x < 50; x++) {
+          if (terrainArr[y][x] == count) {
+            // 上
+            if (y > 0 && (terrainArr[y - 1][x] === null || terrainArr[y - 1][x] > terrainArr[y][x] + 1)) {
+
+              terrainArr[y - 1][x] = terrainArr[y][x] + 1
+            }
+            // 下
+            if (y < 49 && (terrainArr[y + 1][x] === null || terrainArr[y + 1][x] > terrainArr[y][x] + 1)) {
+              terrainArr[y + 1][x] = terrainArr[y][x] + 1
+            }
+            // 左
+            if (x > 0 && (terrainArr[y][x - 1] === null || terrainArr[y][x - 1] > terrainArr[y][x] + 1)) {
+              terrainArr[y][x - 1] = terrainArr[y][x] + 1
+            }
+            // 右
+            if (x < 49 && (terrainArr[y][x + 1] === null || terrainArr[y][x + 1] > terrainArr[y][x] + 1)) {
+              terrainArr[y][x + 1] = terrainArr[y][x] + 1
+            }
+          }
+        }
+      }
+      // 获取terrainArr是否有null
+      isNull = terrainArr.some((item) => {
+        return item.some((item) => {
+          return item === null
+        })
+      })
+      count++
+    } while (isNull && count < 49);
+    // 获取最深处的点
+    for (let y = 0; y < 50; y++) {
+      // 输出行
+      for (let x = 0; x < 50; x++) {
+        if (terrainArr[y][x] > max) {
+          max = terrainArr[y][x]
+          maxPos = new RoomPosition(x, y, room.name)
+        }
+      }
+    }
+    // 如果没有平原+沼泽最深的点，就以controller为中心
+    if (maxPos === null) {
+      maxPos = room.controller.pos
+    }
+    maxPos.max = max
+    center = maxPos
+  }
+  return center
 }
 
 function logRoomInfo(Room) {
