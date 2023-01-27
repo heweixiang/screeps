@@ -199,10 +199,10 @@ const creepWrok = {
       let filltarget = null
       if (creep.memory.filltarget) {
         filltarget = Game.getObjectById(creep.memory.filltarget)
-        if(filltarget === null) {
+        if (filltarget === null) {
           creep.memory.filltarget = null
         }
-        if(filltarget && filltarget.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+        if (filltarget && filltarget.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
           creep.memory.filltarget = null
           filltarget = null
         }
@@ -251,9 +251,17 @@ const creepWrok = {
           filltarget = creep.pos.findClosestByRange(towers);
         }
       }
+      if (filltarget === null) {
+        // 存储到storage
+        if (creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+          filltarget = creep.room.storage;
+        }
+      }
       // 判断是否有填充目标
       if (filltarget) {
-        creep.memory.filltarget = filltarget.id
+        if (creep.room.storage.id !== filltarget.id) {
+          creep.memory.filltarget = filltarget.id
+        }
         // 填充目标
         const transferRes = creep.transfer(filltarget, RESOURCE_ENERGY);
         if (transferRes === ERR_NOT_IN_RANGE) {
@@ -292,7 +300,7 @@ const creepWrok = {
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
-        if(withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget.energy === 0) {
+        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget.energy === 0) {
           withdrawTarget = null;
         }
       }
@@ -343,7 +351,7 @@ const creepWrok = {
 
       if (withdrawTarget === null) {
         withdrawTarget = creep.room.storage;
-      } else {
+      } else if (creep.room.storage.id !== creep.memory.withdrawTarget) {
         creep.memory.withdrawTarget = withdrawTarget.id;
       }
       // 从storage中取出资源
