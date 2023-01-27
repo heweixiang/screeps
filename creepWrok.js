@@ -300,7 +300,7 @@ const creepWrok = {
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
-        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget.energy === 0) {
+        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
           withdrawTarget = null;
         }
       }
@@ -348,16 +348,18 @@ const creepWrok = {
           withdrawTarget = creep.pos.findClosestByRange(containers);
         }
       }
-
       if (withdrawTarget === null) {
         withdrawTarget = creep.room.storage;
       } else if (creep.room.storage.id !== creep.memory.withdrawTarget) {
         creep.memory.withdrawTarget = withdrawTarget.id;
       }
       // 从storage中取出资源
-      const withdrawRes = creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
+      let withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY)
+      if (withdrawRes === ERR_INVALID_TARGET) {
+        withdrawRes = creep.pickup(withdrawTarget, RESOURCE_ENERGY)
+      }
       if (withdrawRes === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.storage, { visualizePathStyle: { stroke: '#ffffff' } });
+        creep.moveTo(withdrawTarget, { visualizePathStyle: { stroke: '#ffffff' } });
       } else if (withdrawRes === ERR_FULL) {
         creep.memory.store = true;
         this.assign(creep);
