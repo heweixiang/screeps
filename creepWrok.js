@@ -87,8 +87,7 @@ const creepWrok = {
           // 不在攻击范围内则移动
           creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
         }
-        // 本身body是否损坏
-        if (creep.hits < creep.hitsMax) {
+        if (creep.memory.isFighting) {
           // 损坏则治疗
           creep.heal(creep);
         }
@@ -362,6 +361,7 @@ const creepWrok = {
         creep.moveTo(withdrawTarget, { visualizePathStyle: { stroke: '#ffffff' } });
       } else if (withdrawRes === ERR_FULL) {
         creep.memory.store = true;
+        creep.memory.filltarget = null;
         this.assign(creep);
       }
     }
@@ -522,16 +522,20 @@ const creepWrok = {
           creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffffff' } });
           return 'moveToBindRoom';
         }
+        // 所有绑定该房间的运输者
+        const transporters = creep.room.find(FIND_MY_CREEPS, {
+          filter: c => c.memory.behavior === BEHAVIOR_TRANSPORT && c.memory.bindRoom === creep.room.name
+        });
         if (target === null) {
           // 获取散落的能量
           target = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
-            filter: r => r.resourceType === RESOURCE_ENERGY && r.amount > 50
+            filter: r => r.resourceType === RESOURCE_ENERGY && r.amount > 50 && transporters.filter(t => t.memory.transportId === r.id).length === 0
           });
         }
         // 如果没有散落的能量就获取container
         if (target === null) {
           target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-            filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 100
+            filter: s => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() > 100 && transporters.filter(t => t.memory.transportId === s.id).length === 0
           });
         }
         // 如果有资源就去获取

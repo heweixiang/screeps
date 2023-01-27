@@ -9,19 +9,20 @@ const roomManager = {
   loop(Room) {
     // 处理房间初始化挂载查询问题，将一些定下来的值挂载到房间上，避免多次查询
     this.roomInit(Room);
-    // 如果房间有spawn
-    this.ownRoom(Room);
+
     // 处理房间内存
     this.roomMemory(Room);
     // 处理房间建筑
     autoCreateBuilding.loop(Room);
+    logRoomInfo(Room);
+    // 如果房间有spawn
+    this.ownRoom(Room);
     // 如果房间没有spawn
     if (!Room.find(FIND_MY_SPAWNS).length) {
       // 外矿房间
       this.outRoom(Room);
       return
     }
-
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
@@ -146,7 +147,6 @@ const roomManager = {
   },
   // 非可控房间
   outRoom(Room) {
-    logRoomInfo(Room);
     // 获取该房间的creep
     const creeps = Room.find(FIND_MY_CREEPS);
     // 如果该房间没有creep
@@ -157,7 +157,6 @@ const roomManager = {
   },
   // 可控房间
   ownRoom(Room) {
-    logRoomInfo(Room);
     createCreep.loop(Room);
     // 获取该房间的creep
     const creeps = Room.find(FIND_MY_CREEPS);
