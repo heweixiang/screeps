@@ -49,6 +49,50 @@ const roomManager = {
       Room.memory.center = center
     }
 
+    // ================= 中心点十格以内标记为内能量 =================
+    if (!Room.memory.centerSource && Room.controller && Room.controller.my) {
+      Room.memory.centerSource = []
+      Room.memory.otherSource = []
+      // 获取中心点十格以内的能量
+      const centerPos = new RoomPosition(Room.memory.center.x, Room.memory.center.y, Room.name)
+      const centerSource = centerPos.findInRange(FIND_SOURCES, 10)
+      // 如果有能量就挂载到内存中
+      if (centerSource.length) {
+        centerSource.forEach((item, index) => {
+          Room.memory.centerSource.push(item.id)
+        })
+      }
+      // 获取其它能量
+      const otherSource = Room.find(FIND_SOURCES, {
+        filter: (source) => {
+          return !Room.memory.centerSource.includes(source.id)
+        }
+      })
+      // 如果有能量就挂载到内存中
+      if (otherSource.length) {
+        otherSource.forEach((item, index) => {
+          Room.memory.otherSource.push(item.id)
+        })
+      }
+    }
+
+    // ================= 扫描给各个otherSource挂上link ==============
+    if (Room.memory.otherSourceLink < Room.memory.otherSource && Room.controller && Room.controller.my || !Room.memory.otherSourceLink) {
+      if (!Room.memory.otherSourceLink) Room.memory.otherSourceLink = {}
+      Room.memory.otherSource.forEach((item, index) => {
+        if (Room.memory.otherSourceLink[index]) return
+        const source = Game.getObjectById(item)
+        const sourceLink = source.pos.findInRange(FIND_STRUCTURES, 3, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_LINK;
+          }
+        })
+        if (sourceLink.length) {
+          Room.memory.otherSourceLink[index] = sourceLink[0].id
+        }
+      })
+    }
+
     // ================= 给房间内建筑也挂上memory ==============
     {
       // 不需要上内存的建筑

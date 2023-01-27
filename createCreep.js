@@ -274,7 +274,7 @@ function createCreepForRCL1(Room, spawn) {
     }
   });
   // 保证运输者数量有一个
-  if (transporters.length < 1 + Game.Tools.GetCreepNum(Room, '运输')) {
+  if (transporters.length < needTransporter(Room) + Game.Tools.GetCreepNum(Room, '运输')) {
     // 加急生成运输者
     const body = Game.Config.creep.generateTransporter(Room);
     const name = 'TouchFish_运输爬爬' + Game.time;
@@ -373,8 +373,9 @@ function emergency(Room, spawn) {
         return creep.memory.behavior == BEHAVIOR_TRANSPORT;
       }
     });
+
     // 如果运输者数量小于1
-    if (transporters.length < 1) {
+    if (transporters.length < needTransporter(Room)) {
       // 生成运输者
       const body = Game.Config.creep.generateTransporter(Room, true);
       const name = 'TouchFish_运输爬爬' + Game.time;
@@ -401,6 +402,22 @@ function emergency(Room, spawn) {
     }
   }
   return 'no-create'
+}
+
+// 判断该房间是否需要生成运输者
+function needTransporter(Room) {
+  let count = 0
+  // 如果当前有storage且storage剩余能量大于10000
+  if (Room.storage) {
+    const otherSourceLinkLenth = Object.keys(Room.memory.otherSourceLink).length
+    if(Room.memory.otherSource.length - otherSourceLinkLenth >0){
+      // 需要生成的数量
+      count = Room.memory.otherSource.length - otherSourceLinkLenth
+    }
+  } else {
+    count = Room.memory.otherSource.length
+  }
+  return count
 }
 
 // 接管创建creep，方便控制台输出了解详情
