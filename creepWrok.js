@@ -80,7 +80,7 @@ const creepWrok = {
       let targets = creep.room.find(FIND_HOSTILE_CREEPS);
       // 排序先打治疗
       targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0).length > 0 ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
-      const target = targets[0];
+      const target = creep.pos.findClosestByRange(targets);
       // 判断敌人是否在视野内
       if (target) {
         // 标记为战斗状态
