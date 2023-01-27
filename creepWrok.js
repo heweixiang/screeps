@@ -562,7 +562,7 @@ const creepWrok = {
       if (target) {
         if (creep.pos.isNearTo(target)) {
           // 获取获取能量方式
-          const getEnergyFunction = target.structureType === RESOURCE_ENERGY ? creep.pickup : creep.withdraw
+          const getEnergyFunction = target.energy ? creep.pickup : creep.withdraw
           const getEnergyResult = getEnergyFunction.call(creep, target, RESOURCE_ENERGY);
           // 没有能量了就清除绑定
           if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
