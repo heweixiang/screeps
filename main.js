@@ -5,6 +5,8 @@ const Config = require('config');
 // 引入ROOM管理
 const RoomManager = require('roomManager');
 module.exports.loop = function () {
+  // log
+  console.log(`<font color="#00FF00">  待占领房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}</font>`);
   // 用于公共静态配置
   if (Game.Config == undefined) {
     Game.Config = Config;

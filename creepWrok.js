@@ -170,56 +170,90 @@ const creepWrok = {
     }
   },
   assign(creep) {
+    // 获取该房间所有分配者
+    const assigners = creep.room.find(FIND_MY_CREEPS, {
+      filter: (creep) => creep.memory.role === ROLE_ASSIGN
+    });
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
       // 保证link中是空的
       if (creep.room.memory.storageLink) {
         // 如果storageLink中有能量则存入storage并继续取出
         const storageLink = Game.getObjectById(creep.room.memory.storageLink);
-        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-          // 将能量给Storage并修改标记
-          const transferRes = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
-          if (transferRes === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.storage);
-          } else if (transferRes === OK || transferRes === ERR_NOT_ENOUGH_RESOURCES) {
-            creep.memory.store = false;
+        // 我是否绑定了link
+        const isBindLink = creep.room.memory.storageLink && creep.room.memory.storageLink === creep.memory.storageLink;
+        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && isBindLink) {
+          // 在旁边
+          if (creep.pos.getRangeTo(storageLink) === 1) {
+            // 将能量给Storage并修改标记
+            const transferRes = creep.transfer(creep.room.storage, RESOURCE_ENERGY);
+            if (transferRes === ERR_NOT_IN_RANGE) {
+              creep.moveTo(creep.room.storage);
+            } else if (transferRes === OK || transferRes === ERR_NOT_ENOUGH_RESOURCES) {
+              creep.memory.store = false;
+            }
+            return 'transfer';
           }
-          return 'transfer';
         }
       }
-      let filltarget = ''
-      // 填充各种容器
-      // 获取该房间extension
-      const extensions = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType === STRUCTURE_EXTENSION && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+      let filltarget = null
+      if (creep.memory.filltarget) {
+        filltarget = Game.getObjectById(creep.memory.filltarget)
+        if(filltarget === null) {
+          creep.memory.filltarget = null
         }
-      });
-      if (extensions.length > 0) {
-        filltarget = roomFind.contrastPos(creep, extensions)
-      } else {
-        // 获取该房间spawn
+        if(filltarget && filltarget.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+          creep.memory.filltarget = null
+          filltarget = null
+        }
+      }
+      if (filltarget === null) {
+        // 获取该房间tower
+        const towers = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 500 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+          }
+        });
+        if (towers.length > 0) {
+          filltarget = creep.pos.findClosestByRange(towers);
+        }
+      }
+      if (filltarget === null) {
+        // extensions
+        const extensions = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_EXTENSION && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+          }
+        });
+        if (extensions.length > 0) {
+          filltarget = creep.pos.findClosestByRange(extensions);
+        }
+      }
+      if (filltarget === null) {
+        // spawn 
         const spawns = creep.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
-            return structure.structureType === STRUCTURE_SPAWN && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            return structure.structureType === STRUCTURE_SPAWN && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
           }
         });
         if (spawns.length > 0) {
-          filltarget = roomFind.contrastPos(creep, spawns)
-        } else {
-          // 获取该房间tower
-          const towers = creep.room.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-              return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-            }
-          });
-          if (towers.length > 0) {
-            filltarget = roomFind.contrastPos(creep, towers)
+          filltarget = creep.pos.findClosestByRange(spawns);
+        }
+      }
+      if (filltarget === null) {
+        // 获取该房间tower
+        const towers = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 50 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
           }
+        });
+        if (towers.length > 0) {
+          filltarget = creep.pos.findClosestByRange(towers);
         }
       }
       // 判断是否有填充目标
       if (filltarget) {
+        creep.memory.filltarget = filltarget.id
         // 填充目标
         const transferRes = creep.transfer(filltarget, RESOURCE_ENERGY);
         if (transferRes === ERR_NOT_IN_RANGE) {
@@ -240,6 +274,12 @@ const creepWrok = {
         // 如果storageLink中有能量则从storageLink中取出
         const storageLink = Game.getObjectById(creep.room.memory.storageLink);
         if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          // 所有分配爬爬有没有绑定了StorageLink
+          const assignCreeps = assigners.filter(creep => creep.memory.storageLink === creep.room.memory.storageLink);
+          // 绑定storageLink
+          if (assignCreeps.length === 0) {
+            creep.memory.storageLink = creep.room.memory.storageLink;
+          }
           const withdrawRes = creep.withdraw(storageLink, RESOURCE_ENERGY)
           if (withdrawRes === ERR_NOT_IN_RANGE) {
             creep.moveTo(storageLink, { visualizePathStyle: { stroke: '#ffffff' } });
@@ -249,7 +289,63 @@ const creepWrok = {
           return 'WITHDRAW';
         }
       }
+      let withdrawTarget = null;
+      if (creep.memory.withdrawTarget) {
+        withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
+        if(withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget.energy === 0) {
+          withdrawTarget = null;
+        }
+      }
+      if (withdrawTarget === null) {
+        // tombstone
+        const tombstones = creep.room.find(FIND_TOMBSTONES, {
+          filter: (tombstone) => {
+            return tombstone.store.getUsedCapacity(RESOURCE_ENERGY) > 50 && assigners.filter(creep => creep.memory.withdrawTarget === tombstone.id).length === 0;
+          }
+        });
+        if (tombstones.length > 0) {
+          withdrawTarget = creep.pos.findClosestByRange(tombstones);
+        }
+      }
+      if (withdrawTarget === null) {
+        // 废墟
+        const ruins = creep.room.find(FIND_RUINS, {
+          filter: (ruin) => {
+            return ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 50 && assigners.filter(creep => creep.memory.withdrawTarget === ruin.id).length === 0;
+          }
+        });
+        if (ruins.length > 0) {
+          withdrawTarget = creep.pos.findClosestByRange(ruins);
+        }
+      }
+      if (withdrawTarget === null) {
+        // 获取散落的没被标记的能量
+        const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
+          filter: (resource) => {
+            return resource.resourceType === RESOURCE_ENERGY && resource.amount > 50 && assigners.filter(creep => creep.memory.withdrawTarget === resource.id).length === 0;
+          }
+        });
+        if (droppedEnergy.length > 0) {
+          withdrawTarget = creep.pos.findClosestByRange(droppedEnergy);
+        }
+      }
+      if (withdrawTarget === null) {
+        // container
+        const containers = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_CONTAINER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 50 && assigners.filter(creep => creep.memory.withdrawTarget === structure.id).length === 0;
+          }
+        });
+        if (containers.length > 0) {
+          withdrawTarget = creep.pos.findClosestByRange(containers);
+        }
+      }
 
+      if (withdrawTarget === null) {
+        withdrawTarget = creep.room.storage;
+      } else {
+        creep.memory.withdrawTarget = withdrawTarget.id;
+      }
       // 从storage中取出资源
       const withdrawRes = creep.withdraw(creep.room.storage, RESOURCE_ENERGY)
       if (withdrawRes === ERR_NOT_IN_RANGE) {

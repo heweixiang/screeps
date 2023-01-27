@@ -49,7 +49,7 @@ const createCreep = {
 
     // 如果有空闲的spawn
     if (spawns.length > 0) {
-      if (emergency(Room, spawns[0]) === 'create' && Game.time % 100 === 0) {
+      if (emergency(Room, spawns[0]) === 'create') {
         return
       }
       switch (Room.controller.level) {
@@ -88,7 +88,7 @@ function createCreepForRCL4(Room, spawn) {
     // 如果分配者数量小于1
     if (assignNum < 2) {
       // 创建分配者
-      const body = Game.Config.creep.generateInitialWorker(Room);
+      const body = Game.Config.creep.generateTransporter(Room);
       const name = 'TouchFish_分配者' + Game.time;
       const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
       // 创造creep
@@ -359,7 +359,7 @@ function emergency(Room, spawn) {
       // 如果分配者数量小于1
       if (assignNum < 2) {
         // 创建分配者
-        const body = Game.Config.creep.generateInitialWorker(Room, true);
+        const body = Game.Config.creep.generateTransporter(Room, assigners.length === 0);
         const name = 'TouchFish_分配者' + Game.time;
         const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
         // 创造creep
@@ -410,7 +410,7 @@ function needTransporter(Room) {
   // 如果当前有storage且storage剩余能量大于10000
   if (Room.storage) {
     const otherSourceLinkLenth = Object.keys(Room.memory.otherSourceLink).length
-    if(Room.memory.otherSource.length - otherSourceLinkLenth >0){
+    if (Room.memory.otherSource.length - otherSourceLinkLenth > 0) {
       // 需要生成的数量
       count = Room.memory.otherSource.length - otherSourceLinkLenth
     }

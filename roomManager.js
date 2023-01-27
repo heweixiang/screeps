@@ -9,18 +9,19 @@ const roomManager = {
   loop(Room) {
     // 处理房间初始化挂载查询问题，将一些定下来的值挂载到房间上，避免多次查询
     this.roomInit(Room);
-    // 如果房间没有spawn
-    if (!Room.find(FIND_MY_SPAWNS).length) {
-      // 外矿房间
-      this.outRoom(Room);
-      return
-    }
     // 如果房间有spawn
     this.ownRoom(Room);
     // 处理房间内存
     this.roomMemory(Room);
     // 处理房间建筑
     autoCreateBuilding.loop(Room);
+    // 如果房间没有spawn
+    if (!Room.find(FIND_MY_SPAWNS).length) {
+      // 外矿房间
+      this.outRoom(Room);
+      return
+    }
+
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
@@ -265,12 +266,16 @@ function logRoomInfo(Room) {
   const ProgressTotalMinusProgress = ProgressTotal - Progress;
   let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
   console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}%   当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}</font>`);
+  if (RCL > 0) {
+    // 外矿房间列表
+    console.log(`<font color="#00FF00">   外矿房间列表：${Room.memory.OutRoom || []}</font>`);
+  }
   // 所有spawn状态
   const spawns = Room.find(FIND_MY_SPAWNS);
   let HatchingState = ''
   for (let i in spawns) {
     const spawn = spawns[i];
-    HatchingState = HatchingState + "<font color='#8bf600'>     " + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "</font>"
+    HatchingState = HatchingState + "<font color='#8bf600'>   " + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "</font>"
     if (spawn.spawning) {
       HatchingState = HatchingState + `<font color='#f6c100'>   [爬爬名：${spawn.spawning.name}]   [需要：${spawn.spawning.remainingTime}Tick]</font>`
     }
@@ -290,10 +295,10 @@ function roomCreepInfoLog(Room) {
   creepsNameList.forEach(name => {
     creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
   });
-  console.log(`       爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
+  console.log(`   爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
   // 输出附加爬爬
   if (Room.memory.CreepNum) {
-    let addCreepStr = '手动附加: ';
+    let addCreepStr = '   手动附加: ';
     for (const iterator in Room.memory.CreepNum) {
       if (Room.memory.CreepNum[iterator] === 0) continue
       addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "

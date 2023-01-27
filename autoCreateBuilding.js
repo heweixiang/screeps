@@ -22,7 +22,6 @@ const autoCreateBuilding = {
       // 创建container
       this.createContainer(Room);
     }
-
     // 如果房间没有spawn
     if (!Room.find(FIND_MY_SPAWNS).length) {
       // 创建container
