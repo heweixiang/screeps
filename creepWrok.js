@@ -76,8 +76,12 @@ const creepWrok = {
     }
     // 非战斗状态下5tick检测一次
     if (creep.memory.isFighting || creep.ticksToLive % 5 === 0) {
+      // 获取所有敌人
+      let targets = creep.room.find(FIND_HOSTILE_CREEPS);
+      // 排序先打治疗
+      targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0) ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
       // 获取较近的敌人
-      const target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+      const target = targets[0];
       // 判断敌人是否在视野内
       if (target) {
         // 标记为战斗状态
@@ -431,6 +435,11 @@ const creepWrok = {
   },
   // 运输者：一辈子东奔西走运输资源
   transporter(creep) {
+    // 如果血量少于80%就返回出生点
+    if (creep.hits < creep.hitsMax * 0.8) {
+      creep.moveTo(new RoomPosition(25, 25, creep.memory.createRoom), { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
     // 如果满了，状态机切换
     if (creep.store.getFreeCapacity() === 0) {
       // 标记为运输状态

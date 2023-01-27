@@ -264,7 +264,9 @@ function logRoomInfo(Room) {
   // ProgressTotal - Progress 转换成K和M
   const ProgressTotalMinusProgress = ProgressTotal - Progress;
   let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
-  console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}%   当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}</font>`);
+  // 房间是否有敌军
+  const Hostile = Room.find(FIND_HOSTILE_CREEPS).length > 0;
+  console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}%   当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}</font>   ${Hostile ? '⚔️' : ''}`);
   if (RCL > 0) {
     // 外矿房间列表
     console.log(`<font color="#00FF00">   外矿房间列表：${Room.memory.OutRoom || []}</font>`);
