@@ -165,6 +165,23 @@ function createCreepForRCL2(Room, spawn) {
         GenerateCreep(Room, spawn, body, name, config);
         return 'create';
       }
+      // 如果该房间被预定
+      if (externalRoom.controller && externalRoom.controller.my === false && Room.energyCapacityAvailable >= 1300) {
+        // 获取该房间管理者
+        const manager = CreepList.filter((creep) => {
+          return creep.memory.role == ROLE_MANAGER && creep.memory.bindRoom == externalRoom.name;
+        });
+        // 如果没有管理者
+        if (manager.length === 0) {
+          // 派个管理者过去
+          const body = Game.Config.creep.generateManager(Room, false);
+          const name = 'TouchFish_管理者' + '【' + externalRoomList[i] + '】' + Game.time;
+          const config = { memory: { role: ROLE_MANAGER, behavior: BEHAVIOR_RESERVE, bindRoom: externalRoomList[i] } };
+          // 创造creep
+          GenerateCreep(Room, spawn, body, name, config);
+          return 'create';
+        }
+      }
       // 获取该房间内的采集者数量
       const workerNum = CreepList.filter((creep) => {
         return creep.memory.role == ROLE_WORKER && creep.memory.bindRoom == externalRoomList[i];
@@ -229,6 +246,20 @@ function createCreepForRCL2(Room, spawn) {
   const PreRoomList = Room.memory.PreRoom;
   if (Room.energyCapacityAvailable >= 1300 && PreRoomList) {
     for (let i = 0; i < PreRoomList.length; i++) {
+      // 获取该房间内的一体机数量
+      const allInOneNum = CreepList.filter((creep) => {
+        return creep.memory.role == ROLE_ALL_IN_ONE && creep.memory.bindRoom == PreRoomList[i];
+      }).length;
+      // 如果没有一体机
+      if (allInOneNum == 0) {
+        // 派个一体机过去
+        const body = Game.Config.creep.generateAllInOne(Room, false);
+        const name = 'TouchFish_一体机' + '【' + PreRoomList[i] + '】' + Game.time;
+        const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: PreRoomList[i] } };
+        // 创造creep
+        GenerateCreep(Room, spawn, body, name, config);
+        return 'create';
+      }
       // 获取该房间管理者数量
       const managerNum = CreepList.filter((creep) => {
         return creep.memory.role == ROLE_MANAGER && creep.memory.bindRoom == PreRoomList[i];
