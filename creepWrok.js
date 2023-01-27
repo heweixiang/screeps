@@ -79,8 +79,7 @@ const creepWrok = {
       // 获取所有敌人
       let targets = creep.room.find(FIND_HOSTILE_CREEPS);
       // 排序先打治疗
-      targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0) ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
-      // 获取较近的敌人
+      targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0).length > 0 ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
       const target = targets[0];
       // 判断敌人是否在视野内
       if (target) {
@@ -541,6 +540,12 @@ const creepWrok = {
             filter: r => r.resourceType === RESOURCE_ENERGY && r.amount > 50 && transporters.filter(t => t.memory.transportId === r.id).length === 0
           });
         }
+        // 墓碑
+        if (target === null) {
+          target = creep.pos.findClosestByPath(FIND_TOMBSTONES, {
+            filter: s => s.store.getUsedCapacity() > 100 && transporters.filter(t => t.memory.transportId === s.id).length === 0
+          });
+        }
         // 如果没有散落的能量就获取container
         if (target === null) {
           target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -557,7 +562,7 @@ const creepWrok = {
       if (target) {
         if (creep.pos.isNearTo(target)) {
           // 获取获取能量方式
-          const getEnergyFunction = target.structureType === STRUCTURE_CONTAINER ? creep.withdraw : creep.pickup;
+          const getEnergyFunction = target.structureType === RESOURCE_ENERGY ? creep.pickup : creep.withdraw
           const getEnergyResult = getEnergyFunction.call(creep, target, RESOURCE_ENERGY);
           // 没有能量了就清除绑定
           if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
