@@ -90,12 +90,12 @@ const config = {
         body.push(HEAL)
         body.push(MOVE)
       }
-      // 排序，保证攻击模块在前，治疗模块在后，移动模块在最后
+      // 排序，保证攻击模块在前，移动模块在后，治疗模块在最后
       body.sort((a, b) => {
-        if (a === RANGED_ATTACK && b === HEAL) return -1
-        if (a === HEAL && b === RANGED_ATTACK) return 1
-        if (a === HEAL && b === MOVE) return -1
-        if (a === MOVE && b === HEAL) return 1
+        if (a === RANGED_ATTACK && b === MOVE) return -1
+        if (a === MOVE && b === RANGED_ATTACK) return 1
+        if (a === MOVE && b === HEAL) return -1
+        if (a === HEAL && b === MOVE) return 1
         return 0
       })
       return body
@@ -163,7 +163,18 @@ const config = {
     // 7、预定工
     generateManager: (ROOM, expedited = false) => {
       // 因为生命只有100T，所以预定工只能有1个工作模块
-      return [CLAIM, CLAIM, MOVE, MOVE]
+      // 计算当前房间的能量容量
+      let energyCapacity = ROOM.energyCapacityAvailable
+      // 如果是加急模式，获取当前房间的可用能量，保证100%生成成功
+      if (expedited) energyCapacity = ROOM.energyAvailable
+      // 根据能量容量计算出creep的body
+      const body = []
+      // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
+      for (let i = 0; i < Math.floor(energyCapacity / (CLAIM_ENERGY + MOVE_ENERGY)); i++) {
+        body.push(CLAIM)
+        body.push(MOVE)
+      }
+      return body
     },
     // 普通通用工具人
   }

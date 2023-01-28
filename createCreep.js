@@ -38,6 +38,8 @@ const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
 // 占领
 const BEHAVIOR_CLAIM = 'BEHAVIOR_CLAIM';
 
+let creepList = []
+
 const createCreep = {
   loop(Room) {
     // 获取房间内所有空闲的spawn
@@ -49,6 +51,11 @@ const createCreep = {
 
     // 如果有空闲的spawn
     if (spawns.length > 0) {
+      creepList = []
+      // 获取Game中creep并转数组
+      for (const key in Game.creeps) {
+        creepList.push(Game.creeps[key])
+      }
       if (emergency(Room, spawns[0]) === 'create') {
         return
       }
@@ -97,7 +104,6 @@ function createCreepForRCL4(Room, spawn) {
     }
   }
 
-  // TODO 帮建建造者
   return 'no-create'
 }
 
@@ -362,6 +368,29 @@ function createCreepForRCL1(Room, spawn) {
       // 创建建造爬爬
       GenerateCreep(Room, spawn, body, name, config);
       return 'create'
+    }
+  }
+  // 获取需要援建的房间
+  const HelpBuildRoom = Memory.HelpBuildRoom;
+  // 如果有需要援建的房间
+  if (HelpBuildRoom.length > 0) {
+    // 遍历
+    for (let i = 0; i < HelpBuildRoom.length; i++) {
+      // 判断当前房间是否派发了援建者
+      // 获取所有当前房间的建造者绑定了援建房间的
+      const HelpBuildCreep = creepList.filter((creep) => {
+        return creep.memory.behavior === BEHAVIOR_BUILD && creep.memory.bindRoom === HelpBuildRoom[i] && creep.memory.createRoom === Room.name;
+      })
+      // 如果没有
+      if (HelpBuildCreep.length < 1 + Game.Tools.GetCreepNum(Game.rooms[HelpBuildRoom[i]], '建造')) {
+        // 创建建造者
+        const body = Game.Config.creep.generateInitialWorker(Room);
+        const name = 'TouchFish_建造者' + '【' + HelpBuildRoom[i] + '】' + Game.time;
+        const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD, bindRoom: HelpBuildRoom[i], createRoom: Room.name } };
+        // 创造creep
+        GenerateCreep(Room, spawn, body, name, config);
+        return 'create'
+      }
     }
   }
   return 'no-create'

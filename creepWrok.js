@@ -80,7 +80,13 @@ const creepWrok = {
       let targets = creep.room.find(FIND_HOSTILE_CREEPS);
       // 排序先打治疗
       targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0).length > 0 ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
-      const target = creep.pos.findClosestByRange(targets);
+      let target = creep.pos.findClosestByRange(targets);
+      if(!target) {
+        // 获取invadercore
+        target = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
+          filter: structure => structure.structureType === STRUCTURE_INVADER_CORE
+        });
+      }
       // 判断敌人是否在视野内
       if (target) {
         // 标记为战斗状态
@@ -132,14 +138,16 @@ const creepWrok = {
       creep.room.memory.roomType = roomType;
       creep.room.memory.roomTypeIsUpdate = true;
     }
+    // 获取绑定房间的控制器
+    const controller = Game.rooms[creep.memory.bindRoom].controller;
+    // 走到控制器旁边
+    if (controller && creep.pos.getRangeTo(controller) > 1) {
+      creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
     // 是否在绑定房间
     if (creep.memory.bindRoom !== creep.room.name) {
       creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom));
-      return;
-    }
-    // 走到控制器旁边
-    if (creep.pos.getRangeTo(creep.room.controller) > 1) {
-      creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
       return;
     }
     // 判断行为
@@ -163,13 +171,17 @@ const creepWrok = {
         const claimRes = creep.claimController(creep.room.controller);
         if (claimRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else if (claimRes === ERR_INVALID_TARGET) {
+          creep.attackController(creep.room.controller);
         }
       }
-    } else if (creep.room.controller.my === true && !Room.find(FIND_MY_SPAWNS).length) {
-      // 如果没有spawn
-      // 在房间中心向右两点创建spawn
-      Room.createConstructionSite(Room.memory.center.x + 2, Room.memory.center.y, STRUCTURE_SPAWN);
     }
+
+    // else if (creep.room.controller.my === true && !Room.find(FIND_MY_SPAWNS).length) {
+    //   // 如果没有spawn
+    //   // 在房间中心向右两点创建spawn
+    //   Room.createConstructionSite(Room.memory.center.x + 2, Room.memory.center.y, STRUCTURE_SPAWN);
+    // }
   },
   assign(creep) {
     // 获取该房间所有分配者
@@ -376,8 +388,72 @@ const creepWrok = {
         creepBehavior.upgrade(creep);
         break;
       case BEHAVIOR_BUILD:
-        creepBehavior.build(creep);
+        // creepBehavior.build(creep);
+        this.builder(creep);
         break;
+    }
+  },
+  // 建造工
+  builder(creep) {
+    // 判断当前是否有能量 
+    if (creep.store.getFreeCapacity() === 0) {
+      creep.memory.building = true;
+
+    } else
+      // 如果是满能量，切换状态
+      if (creep.store.getUsedCapacity() === 0) {
+        creep.memory.building = false;
+      }
+
+    // 如果工作房间矿物数量为0,且需要矿物
+    if (creep.memory.building === false && creep.memory.bindRoom && Game.rooms[creep.memory.bindRoom].memory.centerSource.length + Game.rooms[creep.memory.bindRoom].memory.otherSource.length === 0) {
+      // 回到创建房间获取
+      creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
+    // 判断是否在工作房间
+    if (creep.memory.bindRoom && creep.room.name !== creep.memory.bindRoom) {
+      creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffffff' } });
+      return;
+    }
+    // 这里是房间有能量矿的情况下
+    if (creep.memory.building === false) {
+      // 自己挖矿
+      const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+      if (source) {
+        const harvestResult = creep.harvest(source);
+        if (harvestResult === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES || harvestResult === ERR_FULL) {
+          // 如果矿物不足，切换状态
+          creep.memory.building = true;
+        }
+      }
+    }
+    // 如果当前能量为0，切换状态
+    if (creep.memory.building) {
+      // 获取建造目标
+      let buildTarget = null;
+      if (creep.memory.buildTarget) {
+        buildTarget = Game.getObjectById(creep.memory.buildTarget);
+        if (buildTarget && buildTarget.progress === buildTarget.progressTotal) {
+          buildTarget = null;
+        }
+      }
+      if (buildTarget === null) {
+        const constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
+        if (constructionSites.length > 0) {
+          buildTarget = creep.pos.findClosestByRange(constructionSites);
+        }
+      }
+      if (buildTarget === null) {
+        creepBehavior.upgrade(creep);
+        return;
+      }
+      // 开始建造
+      if (creep.build(buildTarget) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(buildTarget, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
     }
   },
   // 矿工
