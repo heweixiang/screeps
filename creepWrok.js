@@ -81,7 +81,7 @@ const creepWrok = {
       // 排序先打治疗
       targets = targets.filter(target => target.getActiveBodyparts(HEAL) > 0).length > 0 ? targets.filter(target => target.getActiveBodyparts(HEAL) > 0) : targets;
       let target = creep.pos.findClosestByRange(targets);
-      if(!target) {
+      if (!target) {
         // 获取invadercore
         target = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
           filter: structure => structure.structureType === STRUCTURE_INVADER_CORE
@@ -398,13 +398,11 @@ const creepWrok = {
     // 判断当前是否有能量 
     if (creep.store.getFreeCapacity() === 0) {
       creep.memory.building = true;
-
     } else
       // 如果是满能量，切换状态
       if (creep.store.getUsedCapacity() === 0) {
         creep.memory.building = false;
       }
-
     // 如果工作房间矿物数量为0,且需要矿物
     if (creep.memory.building === false && creep.memory.bindRoom && Game.rooms[creep.memory.bindRoom].memory.centerSource.length + Game.rooms[creep.memory.bindRoom].memory.otherSource.length === 0) {
       // 回到创建房间获取
@@ -447,8 +445,16 @@ const creepWrok = {
         }
       }
       if (buildTarget === null) {
-        creepBehavior.upgrade(creep);
-        return;
+        // 获取绑定房间的控制器
+        const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
+        // 判断是否在控制器旁边
+        if (creep.pos.getRangeTo(controller) > 3) {
+          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+          return;
+        } else {
+          creep.upgradeController(controller);
+          return;
+        }
       }
       // 开始建造
       if (creep.build(buildTarget) === ERR_NOT_IN_RANGE) {
