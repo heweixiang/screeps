@@ -161,6 +161,8 @@ const creepWrok = {
         const reserveRes = creep.reserveController(creep.room.controller);
         if (reserveRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else if (reserveRes === ERR_INVALID_TARGET) {
+          creep.attackController(creep.room.controller);
         }
       }
     } else if (creep.memory.behavior === BEHAVIOR_CLAIM && creep.room.controller.my === false) {
