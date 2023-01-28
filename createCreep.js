@@ -243,7 +243,7 @@ function createCreepForRCL2(Room, spawn) {
   }
 
   // 获取待占领房间
-  const PreRoomList = Room.memory.PreRoom;
+  const PreRoomList = Memory.PreRoom;
   if (Room.energyCapacityAvailable >= 1300 && PreRoomList) {
     for (let i = 0; i < PreRoomList.length; i++) {
       // 获取该房间内的一体机数量
