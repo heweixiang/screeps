@@ -36,6 +36,14 @@ const tools = {
     Memory.HelpBuildRoom = [...new Set(Memory.HelpBuildRoom)]
     console.log(`SetHelpBuildRoom[${ROOMName}]`, Memory.HelpBuildRoom);
   },
+  // 移除援建房间
+  RemoveHelpBuildRoom(ROOMName) {
+    if (Memory.HelpBuildRoom == undefined) {
+      Memory.HelpBuildRoom = [];
+    }
+    Memory.HelpBuildRoom = Memory.HelpBuildRoom.filter(item => item !== ROOMName);
+    console.log(`RemoveHelpBuildRoom[${ROOMName}]`, Memory.HelpBuildRoom);
+  },
   // 设置预占领房间
   SetPreRoom(ROOMName) {
     if (Memory.PreRoom == undefined) {

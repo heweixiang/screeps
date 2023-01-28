@@ -118,7 +118,7 @@ function createCreepForRCL2(Room, spawn) {
     CreepList.push(Game.creeps[name]);
   }
   // 外矿房间列表
-  const externalRoomList = Room.memory.OutRoom;
+  const externalRoomList = Room.memory.OutRoom || [];
   // 遍历外矿房间列表
   for (let i = 0; i < externalRoomList.length; i++) {
     // 外矿房间
