@@ -411,7 +411,7 @@ function emergency(Room, spawn) {
       // 获取房间内的
       // 派个攻击者过去探路
       const body = [ATTACK, ATTACK, MOVE, MOVE];
-      const name = 'TouchFish_攻击者' + '【' + externalRoomList[i] + '】' + Game.time;
+      const name = 'TouchFish_攻击者' + '【' + Room.name + '】' + Game.time;
       const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: Room.name } };
       // 创造creep
       GenerateCreep(Room, spawn, body, name, config);
