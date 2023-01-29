@@ -7,7 +7,7 @@ const RoomManager = require('roomManager');
 module.exports.loop = function () {
   Memory.log = `  待占房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}   Bucket：${Game.cpu.bucket}   
   GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}   
-  房间数量：${Object.keys(Game.rooms).length}   房间名：${Object.keys(Game.rooms).join(',')}`
+  房间列表（${Object.keys(Game.rooms).length}）：${Object.keys(Game.rooms).join(',')}`
   // 用于公共静态配置
   if (Game.Config == undefined) {
     Game.Config = Config;
@@ -24,7 +24,8 @@ module.exports.loop = function () {
   // 预留防止spawn防止方法
   // 分割线
   // 绿色
-  Memory.log += `\n================= ${Game.time} ================= CPU：${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit} ==================\n\n\n`;
+  Memory.log = `  <font color='${Game.cpu.getUsed().toFixed(2) > 15 ? 'red' : 'green'}'>CPU：${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit}</font>` + Memory.log;
+  Memory.log += `\n=================================== ${Game.time} ===================================\n\n\n`;
   console.log(Memory.log);
   // 500tick发送邮件
   if (Game.time % 500 == 0) {
