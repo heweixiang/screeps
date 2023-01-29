@@ -262,14 +262,16 @@ function logRoomInfo(Room) {
   const Hostile = Room.find(FIND_HOSTILE_CREEPS).length > 0 || Room.find(FIND_HOSTILE_STRUCTURES).length > 0;
   let ProgressLog
   if (+ProgressPercent) {
-    ProgressLog = `   <font color='${['red', 'orange', 'yellow', 'green'][Math.floor(ProgressPercent / 25)]}'>UP：${+ProgressPercent ? ProgressPercent : -1}%</font>`;
+    ProgressLog = `   <font color='${['red', '#f66b00', 'orange', 'green'][Math.floor(ProgressPercent / 25)]}'>UP：${+ProgressPercent ? ProgressPercent : -1}%</font>`;
   } else {
     ProgressLog = ''
   }
   Memory.log += `\n  <font color='${Hostile ? 'red' : 'green'}'>${Room.name}</font>   RCL：${RCL}${ProgressLog}   Storage：${StorageEnergy}`
+  Memory.sendText += `\n  <font color='${Hostile ? 'red' : 'green'}'>${Room.name}</font>   RCL：${RCL}${ProgressLog}   Storage：${StorageEnergy}`
   if (RCL > 0 && Room.memory.OutRoom.length > 0) {
     // 外矿房间列表
     Memory.log += `   外矿：${Room.memory.OutRoom || []}`
+    Memory.sendText += `   外矿：${Room.memory.OutRoom || []}`
   }
   roomCreepInfoLog(Room);
 }
