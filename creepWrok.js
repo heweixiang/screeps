@@ -702,7 +702,8 @@ const creepWrok = {
           for (let i = 0; i < fillTargetType.length; i++) {
             const type = fillTargetType[i];
             const fillTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-              filter: s => s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+              filter: s => s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && s.structureType !== STRUCTURE_TOWER
+              || s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
               algorithm: 'dijkstra'
             })
             if (fillTarget) {
