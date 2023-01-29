@@ -5,8 +5,9 @@ const Config = require('config');
 // 引入ROOM管理
 const RoomManager = require('roomManager');
 module.exports.loop = function () {
-  // log
-  console.log(`<font color="#00FF00">  待占领房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}</font>`);
+  Memory.log = `  待占房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}   Bucket：${Game.cpu.bucket}   
+  GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}   
+  房间数量：${Object.keys(Game.rooms).length}   房间名：${Object.keys(Game.rooms).join(',')}`
   // 用于公共静态配置
   if (Game.Config == undefined) {
     Game.Config = Config;
@@ -19,14 +20,19 @@ module.exports.loop = function () {
   for (let i in Game.rooms) {
     RoomManager.loop(Game.rooms[i]);
   }
-  if (Game.cpu.bucket == 10000) {
-    Game.cpu.generatePixel ? Game.cpu.generatePixel() : null;
-  }
   clearMemory();
   // 预留防止spawn防止方法
   // 分割线
   // 绿色
-  console.log(`<font color="#00FF00">==========================${Game.time}==========================</font>\n\n\n`);
+  Memory.log += `\n================= ${Game.time} ================= CPU：${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit} ==================\n\n\n`;
+  console.log(Memory.log);
+  // 500tick发送邮件
+  if (Game.time % 500 == 0) {
+    Game.notify(`${Memory.log}`);
+  }
+  if (Game.cpu.bucket == 10000) {
+    Game.cpu.generatePixel ? Game.cpu.generatePixel() : null;
+  }
 }
 
 function clearMemory() {
@@ -34,6 +40,12 @@ function clearMemory() {
   for (const name in Memory.creeps) {
     if (!Game.creeps[name]) {
       delete Memory.creeps[name];
+    }
+  }
+  // 清理房间内无效的rooms
+  for (const name in Memory.rooms) {
+    if (!Game.rooms[name]) {
+      delete Memory.rooms[name];
     }
   }
 }

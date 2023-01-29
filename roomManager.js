@@ -9,8 +9,6 @@ const roomManager = {
   loop(Room) {
     // 处理房间初始化挂载查询问题，将一些定下来的值挂载到房间上，避免多次查询
     this.roomInit(Room);
-    // 处理房间内存
-    this.roomMemory(Room);
     // 处理房间建筑
     autoCreateBuilding.loop(Room);
     logRoomInfo(Room);
@@ -20,8 +18,9 @@ const roomManager = {
     if (!Room.find(FIND_MY_SPAWNS).length) {
       // 外矿房间
       this.outRoom(Room);
-      return
     }
+    // 处理房间内存
+    this.roomMemory(Room);
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
@@ -78,7 +77,7 @@ const roomManager = {
     }
 
     // ================= 扫描给各个otherSource挂上link ==============
-    if (Room.memory.otherSourceLink < Room.memory.otherSource && Room.controller && Room.controller.my || !Room.memory.otherSourceLink) {
+    if (Room.memory.otherSource && Room.memory.otherSourceLink < Room.memory.otherSource && Room.controller && Room.controller.my || !Room.memory.otherSourceLink && Room.memory.otherSource) {
       if (!Room.memory.otherSourceLink) Room.memory.otherSourceLink = {}
       Room.memory.otherSource.map((item, index) => {
         if (Room.memory.otherSourceLink[index]) return
@@ -106,10 +105,8 @@ const roomManager = {
           return !notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
         }
       })
-      console.log('building: ', building);
       // 给房间内存挂载building
       building.forEach((item, index) => {
-      
         // 如果房间内存中没有该建筑，就挂载，如果有就回显
         if (!Room.memory.building[item.id]) {
           building[index].memory = {}
@@ -254,7 +251,6 @@ function getRoomDeepCenter(room) {
 
 function logRoomInfo(Room) {
   const RCL = Room.controller.level;
-  const AvailableEnergy = Room.energyAvailable;
   const StorageEnergy = Room.storage ? Room.storage.store[RESOURCE_ENERGY] : 0;
   // 获取当前房间升级进度
   const Progress = Room.controller ? Room.controller.progress : 0;
@@ -262,28 +258,18 @@ function logRoomInfo(Room) {
   const ProgressTotal = Room.controller ? Room.controller.progressTotal : 0;
   // 百分比
   const ProgressPercent = (Progress / ProgressTotal * 100).toFixed(4);
-  // ProgressTotal - Progress 转换成K和M
-  const ProgressTotalMinusProgress = ProgressTotal - Progress;
-  let ProgressTotalMinusProgressK = ProgressTotalMinusProgress / 1000000 > 1 ? `${ProgressTotalMinusProgress / 1000000}M` : `${ProgressTotalMinusProgress / 1000}K`;
   // 房间是否有敌军
-  const Hostile = Room.find(FIND_HOSTILE_CREEPS).length > 0;
-  console.log(`<font color="${RCL > 0 ? '#00FF00' : 'yellow'}"> ${Room}   房间等级：${RCL}   升级还需：${ProgressTotalMinusProgressK.includes('NaN') ? -1 : ProgressTotalMinusProgressK}   ${ProgressTotalMinusProgress || -1}点   ${ProgressPercent.includes('NaN') ? -1 : ProgressPercent}%   当前可用能量：${AvailableEnergy}   Storage存储：${StorageEnergy}</font>   ${Hostile ? '⚔️' : ''}`);
-  if (RCL > 0) {
+  const Hostile = Room.find(FIND_HOSTILE_CREEPS).length > 0 || Room.find(FIND_HOSTILE_STRUCTURES).length > 0;
+  let ProgressLog
+  if (+ProgressPercent) {
+    ProgressLog = `   <font color='${['red', 'orange', 'yellow', 'green'][Math.floor(ProgressPercent / 25)]}'>UP：${+ProgressPercent ? ProgressPercent : -1}%</font>`;
+  } else {
+    ProgressLog = ''
+  }
+  Memory.log += `\n  <font color='${Hostile ? 'red' : 'green'}'>${Room.name}</font>   RCL：${RCL}${ProgressLog}   Storage：${StorageEnergy}`
+  if (RCL > 0 && Room.memory.OutRoom.length > 0) {
     // 外矿房间列表
-    console.log(`<font color="#00FF00">   外矿房间列表：${Room.memory.OutRoom || []}</font>`);
-  }
-  // 所有spawn状态
-  const spawns = Room.find(FIND_MY_SPAWNS);
-  let HatchingState = ''
-  for (let i in spawns) {
-    const spawn = spawns[i];
-    HatchingState = HatchingState + "<font color='#8bf600'>   " + spawn + (!!spawn.spawning ? '-孵化中' : '-空闲') + "</font>"
-    if (spawn.spawning) {
-      HatchingState = HatchingState + `<font color='#f6c100'>   [爬爬名：${spawn.spawning.name}]   [需要：${spawn.spawning.remainingTime}Tick]</font>`
-    }
-  }
-  if (HatchingState) {
-    console.log(HatchingState);
+    Memory.log += `   外矿：${Room.memory.OutRoom || []}`
   }
   roomCreepInfoLog(Room);
 }
@@ -292,21 +278,35 @@ function logRoomInfo(Room) {
 function roomCreepInfoLog(Room) {
   // 获取房间所有爬爬
   let creeps = Room.find(FIND_MY_CREEPS);
-  const creepsNameList = creeps.map(creep => creep.name.replace(/\d+$/, '').replace('TouchFish_', ''));
+  const creepsNameList = creeps.map(creep => creep.name.replace(/\d+$/, '').replace('TouchFish_', '').replace(/【/g, '[').replace(/】/g, ']'));
   const creepsNameListCount = {};
   creepsNameList.forEach(name => {
     creepsNameListCount[name] = creepsNameListCount[name] ? creepsNameListCount[name] + 1 : 1;
   });
-  console.log(`   爬爬数量：${creeps.length}，爬爬列表：${JSON.stringify(creepsNameListCount)}`);
+  const creepsNameListCountStr = JSON.stringify(creepsNameListCount).replace(/,/g, '  ').replace(/:/g, '：').replace(/"/g, '').replace(/{/g, '').replace(/}/g, '');
+  Memory.log += `\n  Creep：${creeps.length}   CreepList：${creepsNameListCountStr}`
+  // 所有spawn状态
+  const spawns = Room.find(FIND_MY_SPAWNS);
+  let HatchingState = ''
+  for (let i in spawns) {
+    const spawn = spawns[i];
+    HatchingState = HatchingState + (!!spawn.spawning ? '💓' : '💚')
+    if (spawn.spawning) {
+      HatchingState = HatchingState + `${spawn.spawning.name.replace(/\d+$/, '').replace('TouchFish_', '')}>>>${spawn.spawning.remainingTime}`
+    }
+  }
+  if (HatchingState) {
+    Memory.log += `\n  ${HatchingState}`
+  }
   // 输出附加爬爬
   if (Room.memory.CreepNum) {
-    let addCreepStr = '   手动附加: ';
+    let addCreepStr = `<font color='yellow'>  调整: </font>`;
     for (const iterator in Room.memory.CreepNum) {
       if (Room.memory.CreepNum[iterator] === 0) continue
       addCreepStr += iterator + "：" + Room.memory.CreepNum[iterator] + "   "
     }
     if (addCreepStr.length > 6) {
-      console.log(addCreepStr);
+      Memory.log += addCreepStr;
     }
   }
 }

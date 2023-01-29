@@ -96,7 +96,7 @@ function createCreepForRCL4(Room, spawn) {
     if (assignNum < 2) {
       // 创建分配者
       const body = Game.Config.creep.generateTransporter(Room);
-      const name = 'TouchFish_分配者' + Game.time;
+      const name = 'TouchFish_分配' + Game.time;
       const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
       // 创造creep
       GenerateCreep(Room, spawn, body, name, config);
@@ -147,7 +147,7 @@ function createCreepForRCL2(Room, spawn) {
         } else {
           // 派个攻击者过去探路
           const body = [ATTACK, ATTACK, MOVE, MOVE];
-          const name = 'TouchFish_攻击者' + '【' + externalRoomList[i] + '】' + Game.time;
+          const name = 'TouchFish_攻击' + '【' + externalRoomList[i] + '】' + Game.time;
           const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: externalRoomList[i] } };
           // 创造creep
           GenerateCreep(Room, spawn, body, name, config);
@@ -181,7 +181,7 @@ function createCreepForRCL2(Room, spawn) {
         if (manager.length === 0) {
           // 派个管理者过去
           const body = Game.Config.creep.generateManager(Room, false);
-          const name = 'TouchFish_管理者' + '【' + externalRoomList[i] + '】' + Game.time;
+          const name = 'TouchFish_管理' + '【' + externalRoomList[i] + '】' + Game.time;
           const config = { memory: { role: ROLE_MANAGER, behavior: BEHAVIOR_RESERVE, bindRoom: externalRoomList[i] } };
           // 创造creep
           GenerateCreep(Room, spawn, body, name, config);
@@ -196,7 +196,7 @@ function createCreepForRCL2(Room, spawn) {
       if (workerNum.length < 1) {
         // 派个采集者过去
         const body = Game.Config.creep.generateHarvester(Room, false);
-        const name = 'TouchFish_采集者' + '【' + externalRoomList[i] + '】' + Game.time;
+        const name = 'TouchFish_采集' + '【' + externalRoomList[i] + '】' + Game.time;
         const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: externalRoomList[i] } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -210,7 +210,7 @@ function createCreepForRCL2(Room, spawn) {
       if (transporterNum.length < workerNum.length) {
         // 派个运输者过去
         const body = Game.Config.creep.generateTransporter(Room, false);
-        const name = 'TouchFish_运输者' + '【' + externalRoomList[i] + '】' + Game.time;
+        const name = 'TouchFish_运输' + '【' + externalRoomList[i] + '】' + Game.time;
         const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT, bindRoom: externalRoomList[i] } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -222,7 +222,7 @@ function createCreepForRCL2(Room, spawn) {
       if (workerNum.length < source.length) {
         // 派个采集者过去
         const body = Game.Config.creep.generateHarvester(Room, false);
-        const name = 'TouchFish_采集者' + '【' + externalRoomList[i] + '】' + Game.time;
+        const name = 'TouchFish_采集' + '【' + externalRoomList[i] + '】' + Game.time;
         const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST, bindRoom: externalRoomList[i] } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -238,7 +238,7 @@ function createCreepForRCL2(Room, spawn) {
         if (manager.length === 0) {
           // 派个管理者过去
           const body = Game.Config.creep.generateManager(Room, false);
-          const name = 'TouchFish_管理者' + '【' + externalRoomList[i] + '】' + Game.time;
+          const name = 'TouchFish_管理' + '【' + externalRoomList[i] + '】' + Game.time;
           const config = { memory: { role: ROLE_MANAGER, behavior: BEHAVIOR_RESERVE, bindRoom: externalRoomList[i] } };
           // 创造creep
           GenerateCreep(Room, spawn, body, name, config);
@@ -273,7 +273,7 @@ function createCreepForRCL2(Room, spawn) {
       // 如果管理者数量小于待占领房间数量
       if (managerNum.length === 0) {
         const body = Game.Config.creep.generateManager(Room, false);
-        const name = 'TouchFish_管理者' + '【' + PreRoomList[i] + '】' + Game.time;
+        const name = 'TouchFish_管理' + '【' + PreRoomList[i] + '】' + Game.time;
         const config = { memory: { role: ROLE_MANAGER, behavior: BEHAVIOR_CLAIM, bindRoom: PreRoomList[i] } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -298,7 +298,7 @@ function createCreepForRCL1(Room, spawn) {
   if (workers.length == 0) {
     // 加急生成矿工
     const body = Game.Config.creep.generateHarvester(Room);
-    const name = 'TouchFish_矿工爬爬' + Game.time;
+    const name = 'TouchFish_矿工' + Game.time;
     const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST } };
     // 创建矿工
     GenerateCreep(Room, spawn, body, name, config);
@@ -314,7 +314,7 @@ function createCreepForRCL1(Room, spawn) {
   if (transporters.length < needTransporter(Room) + Game.Tools.GetCreepNum(Room, '运输')) {
     // 加急生成运输者
     const body = Game.Config.creep.generateTransporter(Room);
-    const name = 'TouchFish_运输爬爬' + Game.time;
+    const name = 'TouchFish_运输' + Game.time;
     const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
     // 创建运输者
     GenerateCreep(Room, spawn, body, name, config);
@@ -326,7 +326,7 @@ function createCreepForRCL1(Room, spawn) {
   if (sources.length > workers.length) {
     // 生成矿工
     const body = Game.Config.creep.generateHarvester(Room);
-    const name = 'TouchFish_矿工爬爬' + Game.time;
+    const name = 'TouchFish_矿工' + Game.time;
     const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST } };
     // 创建矿工
     GenerateCreep(Room, spawn, body, name, config);
@@ -342,7 +342,7 @@ function createCreepForRCL1(Room, spawn) {
   if (upgraders.length < 1 + Game.Tools.GetCreepNum(Room, '升级')) {
     // 生成升级爬爬
     const body = Game.Config.creep.generateInitialWorker(Room);
-    const name = 'TouchFish_升级爬爬' + Game.time;
+    const name = 'TouchFish_升级' + Game.time;
     const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_UPGRADE } };
     // 创建升级爬爬
     GenerateCreep(Room, spawn, body, name, config);
@@ -363,7 +363,7 @@ function createCreepForRCL1(Room, spawn) {
     if (builders.length < (constructionSites.length < 5 ? 1 : 2) + Game.Tools.GetCreepNum(Room, '建造')) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
-      const name = 'TouchFish_建造爬爬' + Game.time;
+      const name = 'TouchFish_建造' + Game.time;
       const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD } };
       // 创建建造爬爬
       GenerateCreep(Room, spawn, body, name, config);
@@ -376,7 +376,7 @@ function createCreepForRCL1(Room, spawn) {
   if (HelpBuildRoom.length > 0) {
     // 遍历
     for (let i = 0; i < HelpBuildRoom.length; i++) {
-      if(HelpBuildRoom[i] == Room.name){
+      if (HelpBuildRoom[i] == Room.name) {
         continue;
       }
       // 判断当前房间是否派发了援建者
@@ -388,7 +388,7 @@ function createCreepForRCL1(Room, spawn) {
       if (HelpBuildCreep.length < 1 + Game.Tools.GetCreepNum(Game.rooms[HelpBuildRoom[i]], '建造')) {
         // 创建建造者
         const body = Game.Config.creep.generateInitialWorker(Room);
-        const name = 'TouchFish_建造者' + '【' + HelpBuildRoom[i] + '】' + Game.time;
+        const name = 'TouchFish_建造' + '【' + HelpBuildRoom[i] + '】' + Game.time;
         const config = { memory: { role: ROLE_HARVESTER, behavior: BEHAVIOR_BUILD, bindRoom: HelpBuildRoom[i], createRoom: Room.name } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -423,7 +423,7 @@ function emergency(Room, spawn) {
       if (assignNum < 2) {
         // 创建分配者
         const body = Game.Config.creep.generateTransporter(Room, assigners.length === 0);
-        const name = 'TouchFish_分配者' + Game.time;
+        const name = 'TouchFish_分配' + Game.time;
         const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
         // 创造creep
         GenerateCreep(Room, spawn, body, name, config);
@@ -441,7 +441,7 @@ function emergency(Room, spawn) {
     if (transporters.length < needTransporter(Room)) {
       // 生成运输者
       const body = Game.Config.creep.generateTransporter(Room, true);
-      const name = 'TouchFish_运输爬爬' + Game.time;
+      const name = 'TouchFish_运输' + Game.time;
       const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
       // 创建运输者
       GenerateCreep(Room, spawn, body, name, config);
@@ -457,7 +457,7 @@ function emergency(Room, spawn) {
     if (workers.length < 1) {
       // 生成矿工
       const body = Game.Config.creep.generateHarvester(Room, true);
-      const name = 'TouchFish_矿工爬爬' + Game.time;
+      const name = 'TouchFish_矿工' + Game.time;
       const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST } };
       // 创建矿工
       GenerateCreep(Room, spawn, body, name, config);
@@ -487,20 +487,20 @@ function needTransporter(Room) {
 function GenerateCreep(Room, spawn, body, name, config) {
   config.memory.createRoom = Room.name;
   // 正则移除name后面的数值
-  const nameZN = name.replace(/\d+$/, '');
+  const nameZN = name.replace(/\d+$/, '').replace('TouchFish_', '').replace(/【/g, '[').replace(/】/g, ']');
   // 获取当前爬爬生成需要的能量
   const computedResult = Game.Tools.ComputerCreepCost(body, Room);
   if (computedResult.CanGenerate === true) {
     const SpawnCreateResult = spawn.spawnCreep(body, name, config);
     if (SpawnCreateResult === OK) {
-      console.log(`     生成爬爬成功【${nameZN}】【${body.length}模块】，本次消耗 ${computedResult.NeedEnergy} 能量`);
+      Memory.log += `<font color='green'>生成成功[${nameZN},${body.length}模块,${computedResult.NeedEnergy} 能量]</font>`
       return true
     } else {
-      console.log(`     生成爬爬失败【${nameZN}】【${body.length}模块】，生成需要 ${computedResult.NeedEnergy} 能量`);
+      Memory.log += `<font color='red'>生成失败[${nameZN},${body.length}模块,${computedResult.NeedEnergy} 能量]</font>`
       return false
     }
   } else if (computedResult.CanGenerate === false) {
-    console.log(`     即将生成爬爬【${nameZN}】【${body.length}模块】，预计还需要 ${computedResult.LackEnergy} 能量`);
+    Memory.log += `<font color='orange'>将要生成[${nameZN},${body.length}模块,还需 ${computedResult.LackEnergy} 能量]</font>`
     return false
   }
 }

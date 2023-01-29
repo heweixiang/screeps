@@ -698,7 +698,7 @@ const creepWrok = {
         // 如果没有storage或者storage满了，就执行填充任务或升级任务
         if (target === null) {
           // 获取该房间需要填充的建筑按照优先级排序
-          const fillTargetType = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]
+          const fillTargetType = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER]
           for (let i = 0; i < fillTargetType.length; i++) {
             const type = fillTargetType[i];
             const fillTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
