@@ -376,6 +376,9 @@ function createCreepForRCL1(Room, spawn) {
   if (HelpBuildRoom.length > 0) {
     // 遍历
     for (let i = 0; i < HelpBuildRoom.length; i++) {
+      if(HelpBuildRoom[i] == Room.name){
+        continue;
+      }
       // 判断当前房间是否派发了援建者
       // 获取所有当前房间的建造者绑定了援建房间的
       const HelpBuildCreep = creepList.filter((creep) => {
