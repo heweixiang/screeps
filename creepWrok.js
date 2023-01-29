@@ -450,7 +450,7 @@ const creepWrok = {
         // 获取绑定房间的控制器
         const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
         // 判断是否在控制器旁边
-        if (creep.pos.getRangeTo(controller) > 3) {
+        if (creep.pos.getRangeTo(controller) > 2) {
           creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
           return;
         } else {

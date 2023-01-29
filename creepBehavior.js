@@ -192,7 +192,7 @@ const creepBehavior = {
   upgrade(creep) {
     if (creep.memory.upgrading === true) {
       // 到controller附近
-      if (creep.pos.getRangeTo(creep.room.controller) > 3) {
+      if (creep.pos.getRangeTo(creep.room.controller) > 2) {
         creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         return 'MOVE_TO'
       } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_ENOUGH_RESOURCES) {
