@@ -9,7 +9,6 @@ const roomManager = {
   loop(Room) {
     // 处理房间初始化挂载查询问题，将一些定下来的值挂载到房间上，避免多次查询
     this.roomInit(Room);
-
     // 处理房间内存
     this.roomMemory(Room);
     // 处理房间建筑
@@ -81,7 +80,7 @@ const roomManager = {
     // ================= 扫描给各个otherSource挂上link ==============
     if (Room.memory.otherSourceLink < Room.memory.otherSource && Room.controller && Room.controller.my || !Room.memory.otherSourceLink) {
       if (!Room.memory.otherSourceLink) Room.memory.otherSourceLink = {}
-      Room.memory.otherSource.forEach((item, index) => {
+      Room.memory.otherSource.map((item, index) => {
         if (Room.memory.otherSourceLink[index]) return
         const source = Game.getObjectById(item)
         const sourceLink = source.pos.findInRange(FIND_STRUCTURES, 3, {
@@ -104,7 +103,7 @@ const roomManager = {
       // 扫描房间内除了道路和extension外的建筑
       const building = Room.find(FIND_STRUCTURES, {
         filter: (structure) => {
-          return notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
+          return !notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
         }
       })
       // 给房间内存挂载building
