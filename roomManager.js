@@ -106,8 +106,10 @@ const roomManager = {
           return !notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
         }
       })
+      console.log('building: ', building);
       // 给房间内存挂载building
       building.forEach((item, index) => {
+      
         // 如果房间内存中没有该建筑，就挂载，如果有就回显
         if (!Room.memory.building[item.id]) {
           building[index].memory = {}
