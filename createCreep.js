@@ -398,6 +398,23 @@ function createCreepForRCL1(Room, spawn) {
 
 // 如果房间内发生了紧急情况
 function emergency(Room, spawn) {
+  // 如果RCL为2
+  if (Room.controller.level == 2) {
+    // 获取房间内攻击者
+    const attackers = Room.find(FIND_HOSTILE_CREEPS);
+    // 如果房间内有攻击者
+    if (attackers.length === 0) {
+      // 获取房间内的
+      // 派个攻击者过去探路
+      const body = [ATTACK, ATTACK, MOVE, MOVE];
+      const name = 'TouchFish_攻击者' + '【' + externalRoomList[i] + '】' + Game.time;
+      const config = { memory: { role: ROLE_ALL_IN_ONE, behavior: BEHAVIOR_ALL_IN_ONE, bindRoom: Room.name } };
+      // 创造creep
+      GenerateCreep(Room, spawn, body, name, config);
+      return 'create';
+    }
+  }
+
   // 获取分配者数量ROLE_ASSIGN
   const assigners = Room.find(FIND_MY_CREEPS, {
     filter: (creep) => {
