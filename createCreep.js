@@ -400,8 +400,12 @@ function createCreepForRCL1(Room, spawn) {
 function emergency(Room, spawn) {
   // 如果RCL为2
   if (Room.controller.level == 2) {
-    // 获取房间内攻击者
-    const attackers = Room.find(FIND_HOSTILE_CREEPS);
+    // 获取该房间内的一体机数量
+    const attackers = Room.find(FIND_MY_CREEPS, {
+      filter: (creep) => {
+        return creep.memory.role == ROLE_ALL_IN_ONE && creep.memory.behavior == BEHAVIOR_ALL_IN_ONE && creep.memory.bindRoom == Room.name;
+      }
+    });
     // 如果房间内有攻击者
     if (attackers.length === 0) {
       // 获取房间内的
