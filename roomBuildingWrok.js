@@ -69,22 +69,25 @@ function TowerManagerLoop(ROOM, tower) {
     tower.heal(creeps[0]);
     return
   }
-  // 获取最近的血量低于50%的建筑
-  const structures = ROOM.find(FIND_STRUCTURES, {
-    filter: (structure) => {
-      // 如果是墙壁
-      if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
-        // 如果血量低于
-        return structure.hits < Game.Config.RCL['LV' + ROOM.controller.level].Ramparts * 10000 * 0.25;
+  // 当前塔能量大于400
+  if (tower.store.getUsedCapacity() > 400) {
+    // 获取最近的血量低于50%的建筑
+    const structures = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        // 如果是墙壁
+        if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
+          // 如果血量低于
+          return structure.hits < Game.Config.RCL['LV' + ROOM.controller.level].Ramparts * 10000 * 0.25;
+        }
+        return structure.hits < structure.hitsMax * 0.7;
       }
-      return structure.hits < structure.hitsMax * 0.7;
+    })[0];
+    // 如果有建筑
+    if (structures) {
+      // 修复建筑
+      tower.repair(structures);
+      return
     }
-  })[0];
-  // 如果有建筑
-  if (structures) {
-    // 修复建筑
-    tower.repair(structures);
-    return
   }
   return
 }
