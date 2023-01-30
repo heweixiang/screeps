@@ -511,7 +511,9 @@ const creepWrok = {
       const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
       // 判断是否在控制器旁边
       if (creep.pos.getRangeTo(controller) > 2) {
-        creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        if (creepRepair(creep) === true) {
+          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
         return;
       } else {
         creep.upgradeController(controller);
@@ -690,7 +692,9 @@ const creepWrok = {
         // 这种情况下没有存储目标就只能到创建的房间再进行寻路了
         // 判断是否在创建房间
         if (creep.memory.createRoom && creep.room.name !== creep.memory.createRoom) {
-          creep.moveTo(new RoomPosition(25, 25, creep.memory.createRoom), { visualizePathStyle: { stroke: '#ffffff' } });
+          if (creepRepair(creep) === true) {
+            creep.moveTo(new RoomPosition(25, 25, creep.memory.createRoom), { visualizePathStyle: { stroke: '#ffffff' } });
+          }
           return 'moveToCreateRoom';
         }
         // createRoom
@@ -707,15 +711,14 @@ const creepWrok = {
         // 如果没有storage或者storage满了，就执行填充任务或升级任务
         if (target === null) {
           // 获取该房间需要填充的建筑按照优先级排序
-          const fillTargetType = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER]
+          const fillTargetType = [STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]
           for (let i = 0; i < fillTargetType.length; i++) {
             const type = fillTargetType[i];
             const fillTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-              filter: s => s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && s.structureType !== STRUCTURE_TOWER
-                || s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
+              filter: s => s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
               algorithm: 'dijkstra'
             })
-            if (fillTarget) {
+            if (fillTarget && fillTarget.structureType !== STRUCTURE_TOWER || fillTarget && fillTarget.structureType == STRUCTURE_TOWER && fillTarget.store.getFreeCapacity(RESOURCE_ENERGY) > 500) {
               target = fillTarget
               break
             }
@@ -737,9 +740,11 @@ const creepWrok = {
             }
           }
         } else {
-          // 向目标移动
-          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-          return 'moveToTarget';
+          // if (creepRepair(creep) === true) {
+            // 向目标移动
+            creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+            return 'moveToTarget';
+          // }
         }
       } else {
         // 到controller附近
@@ -811,5 +816,29 @@ const creepWrok = {
       }
     }
   }
+}
+
+
+
+// 爬爬修路
+function creepRepair(creep) {
+  // 获取附近道路是否存在血量低于50%的，如果有则优先修复
+  // 获取脚下的道路或建筑工地
+  const road = creep.pos.lookFor(LOOK_STRUCTURES).find(s => s.structureType === STRUCTURE_ROAD);
+  if (road && road.hits < road.hitsMax * 0.5) {
+    creep.repair(road);
+    return 'repair';
+  }
+  // 获取脚下的我的道路建筑工地
+  const myRoad = creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).find(s => s.structureType === STRUCTURE_ROAD);
+  if (myRoad) {
+    creep.build(myRoad);
+    return 'build';
+  }
+  if (road === null && myRoad === null || road === undefined && myRoad === undefined) {
+    // 脚下没有道路就建造
+    creep.room.createConstructionSite(creep.pos, STRUCTURE_ROAD);
+  }
+  return true
 }
 module.exports = creepWrok;

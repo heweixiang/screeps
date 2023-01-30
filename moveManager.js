@@ -1,6 +1,6 @@
 /*
 creep对穿+跨房间寻路+寻路缓存 
-跑的比香港记者还快从你做起 
+跑的比香港记者还快从你做起
 应用此模块会导致creep.moveTo可选参数中这些项失效：reusePath、serializeMemory、noPathFinding、ignore、avoid、serialize
 保留creep.moveTo中其他全部可选参数如visualizePathStyle、range、ignoreDestructibleStructures、ignoreCreeps、ignoreRoad等
 新增creep.moveTo中可选参数ignoreSwamps，会无视swamp与road的移动力损耗差异，一律与plain相同处理，用于方便pc和眼，默认false
@@ -74,7 +74,7 @@ require('超级移动优化').deletePathInRoom(roomName);
 let config = {
   地图房号最大数字超过100: false,
   changeMove: true,   // 【未启用】为creep.move增加对穿能力
-  changeMoveTo: false, // 全面优化creep.moveTo，跨房移动也可以一个moveTo解决问题
+  changeMoveTo: true, // 全面优化creep.moveTo，跨房移动也可以一个moveTo解决问题
   changeFindClostestByPath: true,     // 【未启用】轻度修改findClosestByPath，使得默认按照ignoreCreeps寻找最短
   autoVisual: false,  // 【未启用】
   enableFlee: false   // 【未启用】是否添加flee()函数，注意这会在Creep.prototype上添加官方未有键值，flee()用法见最底下module.exports处
@@ -621,7 +621,7 @@ function bypassRouteCallback(nextRoomName, fromRoomName) {
  * @param {string} toRoomName 
  * @param {boolean} bypass
  */
-function findRoute(fromRoomName, toRoomName, bypass) {  
+function findRoute(fromRoomName, toRoomName, bypass) {  // TODO 以后跨shard寻路也放在这个函数里
   //console.log('findRoute', fromRoomName, toRoomName, bypass);
   return Game.map.findRoute(fromRoomName, toRoomName, { routeCallback: bypass ? bypassRouteCallback : routeCallback });
 }
