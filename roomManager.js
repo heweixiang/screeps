@@ -287,6 +287,7 @@ function roomCreepInfoLog(Room) {
   });
   const creepsNameListCountStr = JSON.stringify(creepsNameListCount).replace(/,/g, '  ').replace(/:/g, '：').replace(/"/g, '').replace(/{/g, '').replace(/}/g, '');
   Memory.log += `\n  Creep：${creeps.length}   CreepList：${creepsNameListCountStr}`
+  Memory.sendText += `  Creep：${creeps.length}`
   // 所有spawn状态
   const spawns = Room.find(FIND_MY_SPAWNS);
   let HatchingState = ''
