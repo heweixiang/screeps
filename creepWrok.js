@@ -479,7 +479,7 @@ const creepWrok = {
       }
       if (withdrawTarget) {
         creep.memory.withdrawTarget = withdrawTarget.id;
-        const withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
+        let withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
         if (withdrawRes === ERR_INVALID_TARGET) {
           withdrawRes = creep.pickup(withdrawTarget, RESOURCE_ENERGY)
         }
