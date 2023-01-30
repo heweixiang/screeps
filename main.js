@@ -41,7 +41,6 @@ module.exports.loop = function () {
 
 // MFFData
 function MFFData() {
-//237451ab-3a6b-44a4-a955-644c16ced849
   if (Game.time % 20) return
   if (!Memory.stats) Memory.stats = {}
   // 统计 GCL / GPL 的升级百分比和等级
