@@ -317,8 +317,7 @@ const creepWrok = {
       // terminal
       if (creep.room.terminal && creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
         withdrawTarget = creep.room.terminal;
-      }
-      if (creep.memory.withdrawTarget) {
+      } else if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
         if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
           withdrawTarget = null;
