@@ -27,8 +27,9 @@ module.exports.loop = function () {
   Memory.log = `  <font color='${Game.cpu.getUsed().toFixed(2) > 15 ? 'red' : 'green'}'>CPU：${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit}</font>` + Memory.log;
   Memory.sendText = `  <font color='${Game.cpu.getUsed().toFixed(2) > 15 ? 'red' : 'green'}'>CPU：${Game.cpu.getUsed().toFixed(2)}/${Game.cpu.limit}</font>` + Memory.sendText;
   Memory.log += `\n=================================== ${Game.time} ===================================\n\n\n`;
-  Memory.sendText += `\n=================================== ${Game.time} ===================================\n\n\n`;
+  Memory.sendText += `\n=================================== ${Game.time} ===================================\n\n`;
   console.log(Memory.log);
+  console.log('\n')
   // 500tick发送邮件
   if (Game.time % 1000 == 0) {
     Game.notify(`${Memory.sendText}`);
