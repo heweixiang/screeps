@@ -415,7 +415,9 @@ const creepWrok = {
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
-        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
+        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 
+        || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0
+        || withdrawTarget && withdrawTarget.amount && withdrawTarget.amount === 0) {
           withdrawTarget = null;
         }
       }
