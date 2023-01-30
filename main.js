@@ -6,8 +6,7 @@ const Config = require('config');
 const RoomManager = require('roomManager');
 module.exports.loop = function () {
   Memory.sendText = Memory.log = `  待占房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}   Bucket：${Game.cpu.bucket}   
-  GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}   
-  房间列表（${Object.keys(Game.rooms).length}）：${Object.keys(Game.rooms).join(',')}`
+  GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}`
   // 用于公共静态配置
   if (Game.Config == undefined) {
     Game.Config = Config;
