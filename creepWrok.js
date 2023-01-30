@@ -812,7 +812,7 @@ const creepWrok = {
         }
       } else {
         // 到controller附近
-        if (creep.pos.getRangeTo(creep.room.controller) > 5) {
+        if (creep.pos.getRangeTo(creep.room.controller) > 3) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         } else {
           // 升级
