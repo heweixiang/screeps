@@ -312,7 +312,12 @@ const creepWrok = {
           return 'WITHDRAW';
         }
       }
+
       let withdrawTarget = null;
+      // terminal
+      if (creep.room.terminal && creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+        withdrawTarget = creep.room.terminal;
+      }
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
         if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
@@ -703,7 +708,7 @@ const creepWrok = {
             const type = fillTargetType[i];
             const fillTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
               filter: s => s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && s.structureType !== STRUCTURE_TOWER
-              || s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
+                || s.structureType === type && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
               algorithm: 'dijkstra'
             })
             if (fillTarget) {
