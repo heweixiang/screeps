@@ -415,7 +415,9 @@ const creepWrok = {
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
-        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
+        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0
+          || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0
+          || withdrawTarget && withdrawTarget.amount && withdrawTarget.amount === 0) {
           withdrawTarget = null;
         }
       }
@@ -477,7 +479,10 @@ const creepWrok = {
       }
       if (withdrawTarget) {
         creep.memory.withdrawTarget = withdrawTarget.id;
-        const withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
+        let withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
+        if (withdrawRes === ERR_INVALID_TARGET) {
+          withdrawRes = creep.pickup(withdrawTarget, RESOURCE_ENERGY)
+        }
         if (withdrawRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(withdrawTarget, { visualizePathStyle: { stroke: '#ffffff' } });
         } else if (withdrawRes === ERR_FULL) {

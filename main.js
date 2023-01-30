@@ -6,8 +6,7 @@ const Config = require('config');
 const RoomManager = require('roomManager');
 module.exports.loop = function () {
   Memory.sendText = Memory.log = `  待占房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}   Bucket：${Game.cpu.bucket}   
-  GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}   
-  房间列表（${Object.keys(Game.rooms).length}）：${Object.keys(Game.rooms).join(',')}`
+  GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}`
   // 用于公共静态配置
   if (Game.Config == undefined) {
     Game.Config = Config;
@@ -37,6 +36,25 @@ module.exports.loop = function () {
   if (Game.cpu.bucket == 10000) {
     Game.cpu.generatePixel ? Game.cpu.generatePixel() : null;
   }
+  MFFData()
+}
+
+// MFFData
+function MFFData() {
+//237451ab-3a6b-44a4-a955-644c16ced849
+  if (Game.time % 20) return
+  if (!Memory.stats) Memory.stats = {}
+  // 统计 GCL / GPL 的升级百分比和等级
+  Memory.stats.gcl = (Game.gcl.progress / Game.gcl.progressTotal) * 100
+  Memory.stats.gclLevel = Game.gcl.level
+  Memory.stats.gpl = (Game.gpl.progress / Game.gpl.progressTotal) * 100
+  Memory.stats.gplLevel = Game.gpl.level
+  // CPU 的当前使用量
+  Memory.stats.cpu = Game.cpu.getUsed()
+  // bucket 当前剩余量
+  Memory.stats.bucket = Game.cpu.bucket
+  // 当前log
+  Memory.stats.log = Memory.log
 }
 
 function clearMemory() {
