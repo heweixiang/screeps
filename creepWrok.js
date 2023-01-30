@@ -609,15 +609,37 @@ const creepWrok = {
     }
     // 这里是房间有能量矿的情况下
     if (creep.memory.building === false) {
-      // 自己挖矿
-      const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-      if (source) {
-        const harvestResult = creep.harvest(source);
-        if (harvestResult === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
-        } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES || harvestResult === ERR_FULL) {
-          // 如果矿物不足，切换状态
+      // 如果有container，优先从container中获取
+      const containers = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_CONTAINER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 100
+        }
+      });
+      if (containers.length > 0) {
+        const withdrawTarget = creep.pos.findClosestByRange(containers);
+        creep.memory.withdrawTarget = withdrawTarget.id;
+        let withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
+        if (withdrawRes === ERR_INVALID_TARGET) {
+          withdrawRes = creep.pickup(withdrawTarget, RESOURCE_ENERGY)
+        }
+        if (withdrawRes === ERR_NOT_IN_RANGE) {
+          creep.moveTo(withdrawTarget, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else if (withdrawRes === ERR_FULL) {
           creep.memory.building = true;
+          creep.memory.withdrawTarget = null;
+          this.build(creep);
+        }
+      } else {
+        // 自己挖矿
+        const source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+        if (source) {
+          const harvestResult = creep.harvest(source);
+          if (harvestResult === ERR_NOT_IN_RANGE) {
+            creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+          } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES || harvestResult === ERR_FULL) {
+            // 如果矿物不足，切换状态
+            creep.memory.building = true;
+          }
         }
       }
     }
