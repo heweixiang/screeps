@@ -250,7 +250,7 @@ function getRoomDeepCenter(room) {
 }
 
 function logRoomInfo(Room) {
-  const RCL = Room.controller.level;
+  const RCL = Room.controller ? Room.controller.level : 0
   const StorageEnergy = Room.storage ? Room.storage.store[RESOURCE_ENERGY] : 0;
   // 获取当前房间升级进度
   const Progress = Room.controller ? Room.controller.progress : 0;
