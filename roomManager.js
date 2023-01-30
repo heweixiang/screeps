@@ -268,7 +268,7 @@ function logRoomInfo(Room) {
   }
   Memory.log += `\n  <font color='${Hostile ? 'red' : 'green'}'>${Room.name}</font>   RCL：${RCL}${ProgressLog}   Storage：${StorageEnergy}`
   Memory.sendText += `\n  <font color='${Hostile ? 'red' : 'green'}'>${Room.name}</font>   RCL：${RCL}${ProgressLog}   Storage：${StorageEnergy}`
-  if (RCL > 0 && Room.memory.OutRoom.length > 0) {
+  if (RCL > 0 && Room.memory.OutRoom && Room.memory.OutRoom.length > 0) {
     // 外矿房间列表
     Memory.log += `   外矿：${Room.memory.OutRoom || []}`
     Memory.sendText += `   外矿：${Room.memory.OutRoom || []}`
