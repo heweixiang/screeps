@@ -30,7 +30,7 @@ module.exports.loop = function () {
   Memory.sendText += `\n=================================== ${Game.time} ===================================\n\n\n`;
   console.log(Memory.log);
   // 500tick发送邮件
-  if (Game.time % 500 == 0) {
+  if (Game.time % 1000 == 0) {
     Game.notify(`${Memory.sendText}`);
   }
   if (Game.cpu.bucket == 10000) {
