@@ -32,7 +32,7 @@ const roomManager = {
           return structure.structureType == STRUCTURE_LINK;
         }
       })
-      Room.memory.storageLink = storageLink[0].id
+      if (storageLink.length) Room.memory.storageLink = storageLink[0].id
     }
 
     // ================= 创建房间中心点，中心布局 =================
