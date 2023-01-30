@@ -1,5 +1,4 @@
-// 创建creep
-
+// TODO 改成任务式创建
 // 矿工：只能一辈子在Container上挖矿不可移动
 const ROLE_WORKER = 'ROLE_WORKER';
 // 运输者：一辈子东奔西走运输资源
@@ -17,6 +16,8 @@ const ROLE_HARVESTER = 'ROLE_HARVESTER';
 // 行为
 // 采集
 const BEHAVIOR_HARVEST = 'BEHAVIOR_HARVEST';
+// 矿物采集
+const BEHAVIOR_HARVEST_MINERAL = 'BEHAVIOR_HARVEST_MINERAL';
 // 运输
 const BEHAVIOR_TRANSPORT = 'BEHAVIOR_TRANSPORT';
 // 修理
@@ -63,6 +64,8 @@ const createCreep = {
         case 8:
         case 7:
         case 6:
+          createCreepForRCL6(Room, spawns[0]);
+          break;
         case 5:
         case 4:
           createCreepForRCL4(Room, spawns[0]);
@@ -75,6 +78,36 @@ const createCreep = {
           createCreepForRCL1(Room, spawns[0]);
           break;
       }
+    }
+  }
+}
+
+// 六级房间
+function createCreepForRCL6(Room, spawn) {
+  if (createCreepForRCL4(Room, spawn) === 'create') {
+    return 'create'
+  }
+  // TODO 支持其它房间
+  // 这时候创建综合矿工
+  // 判断房间内是否建造了extractor
+  if (Room.find(FIND_MY_STRUCTURES, {
+    filter: (structure) => {
+      // 矿物不为空
+      return structure.structureType === STRUCTURE_EXTRACTOR && structure.pos.lookFor(LOOK_MINERALS)[0].mineralAmount > 0
+    }
+  }).length > 0) {
+    // 矿物采集
+    const mineralHarvesterNum = creepList.filter((creep) => {
+      return creep.memory.role === ROLE_WORKER && creep.memory.behavior === BEHAVIOR_HARVEST_MINERAL
+    })
+    if (mineralHarvesterNum.length < 1) {
+      // 派个采集者过去
+      const body = Game.Config.creep.generateInitialWorker(Room, false);
+      const name = 'TouchFish_矿工' + Game.time;
+      const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST_MINERAL } };
+      // 创造creep
+      GenerateCreep(Room, spawn, body, name, config);
+      return 'create';
     }
   }
 }
@@ -103,7 +136,6 @@ function createCreepForRCL4(Room, spawn) {
       return 'create'
     }
   }
-
   return 'no-create'
 }
 

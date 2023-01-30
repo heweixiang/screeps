@@ -16,6 +16,8 @@ const ROLE_HARVESTER = 'ROLE_HARVESTER';
 // 行为
 // 采集
 const BEHAVIOR_HARVEST = 'BEHAVIOR_HARVEST';
+// 矿物采集
+const BEHAVIOR_HARVEST_MINERAL = 'BEHAVIOR_HARVEST_MINERAL';
 // 运输
 const BEHAVIOR_TRANSPORT = 'BEHAVIOR_TRANSPORT';
 // 修理
@@ -53,7 +55,10 @@ const creepWrok = {
           break;
         // 矿工
         case ROLE_WORKER:
-          this.worker(creep);
+          switch (creep.memory.behavior) {
+            case BEHAVIOR_HARVEST: this.worker(creep); break;
+            case BEHAVIOR_HARVEST_MINERAL: this.harvestMineral(creep); break;
+          }
           break;
         case ROLE_TRANSPORTER:
           this.transporter(creep);
@@ -64,6 +69,65 @@ const creepWrok = {
           break;
       }
     });
+  },
+  // 矿工
+  harvestMineral(creep) {
+    if (creep.store.getFreeCapacity() === 0) {
+      creep.memory.harvest = false;
+    } else if (creep.store.getUsedCapacity() === 0) {
+      creep.memory.harvest = true;
+    }
+
+    // 查看是否绑定了STRUCTURE_EXTRACTOR
+    if (!creep.memory.bindExtractor) {
+      // 没有绑定则寻找
+      let extractor = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: structure => structure.structureType === STRUCTURE_EXTRACTOR
+      });
+      if (extractor) {
+        creep.memory.bindExtractor = extractor.id;
+      }
+    } else if (creep.memory.harvest) {
+      // 获取附近墓碑中的矿物
+      let tombstone = creep.pos.findClosestByRange(FIND_TOMBSTONES, {
+        filter: tombstone => tombstone.store.getUsedCapacity() > 0
+      });
+      if (tombstone) {
+        if (creep.pos.getRangeTo(tombstone) > 1) {
+          creep.moveTo(tombstone, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          // 取出所有矿物
+          for (let resourceType in tombstone.store) {
+            creep.withdraw(tombstone, resourceType);
+          }
+        }
+        return 'GET_TOMBSTONES';
+      }
+      // 走到附近
+      let extractor = Game.getObjectById(creep.memory.bindExtractor);
+      if (extractor) {
+        if (creep.pos.getRangeTo(extractor) > 1) {
+          creep.moveTo(extractor, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          // 获取矿物
+          let mineral = extractor.pos.findClosestByRange(FIND_MINERALS);
+          // 在附近则开始采集
+          creep.harvest(mineral);
+        }
+      }
+    } else {
+      // 将身上所有矿物给storage
+      let storage = creep.room.storage;
+      if (storage) {
+        if (creep.pos.getRangeTo(storage) > 1) {
+          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff' } });
+        } else {
+          for (let resourceType in creep.store) {
+            creep.transfer(storage, resourceType);
+          }
+        }
+      }
+    }
   },
   // 一体机
   allInOne(creep) {
@@ -741,9 +805,9 @@ const creepWrok = {
           }
         } else {
           // if (creepRepair(creep) === true) {
-            // 向目标移动
-            creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-            return 'moveToTarget';
+          // 向目标移动
+          creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+          return 'moveToTarget';
           // }
         }
       } else {
