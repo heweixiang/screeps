@@ -175,6 +175,8 @@ const creepWrok = {
         });
         // 判断是否有需要治疗的creep
         if (target) {
+          // 标记为战斗状态
+          creep.memory.isFighting = true;
           // 有则治疗
           if (creep.heal(target) === ERR_NOT_IN_RANGE) {
             // 不在治疗范围内则移动
@@ -596,14 +598,33 @@ const creepWrok = {
       if (creep.store.getUsedCapacity() === 0) {
         creep.memory.building = false;
       }
-    // 如果工作房间矿物数量为0,且需要矿物
-    if (creep.memory.building === false && creep.memory.bindRoom && Game.rooms[creep.memory.bindRoom].memory.centerSource.length + Game.rooms[creep.memory.bindRoom].memory.otherSource.length === 0) {
+    if(creep.memory.building === false) {
+      // 如果房间有ruin,并且能量大于50
+      const ruins = creep.room.find(FIND_RUINS, {
+        filter: (ruin) => { 
+          return ruin.store.getUsedCapacity(RESOURCE_ENERGY) >= 50
+        }
+      });
+      // 直接去最近的ruin
+      if (ruins.length > 0) {
+        const ruin = creep.pos.findClosestByRange(ruins);
+        if (creep.withdraw(ruin, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(ruin, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+        return;
+      }
+    }
+    // 如果工作房间矿物数量为0,且需要矿物,或者房间不是自己的
+    if (creep.room.controller && creep.room.controller.level > 0 && creep.memory.building === false && creep.room.controller.my === false
+      || creep.memory.building === false && creep.memory.bindRoom
+      && Game.rooms[creep.memory.bindRoom] && Game.rooms[creep.memory.bindRoom].controller.my
+      && Game.rooms[creep.memory.bindRoom].memory.centerSource.length + Game.rooms[creep.memory.bindRoom].memory.otherSource.length === 0) {
       // 回到创建房间获取
       creep.moveTo(new RoomPosition(25, 25, creep.memory.createRoom), { visualizePathStyle: { stroke: '#ffffff' } });
       return;
     }
     // 判断是否在工作房间
-    if (creep.memory.bindRoom && creep.room.name !== creep.memory.bindRoom) {
+    if (creep.memory.bindRoom && creep.room.name !== creep.memory.bindRoom && creep.memory.building === true) {
       creep.moveTo(new RoomPosition(25, 25, creep.memory.bindRoom), { visualizePathStyle: { stroke: '#ffffff' } });
       return;
     }
@@ -624,6 +645,7 @@ const creepWrok = {
         }
         if (withdrawRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(withdrawTarget, { visualizePathStyle: { stroke: '#ffffff' } });
+          return "MOVE_TO"
         } else if (withdrawRes === ERR_FULL) {
           creep.memory.building = true;
           creep.memory.withdrawTarget = null;
@@ -636,6 +658,7 @@ const creepWrok = {
           const harvestResult = creep.harvest(source);
           if (harvestResult === ERR_NOT_IN_RANGE) {
             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+            return 'MOVE_TO'
           } else if (harvestResult === ERR_NOT_ENOUGH_RESOURCES || harvestResult === ERR_FULL) {
             // 如果矿物不足，切换状态
             creep.memory.building = true;
@@ -660,15 +683,21 @@ const creepWrok = {
         }
       }
       if (buildTarget === null) {
-        // 获取绑定房间的控制器
-        const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
-        // 判断是否在控制器旁边
-        if (creep.pos.getRangeTo(controller) > 2) {
-          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
-          return;
+        if (creep.memory.bindRoom && Game.rooms[creep.memory.bindRoom].controller !== undefined) {
+          // 获取绑定房间的控制器
+          const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
+          // 判断是否在控制器旁边
+          if (creep.pos.getRangeTo(controller) > 2) {
+            creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+            return;
+          } else {
+            creep.upgradeController(controller);
+            return;
+          }
         } else {
-          creep.upgradeController(controller);
-          return;
+          // 移除帮建
+          creep.memory.bindRoom = creep.memory.createRoom;
+          Game.Tools.RemoveHelpBuildRoom(creep.memory.bindRoom);
         }
       }
       // 开始建造

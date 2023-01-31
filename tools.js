@@ -23,7 +23,7 @@ const tools = {
   // 设置所有房间标签的更新状态为false
   SetAllRoomTagUpdateFalse() {
     for (let i in Game.rooms) {
-      if(Game.rooms[i].memory.my == undefined) continue;
+      if (Game.rooms[i].memory.my == undefined) continue;
       Game.rooms[i].memory.roomTypeIsUpdate = false;
     }
   },
@@ -49,7 +49,7 @@ const tools = {
     if (Memory.PreRoom == undefined) {
       Memory.PreRoom = [];
     }
-    Memory.PreRoom.push(ROOMName); 
+    Memory.PreRoom.push(ROOMName);
     Memory.PreRoom = [...new Set(Memory.PreRoom)]
     console.log(`SetPreRoom[${ROOMName}]`, Memory.PreRoom);
   },
@@ -97,6 +97,9 @@ const tools = {
   },
   // 获取角色产生数量
   GetCreepNum(ROOM, CreepName) {
+    if (ROOM === undefined) {
+      return {}
+    }
     if (ROOM.memory.CreepNum === undefined) {
       ROOM.memory.CreepNum = {};
     }
