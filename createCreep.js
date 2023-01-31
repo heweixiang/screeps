@@ -444,7 +444,7 @@ function emergency(Room, spawn) {
   // 如果分配者数量小于2或者storage剩余能量小于10000
   if (assigners.length < 2 || storageEnergy < 10000) {
     // 四级了如果有Storge就需要有分配者
-    if (Room.storage && storageEnergy > 10000) {
+    if (Room.storage && storageEnergy < 10000) {
       // 获取房间内的分配者数量
       const assignNum = Room.find(FIND_MY_CREEPS, {
         filter: (creep) => {

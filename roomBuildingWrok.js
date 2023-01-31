@@ -70,7 +70,7 @@ function TowerManagerLoop(ROOM, tower) {
     return
   }
   // 当前塔能量大于400
-  if (tower.store.getFreeCapacity() < 500) {
+  if (tower.store.getUsedCapacity() > 600) {
     // 获取最近的血量低于50%的建筑
     const structures = ROOM.find(FIND_STRUCTURES, {
       filter: (structure) => {
