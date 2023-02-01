@@ -12,7 +12,7 @@ const TOUGH_ENERGY = 10
 const CLAIM_ENERGY = 600
 
 const config = {
-  RoomType: 'touchfish room test type',
+  RoomType: '种田流！',
 
   RCL: {
     LV1: { Upgrade: 200, Roads: true, Spawn: 1 },

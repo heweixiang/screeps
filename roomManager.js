@@ -4,6 +4,8 @@ const createCreep = require('createCreep')
 const creepWrok = require('creepWrok')
 const autoCreateBuilding = require('autoCreateBuilding')
 const roomBuildingWrok = require('roomBuildingWrok')
+const MarkManger = require('markManger');
+
 const roomManager = {
   // 两种房间，一种是有spawn的占领房间，一种是没有spawn的外矿房间
   loop(Room) {
@@ -19,14 +21,96 @@ const roomManager = {
       // 外矿房间
       this.outRoom(Room);
     }
-    // 处理房间内存
-    this.roomMemory(Room);
+    MarkManger.loop(Room);
   },
   // 房间初始化,只能存ID位置
   roomInit(Room) {
+    /**
+      {
+        owner：Invader（九房）aisle（过道）其他玩家
+        storageLink：storageLink的ID
+        center：中心点 max：中心点最大范围
+        centerSource：中心点能量ID
+        otherSource：其他能量ID
+        otherSourceLink：其他能量linkID
+        haveInvaderCore：是否有入侵核心
+        extractor：矿物提取点
+        // 外部房间需要被捡起的资源
+        CollectTask: [
+          {
+            taskId: 任务ID
+            pos：资源位置，
+            id：资源ID
+            type：资源类型
+            roomName：房间名
+            saveName: 保存房间名
+            functionName: 捡起资源的函数名
+            state: 0 未绑定 1 已绑定
+            storeCount 保存数量
+            order: 优先级
+            creepName: creep名字
+          }
+        ],
+        TERMINAL_TASK: [
+          {
+            taskId: 任务ID
+            targetRoomName: 目标房间名
+            roadCost: 路费
+            type: 资源类型
+            count: 资源数量
+            state: 0 待准备 1 在准备
+            remark：备注
+            order: 优先级
+          }
+        ]
+      }
+    */
+    if(!Room.memory.TerminalTask) {
+      Room.memory.TerminalTask = [];
+    }
+
+    if (!Room.memory.CollectTask) {
+      Room.memory.CollectTask = [];
+    }
+    // ================= 更新该房间的拥有者 =================
+    if (Room.controller && (!Room.memory.owner || Room.controller.owner !== Room.memory.owner)) {
+      // 及时更新所有者
+      Room.memory.owner = Room.controller.owner;
+      if (!Room.memory.extractor) {
+        // 标记STRUCTURE_EXTRACTOR位置
+        const extractor = Room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_EXTRACTOR;
+          }
+        })
+        if (extractor.length) {
+          Room.memory.extractor = extractor[0].pos
+        }
+      }
+    } else if (!Room.controller && !Room.memory.owner) {
+      // 如果没有controller就是九房或者过道
+      // 如果房间名第三位和第六位数值相加取余10小于等与2就是九房
+      if (parseInt(Room.name[2]) + parseInt(Room.name[5]) % 10 <= 2) {
+        Room.memory.owner = "Invader";
+        if (!Room.memory.extractor) {
+          // 标记STRUCTURE_EXTRACTOR位置
+          const extractor = Room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return structure.structureType == STRUCTURE_EXTRACTOR;
+            }
+          })
+          if (extractor.length) {
+            Room.memory.extractor = extractor[0].pos
+          }
+        }
+      } else {
+        Room.memory.owner = "aisle";
+        // TODO 扫描沉积物和power
+      }
+    }
     // ================= 判断房间内存是否存在storageLink =================
-    if (!Room.memory.storageLink && Room.storage) {
-      // 获取storage 3*3 范围内的link
+    if (Game.time % 1000 === 0 && !Room.memory.storageLink && Room.storage && Room.controller.my && Room.controller.level > 4) {
+      // 获取storage 3*3 范围内的link 1000T扫描一次
       const storageLink = Room.storage.pos.findInRange(FIND_STRUCTURES, 3, {
         filter: (structure) => {
           return structure.structureType == STRUCTURE_LINK;
@@ -34,7 +118,6 @@ const roomManager = {
       })
       if (storageLink.length) Room.memory.storageLink = storageLink[0].id
     }
-
     // ================= 创建房间中心点，中心布局 =================
     if (!Room.memory.center && Room.controller && Room.controller.my) {
       // 如果有storage就以storage为中心，如果没有就以spawn[0]左两格为中心
@@ -48,7 +131,6 @@ const roomManager = {
       }
       Room.memory.center = center
     }
-
     // ================= 中心点十格以内标记为内能量 =================
     if (!Room.memory.centerSource && Room.controller && Room.controller.my) {
       Room.memory.centerSource = []
@@ -75,12 +157,11 @@ const roomManager = {
         })
       }
     }
-
     // ================= 扫描给各个otherSource挂上link ==============
-    if (Room.memory.otherSource && Room.memory.otherSourceLink < Room.memory.otherSource && Room.controller && Room.controller.my || !Room.memory.otherSourceLink && Room.memory.otherSource) {
+    if (Room.controller && Room.controller.my && Game.time % 1000 === 0 && (Room.memory.otherSourceLink.length < Room.memory.otherSource.length || !Room.memory.otherSourceLink)) {
       if (!Room.memory.otherSourceLink) Room.memory.otherSourceLink = {}
       Room.memory.otherSource.map((item, index) => {
-        if (Room.memory.otherSourceLink[index]) return
+        if (Room.memory.otherSourceLink[item.id]) return
         const source = Game.getObjectById(item)
         const sourceLink = source.pos.findInRange(FIND_STRUCTURES, 3, {
           filter: (structure) => {
@@ -88,59 +169,22 @@ const roomManager = {
           }
         })
         if (sourceLink.length) {
-          Room.memory.otherSourceLink[index] = sourceLink[0].id
+          Room.memory.otherSourceLink[item.id] = sourceLink[0].id
         }
       })
     }
-
-    // ================= 给房间内建筑也挂上memory ==============
-    {
-      // 不需要上内存的建筑
-      const notMemoryBuilding = [STRUCTURE_ROAD, STRUCTURE_EXTENSION, STRUCTURE_RAMPART, STRUCTURE_WALL]
-      // 判断房间内存是否存在building
-      if (!Room.memory.building) Room.memory.building = {}
-      // 扫描房间内除了道路和extension外的建筑
-      const building = Room.find(FIND_STRUCTURES, {
+    // ================= 扫描haveInvaderCore ==============
+    if (Game.time % 200 === 0) {
+      const invaderCore = Room.find(FIND_STRUCTURES, {
         filter: (structure) => {
-          return !notMemoryBuilding.includes(structure.structureType) && structure.memory == undefined && structure.id && structure.my
+          return structure.structureType == STRUCTURE_INVADER_CORE;
         }
       })
-      // 给房间内存挂载building
-      building.forEach((item, index) => {
-        // 如果房间内存中没有该建筑，就挂载，如果有就回显
-        if (!Room.memory.building[item.id]) {
-          building[index].memory = {}
-        } else {
-          building[index].memory = Room.memory.building[item.id]
-        }
-      })
-      // 如果房间内存中有建筑，但是房间中没有，就删除
-      for (let key in Room.memory.building) {
-        if (!building.find((item) => item.id == key)) {
-          delete Room.memory.building[key]
-        }
+      if (invaderCore.length) {
+        Room.memory.haveInvaderCore = Game.time
+      } else {
+        Room.memory.haveInvaderCore = 0
       }
-    }
-  },
-  // 房间内存处理
-  roomMemory(Room) {
-    // ================ 将房间内存中的建筑挂载到房间中 ================
-    {
-      // 有内存的建筑
-      const building = Room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.memory != undefined && structure.id && structure.my
-        }
-      })
-      // 给房间内存挂载building
-      building.forEach((item, index) => {
-        // 如果房间内存中没有该建筑，就挂载，如果有就回显
-        if (!Room.memory.building[item.id]) {
-          Room.memory.building[item.id] = {}
-        } else {
-          Room.memory.building[item.id] = item.memory
-        }
-      })
     }
   },
   // 非可控房间

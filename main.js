@@ -4,7 +4,9 @@ const Tools = require('tools');
 const Config = require('config');
 // 引入ROOM管理
 const RoomManager = require('roomManager');
+const MarkManger = require('markManger');
 module.exports.loop = function () {
+  Game.mark = MarkManger;
   Memory.sendText = Memory.log = `  待占房间：${Memory.PreRoom || '[]'}   援建房间：${Memory.HelpBuildRoom || '[]'}   Bucket：${Game.cpu.bucket}   
   GCL：${Game.gcl.level}   GCL进度：${(Game.gcl.progress / Game.gcl.progressTotal.toFixed(0) * 100).toFixed(4)}%   Credits：${Game.market ? Game.market.credits : 'NULL'}`
   // 用于公共静态配置

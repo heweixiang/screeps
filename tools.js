@@ -20,10 +20,13 @@ const tools = {
       AvailableEnergy
     };
   },
+  // 给某个房间添加一个收集任务
+  AddCollectTask(ROOMName, task) {
+    Game.rooms[ROOMName].memory.CollectTask.push(task);
+  },
   // 设置所有房间标签的更新状态为false
   SetAllRoomTagUpdateFalse() {
     for (let i in Game.rooms) {
-      if (Game.rooms[i].memory.my == undefined) continue;
       Game.rooms[i].memory.roomTypeIsUpdate = false;
     }
   },
