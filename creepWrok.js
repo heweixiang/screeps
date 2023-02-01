@@ -578,6 +578,7 @@ const creepWrok = {
       return;
     }
     if (creep.memory.upgrading === false) {
+      creep.memory.dontPullMe = false
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
@@ -672,13 +673,14 @@ const creepWrok = {
     }
     // 如果当前能量为0，切换状态
     if (creep.memory.upgrading) {
+      creep.memory.dontPullMe = true;
       // 获取绑定房间的控制器
       const controller = creep.memory.bindRoom ? Game.rooms[creep.memory.bindRoom].controller : creep.room.controller;
       // 判断是否在控制器旁边
       if (creep.pos.getRangeTo(controller) > 2) {
-        if (creepRepair(creep) === true) {
-          creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
-        }
+        // if (creepRepair(creep) === true) {
+        creep.moveTo(controller, { visualizePathStyle: { stroke: '#ffffff' } });
+        // }
         return;
       } else {
         creep.upgradeController(controller);
