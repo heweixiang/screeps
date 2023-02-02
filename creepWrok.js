@@ -385,7 +385,7 @@ const creepWrok = {
         // 获取该房间tower
         const towers = creep.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
-            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 500 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
           }
         });
         if (towers.length > 0) {
@@ -418,7 +418,7 @@ const creepWrok = {
         // 获取该房间tower
         const towers = creep.room.find(FIND_STRUCTURES, {
           filter: (structure) => {
-            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 50 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
           }
         });
         if (towers.length > 0) {
