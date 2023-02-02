@@ -89,19 +89,6 @@ function createCreepForRCL6(Room, spawn) {
   if (createCreepForRCL4(Room, spawn) === 'create') {
     return 'create'
   }
-  // 创建破烂工ROLE_GOBLIN
-  if (Room.CollectTask && Room.CollectTask.length > 0) {
-    // 如果 ROLE_GOBLIN 的工人数量小于 Room.CollectTask.length / 3
-    if (creepList.filter(creep => creep.memory.role === ROLE_GOBLIN).length < (Room.CollectTask.length / 3 || 1)) {
-      // 派个运输者过去
-      const body = Game.Config.creep.generateTransporter(Room, false);
-      const name = 'TouchFish_运输' + '【哥布林】' + Game.time;
-      const config = { memory: { role: ROLE_GOBLIN, behavior: BEHAVIOR_TRANSPORT, bindRoom: externalRoomList[i] } };
-      // 创造creep
-      GenerateCreep(Room, spawn, body, name, config);
-      return 'create';
-    }
-  }
   // TODO 支持其它房间
   // 这时候创建综合矿工
   // 判断房间内是否建造了extractor
@@ -149,6 +136,19 @@ function createCreepForRCL4(Room, spawn) {
       // 创造creep
       GenerateCreep(Room, spawn, body, name, config);
       return 'create'
+    }
+    // 创建破烂工ROLE_GOBLIN
+    if (Room.CollectTask && Room.CollectTask.length > 0) {
+      // 如果 ROLE_GOBLIN 的工人数量小于 Room.CollectTask.length / 3
+      if (creepList.filter(creep => creep.memory.role === ROLE_GOBLIN).length < (Room.CollectTask.length / 3 || 1)) {
+        // 派个运输者过去
+        const body = Game.Config.creep.generateTransporter(Room, false);
+        const name = 'TouchFish_运输' + '【哥布林】' + Game.time;
+        const config = { memory: { role: ROLE_GOBLIN, behavior: BEHAVIOR_TRANSPORT, bindRoom: externalRoomList[i] } };
+        // 创造creep
+        GenerateCreep(Room, spawn, body, name, config);
+        return 'create';
+      }
     }
   }
   return 'no-create'
