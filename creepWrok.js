@@ -93,7 +93,7 @@ const creepWrok = {
     } else {
       // 如果爬爬要是死了，修改任务状态并发起新的任务
       if (creepDie(creep)) {
-        const task = Game[creep.memory.createRoom].collectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game[creep.memory.createRoom].memory.collectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
           task.state = 0;
           task.creepName = '';
