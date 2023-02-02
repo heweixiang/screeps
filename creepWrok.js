@@ -85,7 +85,7 @@ const creepWrok = {
   console.log('creep.memory.taskId: ', creep.memory.taskId);
     if (!creep.memory.taskId) {
       // 获取第一条未接收的CollectTask
-      const task = creep.room.memory.collectTask.find(task => task.state === 0);
+      const task = creep.room.memory.collectTask.filter(task => task.state === 0)[0];
       if (task) {
         creep.memory.taskId = task.taskId;
         task.state = 1;
