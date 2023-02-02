@@ -82,7 +82,9 @@ const creepWrok = {
   },
   // goblin开始接单啦
   goblin(creep) {
+  console.log('creep.memory.taskId: ', creep.memory.taskId);
     if (!creep.memory.taskId) {
+    
       // 获取第一条未接收的CollectTask
       const task = Game[creep.memory.createRoom].memory.collectTask.find(task => task.state === 0);
       if (task) {
@@ -127,7 +129,6 @@ const creepWrok = {
       } else {
         // 到达任务地点
         const task = Game[creep.memory.createRoom].memory.collectTask.find(task => task.taskId === creep.memory.taskId);
-        console.log('task: ', task);
         if (task) {
           // 是否在任务房间
           if (creep.room.name !== task.roomName) {
