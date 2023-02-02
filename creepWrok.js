@@ -1043,8 +1043,9 @@ const creepWrok = {
           // 没有能量了就清除绑定
           if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
             creep.memory.transportId = null;
+            creep.memory.transport = true;
             // 寻找新的资源
-            this.transporter(creep);
+            // this.transporter(creep);
           } else if (getEnergyResult === ERR_FULL) {
             creep.memory.transportId = null;
             creep.memory.transport = true;
