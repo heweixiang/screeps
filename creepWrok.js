@@ -82,10 +82,9 @@ const creepWrok = {
   },
   // goblin开始接单啦
   goblin(creep) {
-  console.log('creep.memory.taskId: ', creep.memory.taskId);
     if (!creep.memory.taskId) {
       // 获取第一条未接收的CollectTask
-      const task = creep.room.memory.CollectTask.filter(task => task.state === 0)[0];
+      const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.state === 0)[0];
       if (task) {
         creep.memory.taskId = task.taskId;
         task.state = 1;
@@ -94,7 +93,7 @@ const creepWrok = {
     } else {
       // 如果爬爬要是死了，修改任务状态并发起新的任务
       if (creepDie(creep)) {
-        const task = Game[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
           task.state = 0;
           task.creepName = '';
@@ -127,7 +126,7 @@ const creepWrok = {
         }
       } else {
         // 到达任务地点
-        const task = Game[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
           // 是否在任务房间
           if (creep.room.name !== task.roomName) {
@@ -143,14 +142,14 @@ const creepWrok = {
                   for (const resourceType in target.store) {
                     creep.withdraw(target, resourceType);
                     if (target.store.getUsedCapacity(resourceType) === 0) {
-                      Game[creep.memory.createRoom].memory.CollectTask = Game[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
+                      Game.rooms[creep.memory.createRoom].memory.CollectTask = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
                     }
                   }
                   // 更新task中的资源数量
                   task.storeCount = target.store.getUsedCapacity();
                 } else if (target.energy === 0) {
                   // 如果内容为空删除该任务
-                  Game[creep.memory.createRoom].memory.CollectTask = Game[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
+                  Game.rooms[creep.memory.createRoom].memory.CollectTask = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
                 }
               }
             } else {
