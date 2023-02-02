@@ -692,6 +692,15 @@ const creepWrok = {
           withdrawTarget = creep.pos.findClosestByRange(storages);
         }
       }
+
+      if (withdrawTarget === null) {
+        // 如果storageLink中有能量则从storageLink中取出
+        const storageLink = Game.getObjectById(creep.room.memory.storageLink);
+        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+          withdrawTarget = storageLink
+        }
+      }
+
       if (withdrawTarget) {
         creep.memory.withdrawTarget = withdrawTarget.id;
         let withdrawRes = creep.withdraw(withdrawTarget, RESOURCE_ENERGY);
@@ -712,10 +721,10 @@ const creepWrok = {
           const source = sources[0];
           if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
-          } else if (creep.harvest(source) === ERR_NOT_ENOUGH_RESOURCES || creep.harvest(source) === ERR_FULL) {
+          } else if (creep.harvest(source) === ERR_FULL) {
             creep.memory.upgrading = true;
             creep.memory.withdrawTarget = null;
-            // this.upgrade(creep);
+            this.upgrade(creep);
           }
         }
       }
