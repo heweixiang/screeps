@@ -496,16 +496,6 @@ function emergency(Room, spawn) {
       }
     }
 
-    // 如果运输者数量小于1
-    if (transporters.length < needTransporter(Room)) {
-      // 生成运输者
-      const body = Game.Config.creep.generateTransporter(Room, true);
-      const name = 'TouchFish_运输' + Game.time;
-      const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
-      // 创建运输者
-      GenerateCreep(Room, spawn, body, name, config);
-      return 'create'
-    }
     // 获取矿工数量
     const workers = Room.find(FIND_MY_CREEPS, {
       filter: (creep) => {
@@ -519,6 +509,17 @@ function emergency(Room, spawn) {
       const name = 'TouchFish_矿工' + Game.time;
       const config = { memory: { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST } };
       // 创建矿工
+      GenerateCreep(Room, spawn, body, name, config);
+      return 'create'
+    }
+
+    // 如果运输者数量小于1
+    if (transporters.length < needTransporter(Room)) {
+      // 生成运输者
+      const body = Game.Config.creep.generateTransporter(Room, true);
+      const name = 'TouchFish_运输' + Game.time;
+      const config = { memory: { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT } };
+      // 创建运输者
       GenerateCreep(Room, spawn, body, name, config);
       return 'create'
     }
