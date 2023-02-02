@@ -135,7 +135,17 @@ const creepWrok = {
             const taskPos = new RoomPosition(task.pos.x, task.pos.y, task.roomName)
             if (creep.pos.isEqualTo(taskPos)) {
               // 判断脚下类型取出所有内容
-              const target = creep.pos.lookFor(LOOK_STRUCTURES)[0];
+              let target = creep.pos.lookFor(LOOK_RUINS)[0];
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_TERRAIN)[0];
+              }
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_TOMBSTONES)[0];
+              }
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_STRUCTURES)[0];
+              }
+
               // 如果是散落能量，直接拾取
               if (target) {
                 if (creep.pickup(target) !== OK) {
