@@ -84,7 +84,7 @@ const creepWrok = {
   goblin(creep) {
     if (!creep.memory.taskId) {
       // 获取第一条未接收的CollectTask
-      const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.state === 0)[0];
+      const task = Game.rooms[creep.memory.createRoom].memory.CollectTask[0]//.filter(task => task.state === 0)[0];
       if (task) {
         creep.memory.taskId = task.taskId;
         task.state = 1;
