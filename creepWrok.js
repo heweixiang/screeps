@@ -715,7 +715,7 @@ const creepWrok = {
           } else if (creep.harvest(source) === ERR_NOT_ENOUGH_RESOURCES || creep.harvest(source) === ERR_FULL) {
             creep.memory.upgrading = true;
             creep.memory.withdrawTarget = null;
-            this.upgrade(creep);
+            // this.upgrade(creep);
           }
         }
       }
@@ -1043,7 +1043,6 @@ const creepWrok = {
           // 没有能量了就清除绑定
           if (getEnergyResult === ERR_NOT_ENOUGH_RESOURCES) {
             creep.memory.transportId = null;
-            creep.memory.transport = true;
             // 寻找新的资源
             // this.transporter(creep);
           } else if (getEnergyResult === ERR_FULL) {
@@ -1085,7 +1084,7 @@ function creepDie(creep) {
 // 爬爬修路
 function creepRepair(creep) {
   // 随机性检测，不然太浪费资源了
-  if (creep.ticksToLive % 10 !== 0) return;
+  if (creep.ticksToLive % 10 !== 0) return true;
   // 获取附近道路是否存在血量低于50%的，如果有则优先修复
   // 获取脚下的道路或建筑工地
   const road = creep.pos.lookFor(LOOK_STRUCTURES).find(s => s.structureType === STRUCTURE_ROAD);
