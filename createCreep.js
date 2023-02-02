@@ -155,7 +155,7 @@ function createCreepForRCL2(Room, spawn) {
   // 创建破烂工ROLE_GOBLIN
   if (Room.memory.CollectTask && Room.memory.CollectTask.length > 0) {
     // 如果 ROLE_GOBLIN 的工人数量小于 Room.CollectTask.length / 3
-    if (creepList.filter(creep => creep.memory.role === ROLE_GOBLIN).length < 3) {// (Room.memory.CollectTask.length / 3 ? Room.memory.CollectTask.length / 3 : 1)) {
+    if (creepList.filter(creep => creep.memory.role === ROLE_GOBLIN).length < (Room.memory.CollectTask.length / 3 ? Room.memory.CollectTask.length / 3 : 1)) {
       // 派个运输者过去
       const body = Game.Config.creep.generateTransporter(Room, false);
       const name = 'TouchFish_运输' + '【哥布林】' + Game.time;
