@@ -355,6 +355,21 @@ const creepWrok = {
           }
         }
       }
+      // 如果身上有需要存储的不是能量的
+      if (creep.store.getFreeCapacity(RESOURCE_ENERGY) < creep.store.getFreeCapacity()) {
+        // 靠近storage
+        const storage = creep.room.storage;
+        if (storage) {
+          if (creep.pos.getRangeTo(storage) > 1) {
+            creep.moveTo(storage);
+          } else {
+            // 将身上所有矿物给storage
+            for (const resourceType in creep.store) {
+              creep.transfer(storage, resourceType);
+            }
+          }
+        }
+      }
       let filltarget = null
       if (creep.memory.filltarget) {
         filltarget = Game.getObjectById(creep.memory.filltarget)
@@ -525,7 +540,7 @@ const creepWrok = {
         // tombstone
         const tombstones = creep.room.find(FIND_TOMBSTONES, {
           filter: (tombstone) => {
-            return tombstone.store.getUsedCapacity(RESOURCE_ENERGY) > 50 && assigners.filter(creep => creep.memory.withdrawTarget === tombstone.id).length === 0;
+            return tombstone.store.getUsedCapacity() > 0 && assigners.filter(creep => creep.memory.withdrawTarget === tombstone.id).length === 0;
           }
         });
         if (tombstones.length > 0) {
@@ -547,7 +562,7 @@ const creepWrok = {
         // 获取散落的没被标记的能量
         const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
           filter: (resource) => {
-            return resource.resourceType === RESOURCE_ENERGY && resource.amount > 50 && assigners.filter(creep => creep.memory.withdrawTarget === resource.id).length === 0;
+            return resource.amount > 0 && assigners.filter(creep => creep.memory.withdrawTarget === resource.id).length === 0;
           }
         });
         if (droppedEnergy.length > 0) {
