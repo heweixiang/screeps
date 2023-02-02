@@ -159,7 +159,7 @@ function createCreepForRCL2(Room, spawn) {
       // 派个运输者过去
       const body = Game.Config.creep.generateTransporter(Room, false);
       const name = 'TouchFish_运输' + '【哥布林】' + Game.time;
-      const config = { memory: { role: ROLE_GOBLIN, behavior: BEHAVIOR_TRANSPORT, bindRoom: externalRoomList[i] } };
+      const config = { memory: { role: ROLE_GOBLIN, behavior: BEHAVIOR_TRANSPORT } };
       // 创造creep
       GenerateCreep(Room, spawn, body, name, config);
       return 'create';
