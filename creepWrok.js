@@ -694,10 +694,12 @@ const creepWrok = {
       }
 
       if (withdrawTarget === null) {
-        // 如果storageLink中有能量则从storageLink中取出
-        const storageLink = Game.getObjectById(creep.room.memory.storageLink);
-        if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-          withdrawTarget = storageLink
+        if (creep.room.memory.storageLink) {
+          // 如果storageLink中有能量则从storageLink中取出
+          const storageLink = Game.getObjectById(creep.room.memory.storageLink);
+          if (storageLink && storageLink.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
+            withdrawTarget = storageLink
+          }
         }
       }
 
