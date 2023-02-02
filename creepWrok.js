@@ -84,7 +84,7 @@ const creepWrok = {
   goblin(creep) {
     if (!creep.memory.taskId) {
       // 获取第一条未接收的CollectTask
-      const task = Game[creep.memory.createRoom].collectTask.find(task => task.state === 0);
+      const task = Game.rooms[creep.memory.createRoom].memory.CollectTask[0]//.filter(task => task.state === 0)[0];
       if (task) {
         creep.memory.taskId = task.taskId;
         task.state = 1;
@@ -93,7 +93,7 @@ const creepWrok = {
     } else {
       // 如果爬爬要是死了，修改任务状态并发起新的任务
       if (creepDie(creep)) {
-        const task = Game[creep.memory.createRoom].collectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
           task.state = 0;
           task.creepName = '';
@@ -111,29 +111,61 @@ const creepWrok = {
         if (creep.room.name !== creep.memory.createRoom) {
           creep.moveTo(new RoomPosition(25, 25, creep.memory.createRoom));
         } else {
-          this.transporter(creep);
+          // 靠近storage
+          const storage = creep.room.storage;
+          if (storage) {
+            if (creep.pos.getRangeTo(storage) > 1) {
+              creep.moveTo(storage);
+            } else {
+              // 将身上所有矿物给storage
+              for (const resourceType in creep.store) {
+                creep.transfer(storage, resourceType);
+              }
+            }
+          }
         }
       } else {
         // 到达任务地点
-        const task = Game[creep.memory.createRoom].collectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game.rooms[creep.memory.createRoom].memory.CollectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
-          const taskPos = new RoomPosition(task.pos.x, task.pos.y, task.roomName)
-          if (creep.pos.isEqualTo(taskPos)) {
-            // 判断脚下类型取出所有内容
-            const target = creep.pos.lookFor(LOOK_STRUCTURES)[0];
-            // 如果是散落能量，直接拾取
-            if (target) {
-              if (creep.pickup(target) !== OK) {
-                for (const resourceType in target.store) {
-                  creep.withdraw(target, resourceType);
-                }
-                // 更新task中的资源数量
-                task.storeCount = target.store.getUsedCapacity();
-              }
-            }
+          // 是否在任务房间
+          if (creep.room.name !== task.roomName) {
+            creep.moveTo(new RoomPosition(25, 25, task.roomName));
           } else {
-            creep.moveTo(taskPos);
-            return "MOVE_TO"
+            const taskPos = new RoomPosition(task.pos.x, task.pos.y, task.roomName)
+            if (creep.pos.isEqualTo(taskPos)) {
+              // 判断脚下类型取出所有内容
+              let target = creep.pos.lookFor(LOOK_RUINS)[0];
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_TERRAIN)[0];
+              }
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_TOMBSTONES)[0];
+              }
+              if (!target) {
+                target = creep.pos.lookFor(LOOK_STRUCTURES)[0];
+              }
+
+              // 如果是散落能量，直接拾取
+              if (target) {
+                if (creep.pickup(target) !== OK) {
+                  for (const resourceType in target.store) {
+                    creep.withdraw(target, resourceType);
+                    if (target.store.getUsedCapacity(resourceType) === 0) {
+                      Game.rooms[creep.memory.createRoom].memory.CollectTask = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
+                    }
+                  }
+                  // 更新task中的资源数量
+                  task.storeCount = target.store.getUsedCapacity();
+                } else if (target.energy === 0) {
+                  // 如果内容为空删除该任务
+                  Game.rooms[creep.memory.createRoom].memory.CollectTask = Game.rooms[creep.memory.createRoom].memory.CollectTask.filter(task => task.taskId !== creep.memory.taskId);
+                }
+              }
+            } else {
+              creep.moveTo(taskPos);
+              return "MOVE_TO"
+            }
           }
         } else {
           // 如果任务不存在，说明任务已经完成，发起新的任务
