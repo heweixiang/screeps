@@ -115,7 +115,7 @@ const creepWrok = {
         }
       } else {
         // 到达任务地点
-        const task = Game[creep.memory.createRoom].collectTask.find(task => task.taskId === creep.memory.taskId);
+        const task = Game[creep.memory.createRoom].memory.collectTask.find(task => task.taskId === creep.memory.taskId);
         if (task) {
           const taskPos = new RoomPosition(task.pos.x, task.pos.y, task.roomName)
           if (creep.pos.isEqualTo(taskPos)) {
@@ -126,9 +126,15 @@ const creepWrok = {
               if (creep.pickup(target) !== OK) {
                 for (const resourceType in target.store) {
                   creep.withdraw(target, resourceType);
+                  if (target.store.getUsedCapacity(resourceType) === 0) {
+                    Game[creep.memory.createRoom].memory.collectTask = Game[creep.memory.createRoom].memory.collectTask.filter(task => task.taskId !== creep.memory.taskId);
+                  }
                 }
                 // 更新task中的资源数量
                 task.storeCount = target.store.getUsedCapacity();
+              } else if (target.energy === 0) {
+                // 如果内容为空删除该任务
+                Game[creep.memory.createRoom].memory.collectTask = Game[creep.memory.createRoom].memory.collectTask.filter(task => task.taskId !== creep.memory.taskId);
               }
             }
           } else {
