@@ -224,7 +224,7 @@ const creepWrok = {
       return;
     }
     // 非战斗状态下5tick检测一次
-    if (creep.memory.isFighting || creep.ticksToLive % 10 === 0) {
+    if (creep.memory.isFighting || creep.ticksToLive % 5 === 0) {
       // 获取所有敌人
       let targets = creep.room.find(FIND_HOSTILE_CREEPS);
       // 排序先打治疗
@@ -311,6 +311,7 @@ const creepWrok = {
         if (reserveRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         } else if (reserveRes === ERR_INVALID_TARGET) {
+          creep.memory.dontPullMe = false
           creep.attackController(creep.room.controller);
         }
       }
@@ -323,6 +324,7 @@ const creepWrok = {
         if (claimRes === ERR_NOT_IN_RANGE) {
           creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
         } else if (claimRes === ERR_INVALID_TARGET) {
+          creep.memory.dontPullMe = false
           creep.attackController(creep.room.controller);
         }
       }
