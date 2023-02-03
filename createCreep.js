@@ -545,7 +545,7 @@ function needTransporter(Room) {
 
 // 接管创建creep，方便控制台输出了解详情
 function GenerateCreep(Room, spawn, body, name, config) {
-  body = body.slice(50)
+  body = body.slice(0,50)
   config.memory.createRoom = Room.name;
   // 正则移除name后面的数值
   const nameZN = name.replace(/\d+$/, '').replace('TouchFish_', '').replace(/【/g, '[').replace(/】/g, ']');
