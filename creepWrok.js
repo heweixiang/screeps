@@ -383,17 +383,17 @@ const creepWrok = {
           filltarget = null
         }
       }
-      if (filltarget === null) {
-        // 获取该房间tower
-        const towers = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
-          }
-        });
-        if (towers.length > 0) {
-          filltarget = creep.pos.findClosestByRange(towers);
-        }
-      }
+      // if (filltarget === null) {
+      //   // 获取该房间tower
+      //   const towers = creep.room.find(FIND_STRUCTURES, {
+      //     filter: (structure) => {
+      //       return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+      //     }
+      //   });
+      //   if (towers.length > 0) {
+      //     filltarget = creep.pos.findClosestByRange(towers);
+      //   }
+      // }
       if (filltarget === null) {
         // extensions
         const extensions = creep.room.find(FIND_STRUCTURES, {
@@ -534,7 +534,7 @@ const creepWrok = {
       let withdrawTarget = null;
       if (creep.memory.withdrawTarget) {
         withdrawTarget = Game.getObjectById(creep.memory.withdrawTarget);
-        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
+        if (withdrawTarget && withdrawTarget.store && withdrawTarget.store.getUsedCapacity(RESOURCE_ENERGY) < 50 || withdrawTarget && withdrawTarget.energy && withdrawTarget.energy === 0) {
           withdrawTarget = null;
         }
       }
@@ -542,7 +542,7 @@ const creepWrok = {
         // tombstone
         const tombstones = creep.room.find(FIND_TOMBSTONES, {
           filter: (tombstone) => {
-            return tombstone.store.getUsedCapacity() > 0 && assigners.filter(creep => creep.memory.withdrawTarget === tombstone.id).length === 0;
+            return tombstone.store.getUsedCapacity() > 50 && assigners.filter(creep => creep.memory.withdrawTarget === tombstone.id).length === 0;
           }
         });
         if (tombstones.length > 0) {
@@ -564,7 +564,7 @@ const creepWrok = {
         // 获取散落的没被标记的能量
         const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
           filter: (resource) => {
-            return resource.amount > 0 && assigners.filter(creep => creep.memory.withdrawTarget === resource.id).length === 0;
+            return resource.amount > 50 && assigners.filter(creep => creep.memory.withdrawTarget === resource.id).length === 0;
           }
         });
         if (droppedEnergy.length > 0) {

@@ -69,9 +69,33 @@ function TowerManagerLoop(ROOM, tower) {
     tower.heal(creeps[0]);
     return
   }
-  // 当前塔能量大于400
+  // 保障建筑完整性
+  // 优先获取rampart血量最少的且血量低于1K的
+  const ramparts = ROOM.find(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) && structure.hits < 1500;
+    }
+  })[0];
+  // 如果有rampart
+  if (ramparts) {
+    // 修复rampart
+    tower.repair(ramparts);
+    return
+  }
+  // 扫描血量小于10%的道路
+  const roads = ROOM.find(FIND_STRUCTURES, {
+    filter: (structure) => {
+      return structure.structureType === STRUCTURE_ROAD && structure.hits < structure.hitsMax * 0.15;
+    }
+  })[0];
+  // 如果有道路
+  if (roads) {
+    // 修复道路
+    tower.repair(roads);
+    return
+  }
+  // 保障建筑血量
   if (tower.store.getUsedCapacity(RESOURCE_ENERGY) > 400) {
-  
     // 获取最近的血量低于50%的建筑
     const structures = ROOM.find(FIND_STRUCTURES, {
       filter: (structure) => {
