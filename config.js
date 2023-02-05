@@ -10,6 +10,9 @@ const RANGED_ATTACK_ENERGY = 150
 const HEAL_ENERGY = 250
 const TOUGH_ENERGY = 10
 const CLAIM_ENERGY = 600
+// 全局整体配置
+// 爬爬部件最高50个
+const MAX_CREEP_PARTS = 50
 
 const config = {
   RoomType: '种田流！',
@@ -34,8 +37,8 @@ const config = {
       if (expedited) energyCapacity = ROOM.energyAvailable
       // 根据能量容量计算出creep的body
       const body = []
-      // 最大限度的生成一个包含 工作模块、移动模块 的修理工
-      for (let i = 0; i < Math.floor(energyCapacity / (WORK_ENERGY + CARRY_ENERGY + MOVE_ENERGY)); i++) {
+      // 一个工作模块，一个移动模块，一个搬运模块为最小单位形成一个body小于MAX_CREEP_PARTS的creep
+      for (let i = 0; i < Math.floor(energyCapacity / (WORK_ENERGY + CARRY_ENERGY + MOVE_ENERGY)) && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(WORK)
         body.push(CARRY)
         body.push(MOVE)
@@ -53,7 +56,7 @@ const config = {
       // 最大限度的生成一个包含 工作模块、移动模块 的采集者
       let workNum = Math.floor((energyCapacity - CARRY_ENERGY) / (WORK_ENERGY * 2 + MOVE_ENERGY))
       if (workNum > 5) workNum = workNum > 5 ? 5 : workNum // 采集者最多5个工作模块就可以达到最大效率
-      for (let i = 0; i < workNum; i++) {
+      for (let i = 0; i < workNum && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(WORK)
         body.push(WORK)
         body.push(MOVE)
@@ -69,7 +72,7 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = [WORK, MOVE]
       // 最大限度的生成一个包含 运输模块、移动模块 的运输者
-      for (let i = 0; i < Math.floor((energyCapacity - WORK_ENERGY - MOVE_ENERGY) / (CARRY_ENERGY * 2 + MOVE_ENERGY)); i++) {
+      for (let i = 0; i < Math.floor((energyCapacity - WORK_ENERGY - MOVE_ENERGY) / (CARRY_ENERGY * 2 + MOVE_ENERGY)) && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(CARRY)
         body.push(CARRY)
         body.push(MOVE)
@@ -85,7 +88,7 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 远程攻击模块、治疗模块、移动模块 的一体机
-      for (let i = 0; i < Math.floor(energyCapacity / (RANGED_ATTACK_ENERGY + HEAL_ENERGY + MOVE_ENERGY)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (RANGED_ATTACK_ENERGY + HEAL_ENERGY + MOVE_ENERGY)) && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(RANGED_ATTACK)
         body.push(HEAL)
         body.push(MOVE)
@@ -132,7 +135,7 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
-      for (let i = 0; i < Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (ATTACK_ENERGY * 2 + MOVE_ENERGY * 2)) && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(RANGED_ATTACK)
         body.push(RANGED_ATTACK)
         body.push(MOVE)
@@ -170,13 +173,12 @@ const config = {
       // 根据能量容量计算出creep的body
       const body = []
       // 最大限度的生成一个包含 攻击模块、移动模块 的攻击者
-      for (let i = 0; i < Math.floor(energyCapacity / (CLAIM_ENERGY + MOVE_ENERGY)); i++) {
+      for (let i = 0; i < Math.floor(energyCapacity / (CLAIM_ENERGY + MOVE_ENERGY)) && body.length + 3 < MAX_CREEP_PARTS; i++) {
         body.push(CLAIM)
         body.push(MOVE)
       }
       return body
     },
-    // 普通通用工具人
   }
 }
 module.exports = config;
