@@ -427,12 +427,12 @@ const creepWrok = {
           filltarget = creep.pos.findClosestByRange(towers);
         }
       }
-      if (filltarget === null) {
-        // 存储到storage
-        if (creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-          filltarget = creep.room.storage;
-        }
-      }
+      // if (filltarget === null) {
+      //   // 存储到storage
+      //   if (creep.room.storage && creep.room.storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+      //     filltarget = creep.room.storage;
+      //   }
+      // }
       // 判断是否有填充目标
       if (filltarget) {
         if (creep.room.storage && creep.room.storage.id !== filltarget.id) {
@@ -525,6 +525,24 @@ const creepWrok = {
           const transferRes = creep.transfer(creep.room.terminal, resourceType);
           if (transferRes === ERR_NOT_IN_RANGE) {
             creep.moveTo(creep.room.terminal, { visualizePathStyle: { stroke: '#ffffff' } });
+            return 'MOVE';
+          }
+        }
+        return 'TRANSFER';
+      }
+
+      // 如果身上有不为能量的资源则转入storage
+      if (creep.store.getUsedCapacity() > 0 && creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+        // 先到storage旁边
+        if (creep.room.storage && creep.pos.getRangeTo(creep.room.storage) > 1) {
+          creep.moveTo(creep.room.storage, { visualizePathStyle: { stroke: '#ffffff' } });
+          return 'MOVE';
+        }
+        // 爬爬身上所有资源转入storage
+        for (const resourceType in creep.carry) {
+          const transferRes = creep.transfer(creep.room.storage, resourceType);
+          if (transferRes === ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.room.storage, { visualizePathStyle: { stroke: '#ffffff' } });
             return 'MOVE';
           }
         }
