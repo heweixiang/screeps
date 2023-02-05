@@ -487,7 +487,7 @@ function emergency(Room, spawn) {
       // 如果分配者数量小于1
       if (assignNum < 2) {
         // 创建分配者
-        const body = Game.Config.creep.generateTransporter(Room, assigners.length === 0 && transporters.length < 0);
+        const body = Game.Config.creep.generateTransporter(Room, assigners.length<1  );
         const name = 'TouchFish_分配' + Game.time;
         const config = { memory: { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN } };
         // 创造creep

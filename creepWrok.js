@@ -1095,7 +1095,7 @@ function creepDie(creep) {
 // 爬爬修路
 function creepRepair(creep) {
   // 随机性检测，不然太浪费资源了
-  if (creep.ticksToLive % 10 !== 0) return true;
+  if (creep.ticksToLive % 2 !== 0) return true;
   // 获取附近道路是否存在血量低于50%的，如果有则优先修复
   // 获取脚下的道路或建筑工地
   const road = creep.pos.lookFor(LOOK_STRUCTURES).find(s => s.structureType === STRUCTURE_ROAD);
