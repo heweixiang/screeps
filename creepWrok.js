@@ -790,6 +790,20 @@ const creepWrok = {
         }
         return;
       }
+      // 如果房间有散落的能量
+      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
+        filter: (resource) => {
+          return resource.resourceType === RESOURCE_ENERGY && resource.amount >= 50
+        }
+      });
+      // 直接去最近的散落能量 
+      if (droppedEnergy.length > 0) {
+        const energy = creep.pos.findClosestByRange(droppedEnergy);
+        if (creep.pickup(energy) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(energy, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+        return;
+      }
     }
     // 如果工作房间矿物数量为0,且需要矿物,或者房间不是自己的
     if (creep.room.controller && creep.room.controller.level > 0 && creep.memory.building === false && creep.room.controller.my === false
