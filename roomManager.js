@@ -65,7 +65,7 @@ const roomManager = {
         ]
       }
     */
-    if(!Room.memory.TerminalTask) {
+    if (!Room.memory.TerminalTask) {
       Room.memory.TerminalTask = [];
     }
 
@@ -199,6 +199,18 @@ const roomManager = {
   },
   // 可控房间
   ownRoom(Room) {
+    // 如果房间内有非NPC的攻击性creep就开启安全模式
+    const hostileCreeps = Room.find(FIND_HOSTILE_CREEPS, {
+      filter: (creep) => {
+        return creep.owner.username !== 'Invader' && creep.body.some((item) => {
+          return item.type === ATTACK || item.type === RANGED_ATTACK
+        })
+      }
+    })
+    if (hostileCreeps.length && !Room.controller.safeMode) {
+      Room.controller.activateSafeMode()
+    }
+
     createCreep.loop(Room);
     // 获取该房间的creep
     const creeps = Room.find(FIND_MY_CREEPS);
@@ -208,7 +220,115 @@ const roomManager = {
       creepWrok.loop(creeps);
     }
     roomBuildingWrok.loop(Room);
+    // 扫描添加creep创建任务
+    // if (Game.time % 5 === 0) {
+    //   createCreepTaskWrok(Room);
+    // }
   }
+}
+
+// 矿工：只能一辈子在Container上挖矿不可移动
+const ROLE_WORKER = 'ROLE_WORKER';
+// 运输者：一辈子东奔西走运输资源
+const ROLE_TRANSPORTER = 'ROLE_TRANSPORTER';
+// 哥布林
+const ROLE_GOBLIN = 'ROLE_GOBLIN';
+// 分配
+const ROLE_ASSIGN = 'ROLE_ASSIGN';
+// 一体机 供外矿使用
+const ROLE_ALL_IN_ONE = 'ROLE_ALL_IN_ONE';
+// 外矿治疗者
+const ROLE_EXTERNALMINE_HEALER = 'ROLE_EXTERNALMINE_HEALER';
+// 管理者
+const ROLE_MANAGER = 'ROLE_MANAGER';
+// 综合工（前期）：采集 > 运输 > 修理 > 升级 > 建造 脏活累活都干
+const ROLE_HARVESTER = 'ROLE_HARVESTER';
+// 行为
+// 采集
+const BEHAVIOR_HARVEST = 'BEHAVIOR_HARVEST';
+// 矿物采集
+const BEHAVIOR_HARVEST_MINERAL = 'BEHAVIOR_HARVEST_MINERAL';
+// 运输
+const BEHAVIOR_TRANSPORT = 'BEHAVIOR_TRANSPORT';
+// 修理
+const BEHAVIOR_REPAIR = 'BEHAVIOR_REPAIR';
+// 升级
+const BEHAVIOR_UPGRADE = 'BEHAVIOR_UPGRADE';
+// 建造
+const BEHAVIOR_BUILD = 'BEHAVIOR_BUILD';
+// 分配
+const BEHAVIOR_ASSIGN = 'BEHAVIOR_ASSIGN';
+// ROLE_ALL_IN_ONE
+const BEHAVIOR_ALL_IN_ONE = 'BEHAVIOR_ALL_IN_ONE';
+// 攻击
+const BEHAVIOR_ATTACK = 'BEHAVIOR_ATTACK';
+// 治疗
+const BEHAVIOR_HEAL = 'BEHAVIOR_HEAL';
+// 预定
+const BEHAVIOR_RESERVE = 'BEHAVIOR_RESERVE';
+// 占领
+const BEHAVIOR_CLAIM = 'BEHAVIOR_CLAIM';
+// 扫描创建creep
+function createCreepTaskWrok(Room) {
+  const AddCreateCreep = Game.Tools.AddCreateCreep
+  /**
+   * 基本原则：
+   *  1、运转 > 守卫 > 入侵 > 外矿 > 帮忙
+   * 优先级规则： 0、最最高级 > 1、最高级 > 2、高级 > 3、中级 > 4、低级 > 5、最低级
+   * ！！！注意：优先级规则是从低到高，数字越大优先级越低！！！时刻都要判断紧急模式
+   */
+  // 获取所有该房间创建的creep 不包括 50 tick内过世的creep
+  const roomCreep = Game.creeps.filter((x) => x.memory.createRoom == Room.name).filter((x) => x.ticksToLive > 20);
+  // 如果createCreepTaskList中的creepname在roomCreep中存在，则删除该任务
+  Room.memory.createCreepTaskList.forEach((x) => {
+    if (roomCreep.find((y) => y.name == x.name)) {
+      Room.memory.createCreepTaskList.splice(Room.memory.createCreepTaskList.indexOf(x), 1);
+    }
+  });
+  // 获取该房间创建任务列表
+  const createCreepTaskList = Room.memory.createCreepTaskList;
+  // 整合creepList 其中都包含memory和body
+  const creepList = roomCreep.concat(createCreepTaskList);
+  // TODO 自动占领 0,1 四人小队
+  // 分配者 2
+  // 每个房间内固定 2 个分配者
+  // 获取分配者数量
+  const assignCount = creepList.filter((x) => x.memory.role == ROLE_ASSIGN && (!x.memory.bindRoom || x.memory.bindRoom === Room.name)).length;
+  // 创建该任务
+  if (assignCount < 2) {
+    // 创建分配者
+    AddCreateCreep(Room, 'generateTransporter', { role: ROLE_ASSIGN, behavior: BEHAVIOR_ASSIGN }, 'as_' + Room.name + '_' + Game.time, { priority: assignCount < 1 ? 2 : 3 })
+  }
+  // 守卫 3
+  // 矿工 4
+  // 每个房间固定矿物数量的矿工
+  // 获取矿工数量（能量矿）
+  const harvesterCount = creepList.filter((x) => x.memory.role == ROLE_WORKER && (!x.memory.bindRoom || x.memory.bindRoom === Room.name)).length;
+  // 获取矿物数量（能量矿）
+  const sourceCount = Room.memory.centerSource.length + Room.memory.otherSource.length;
+  // 创建该任务
+  if (harvesterCount < sourceCount) {
+    // 创建矿工
+    AddCreateCreep(Room, 'generateHarvester', { role: ROLE_WORKER, behavior: BEHAVIOR_HARVEST }, 'hv_' + Room.name + '_' + Game.time, { priority: 4 })
+  }
+  // 运输 5
+  // 每个房间运输者数量和outherSource数量一致
+  // 获取运输者数量
+  const transporterCount = creepList.filter((x) => x.memory.role == ROLE_TRANSPORTER && (!x.memory.bindRoom || x.memory.bindRoom === Room.name)).length;
+  // 创建该任务
+  if (transporterCount < Room.memory.otherSource.length) {
+    // 创建运输者
+    AddCreateCreep(Room, 'generateTransporter', { role: ROLE_TRANSPORTER, behavior: BEHAVIOR_TRANSPORT }, 'tr_' + Room.name + '_' + Game.time, { priority: 5 })
+  }
+  // 外矿守卫 6
+  // 外矿矿工 7
+  // 与外矿房间矿物数量一致
+  // 获取外矿房间
+  const otherRoom = Room.memory.otherRoom;
+  // 外矿运输 8
+  // 外矿预定 9
+  // TODO 哥布林
+  // 帮建 10
 }
 
 // 获取房间最深处中心点

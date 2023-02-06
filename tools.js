@@ -20,6 +20,25 @@ const tools = {
       AvailableEnergy
     };
   },
+  // 传入room、bodyFun、memory、name、priority添加一个creep任务
+  AddCreateCreep(room, bodyFun, memory, name, priority) {
+    const ROOM = Game.rooms[room];
+    if (ROOM.memory.createCreepTaskList == undefined) {
+      ROOM.memory.createCreepTaskList = [];
+    }
+    // 调用bodyFun，返回一个body数组
+    try {
+      ROOM.memory.createCreepTaskList.push({
+        body: Game.Config[bodyFun](ROOM, false),
+        memory,
+        name,
+        priority,
+        state: 0
+      });
+    } catch (error) {
+      console.log('%ctools.js line:33 没有该生成方法无法创建任务！', 'color: #007acc;');
+    }
+  },
   // 给某个房间添加一个收集任务
   AddCollectTask(ROOMName, task) {
     Game.rooms[ROOMName].memory.CollectTask.push(task);

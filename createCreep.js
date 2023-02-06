@@ -51,6 +51,9 @@ const createCreep = {
         return !spawn.spawning;
       }
     });
+    if(spawns.length < Room.find(FIND_MY_SPAWNS).length) {
+      return
+    }
 
     // 如果有空闲的spawn
     if (spawns.length > 0) {
