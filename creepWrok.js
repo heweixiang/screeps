@@ -600,9 +600,16 @@ const creepWrok = {
           withdrawTarget = creep.pos.findClosestByRange(containers);
         }
       }
+      // 终端
+      if (withdrawTarget === null && creep.room.terminal) {
+        const terminal = creep.room.terminal;
+        if (terminal && terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 50 && assigners.filter(creep => creep.memory.withdrawTarget === terminal.id).length === 0) {
+          withdrawTarget = terminal;
+        }
+      }
       if (withdrawTarget === null) {
         withdrawTarget = creep.room.storage;
-      } else if (creep.room.storage.id !== creep.memory.withdrawTarget) {
+      } else if (creep.room.storage.id !== creep.memory.withdrawTarget && !(creep.room.terminal && creep.memory.withdrawTarget === creep.room.terminal.id)) {
         creep.memory.withdrawTarget = withdrawTarget.id;
       }
       // 从storage中取出资源

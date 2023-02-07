@@ -84,6 +84,8 @@ const markManger = {
       case "XGH2O": type = RESOURCE_CATALYZED_GHODIUM_ACID; break;
       case "XGHO2": type = RESOURCE_CATALYZED_GHODIUM_ALKALIDE; break;
       case "OPS": type = RESOURCE_OPS; break;
+      case "C": type = RESOURCE_CELL; break;
+      case "B": type = RESOURCE_BIOMASS; break;
       default: console.log("未识别该资源类型... ..."); return;
     }
 

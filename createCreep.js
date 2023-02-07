@@ -478,7 +478,7 @@ function emergency(Room, spawn) {
   // 获取 storage剩余能量
   const storageEnergy = Room.storage ? Room.storage.store.getUsedCapacity(RESOURCE_ENERGY) : 0
   // 如果分配者数量小于2或者storage剩余能量小于10000
-  if (assigners.length < 2 || storageEnergy < 10000) {
+  if (assigners.length < 1 || storageEnergy < 10000) {
     // 四级了如果有Storge就需要有分配者
     if (Room.storage) {
       // 获取房间内的分配者数量
@@ -488,7 +488,7 @@ function emergency(Room, spawn) {
         }
       }).length;
       // 如果分配者数量小于1
-      if (assignNum < 2) {
+      if (assignNum < 1) {
         // 创建分配者
         const body = Game.Config.creep.generateTransporter(Room, assigners.length<1  );
         const name = 'TouchFish_分配' + Game.time;
