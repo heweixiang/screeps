@@ -95,7 +95,25 @@ function TowerManagerLoop(ROOM, tower) {
     return
   }
   // 保障建筑血量
-  if (tower.store.getUsedCapacity(RESOURCE_ENERGY) > 400) {
+  if (tower.store.getUsedCapacity(RESOURCE_ENERGY) > 400 && !enemies) {
+    // 获取最近的血量低于50%的建筑
+    const structures = ROOM.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        // 如果是墙壁
+        if (structure.structureType === STRUCTURE_WALL || structure.structureType === STRUCTURE_RAMPART) {
+          // 如果血量低于
+          return structure.hits < 200000//Game.Config.RCL['LV' + ROOM.controller.level].Ramparts * 10000 * 0.25;
+        }
+        return structure.hits < structure.hitsMax * 0.7;
+      }
+    })[0];
+    // 如果有建筑
+    if (structures) {
+      // 修复建筑
+      tower.repair(structures);
+      return
+    }
+  } else {
     // 获取最近的血量低于50%的建筑
     const structures = ROOM.find(FIND_STRUCTURES, {
       filter: (structure) => {
