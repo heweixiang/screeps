@@ -52,14 +52,14 @@ function linkSend(ROOM) {
 
 // 暂时让塔动起来，// TODO 后面需要优化的
 function TowerManagerLoop(ROOM, tower) {
-  // 获取最近的敌人
-  const enemies = ROOM.find(FIND_HOSTILE_CREEPS)[0];
-  // 如果有敌人
-  if (enemies) {
-    // 攻击敌人
-    tower.attack(enemies);
-    return
-  }
+  // // 获取最近的敌人
+  // const enemies = ROOM.find(FIND_HOSTILE_CREEPS)[0];
+  // // 如果有敌人
+  // if (enemies) {
+  //   // 攻击敌人
+  //   tower.attack(enemies);
+  //   return
+  // }
   // 如果没有敌人
   // 获取最近的爬爬
   const creeps = ROOM.find(FIND_MY_CREEPS).filter((creep) => creep.hits < creep.hitsMax);
