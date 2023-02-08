@@ -86,6 +86,7 @@ const markManger = {
       case "OPS": type = RESOURCE_OPS; break;
       case "C": type = RESOURCE_CELL; break;
       case "B": type = RESOURCE_BIOMASS; break;
+      case "S": type = RESOURCE_ESSENCE; break;
       default: console.log("未识别该资源类型... ..."); return;
     }
 
