@@ -52,9 +52,9 @@ function linkSend(ROOM) {
 
 // 暂时让塔动起来，// TODO 后面需要优化的
 function TowerManagerLoop(ROOM, tower) {
-  // 获取最近的敌人
+  // // 获取最近的敌人
   const enemies = ROOM.find(FIND_HOSTILE_CREEPS)[0];
-  // 如果有敌人
+  // // 如果有敌人
   if (enemies) {
     // 攻击敌人
     tower.attack(enemies);
