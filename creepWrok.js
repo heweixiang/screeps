@@ -383,17 +383,17 @@ const creepWrok = {
           filltarget = null
         }
       }
-      if (filltarget === null) {
-        // 获取该房间tower
-        const towers = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
-          }
-        });
-        if (towers.length > 0) {
-          filltarget = creep.pos.findClosestByRange(towers);
-        }
-      }
+      // if (filltarget === null) {
+      //   // 获取该房间tower
+      //   const towers = creep.room.find(FIND_STRUCTURES, {
+      //     filter: (structure) => {
+      //       return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+      //     }
+      //   });
+      //   if (towers.length > 0) {
+      //     filltarget = creep.pos.findClosestByRange(towers);
+      //   }
+      // }
       if (filltarget === null) {
         // extensions
         const extensions = creep.room.find(FIND_STRUCTURES, {
