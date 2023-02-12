@@ -23,7 +23,7 @@ const room_static = {
   resourceTransfer(fromRoom, resourceId, targetRoom, targetId, resourceType, num) {
     // 房间内资源转移，手操和系统通用
     // 判断资源房间是否存在
-    if (!isRoom(roomName, true)) return;
+    if (!isRoom(roomName)) return;
     if (!targetRoom) {
       targetRoom = fromRoom;
       console.log(`<font color="yellow">✖︎未指定送达房间，默认为资源房间!</font>`);
@@ -243,8 +243,31 @@ const room_static = {
     console.log(`<font color="green">✔︎当前房间的消费link列表为：${Game.rooms[roomName].memory.consumeLinkList}</font>`);
   },
   // ==================== 日常操作 ====================
-  // 添加外矿房绑定
-  // 添加外部偷取
+  // 添加外矿房绑定 传入房间名称、外矿房名称、修路点（“x,y”）（不传默认不修路为九房或过道,为了防止双出口问题）
+  // 是否派矿工（不派为偷外矿或者共用外矿派运输即可）
+  addOutRoom(roomName, outRoomName, roadPoint, isSendWorker = true) {
+    // 判断房间是不是自己的
+    if (!isRoom(roomName, true)) return;
+    // 获取定位
+    const { x, y } = roadPoint.split(",");
+    // 判断该房间是否为外矿房
+    if (Game.rooms[roomName].memory.outRoom[outRoomName]) {
+      // 修改点和是否派矿工
+      Game.rooms[roomName].memory.outRoom[outRoomName].roadPoint = roadPoint;
+      Game.rooms[roomName].memory.outRoom[outRoomName].isSendWorker = isSendWorker;
+      console.log(`<font color="yellow">✔︎房间 ${outRoomName} 已经是外矿房了！</font>`);
+      return;
+    } else {
+      // 添加外矿房
+      Game.rooms[roomName].memory.outRoom[outRoomName] = {
+        roadPoint: roadPoint,
+        isSendWorker: isSendWorker
+      }
+      console.log(`<font color="green">✔︎已添加外矿房 ${outRoomName} ！</font>`);
+      // 当前外矿房列表
+      console.log(`<font color="green">✔︎当前外矿房列表为：${Object.keys(Game.rooms[roomName].memory.outRoom)}</font>`);
+    }
+  },
 }
 
 // 判断房间是否是自己的房间

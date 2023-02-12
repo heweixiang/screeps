@@ -19,6 +19,10 @@ let room = {
     if (!ROOM.memory.consumeLinkList) {
       ROOM.memory.consumeLinkList = []
     }
+    // 判断是否存在外矿房配置
+    if (!ROOM.memory.outRoom) {
+      ROOM.memory.outRoom = {}
+    }
 
     ROOM.memory.init = true;
     console.log(`<font color="#00FF00">TouchFishRoomInt ===> 房间 ${ROOM.name} 初始化完成!</font>`);
