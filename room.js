@@ -2,6 +2,7 @@
  * 房间管理
  */
 const room_static = require('room_static');
+const room_mark = require('room_mark');
 let ROOM = null
 let room = {
   // 房间初始化
@@ -30,12 +31,25 @@ let room = {
   loop(roomName) {
     ROOM = Game.rooms[roomName];
     if (!ROOM.memory.init) {
-      room.init()
+      try {
+        room.init()
+      } catch (error) {
+        console.log('error: ', error);
+      }
     }
-
+    // 如果房间有终端且终端可用,5T处理一次
+    if (ROOM.terminal && ROOM.controller.level >= 6 && ROOM.terminal.cooldown == 0 && Game.time % 5 == 0) {
+      try {
+        room.mark.loop(ROOM.name)
+      } catch (error) {
+        console.log('error: ', error);
+      }
+    }
   }
 }
 
 // 将静态方法合并到room
 Object.assign(room, room_static);
+// 将市场方法合并到room
+Object.assign(room, room_mark);
 module.exports = room;

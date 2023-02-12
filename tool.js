@@ -25,3 +25,20 @@ uuid = function () {
     return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
   });
 }
+
+// 判断房间是否是自己的房间
+isRoom = function (roomName, isMyRoom = false) {
+  if (isMyRoom === false) {
+    if (!Game.rooms[roomName]) {
+      console.log(`<font color="red">✖︎房间 ${roomName} 不存在，或者未初始化！</font>`);
+      return false;
+    }
+
+  } else {
+    if (!(Game.rooms[roomName] && Game.rooms[roomName].controller && Game.rooms[roomName].controller.my)) {
+      console.log(`<font color="red">✖︎房间 ${roomName} 不是自己的房间！</font>`);
+      return false;
+    }
+  }
+  return true;
+}
