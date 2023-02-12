@@ -6,7 +6,7 @@ const mark = {
   loop(roomName) {
     Room = Game.rooms[roomName];
     // 获取所有订单任务遍历
-    const task = Room.memory.task;
+    const task = Room.memory.task || []
     task.forEach((item, index) => {
 
 
