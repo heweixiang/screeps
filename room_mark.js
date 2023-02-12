@@ -3,7 +3,7 @@
  */
 let Room = null
 const mark = {
-  loop(roomName) {
+  mark_loop(roomName) {
     Room = Game.rooms[roomName];
     // 获取所有订单任务遍历
     const task = Room.memory.task || []
