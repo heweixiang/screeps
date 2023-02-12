@@ -2,6 +2,7 @@
  * 房间管理的静态方法（手操用）
  */
 const room_static = {
+  // ==================== 日常维护 ====================
   // 爬爬数量设置
   setCreepNum(roomName, creepRole, num) {
     // 判断creepRole是否存在
@@ -240,7 +241,10 @@ const room_static = {
     }
     // 输出当前房间的消费link列表
     console.log(`<font color="green">✔︎当前房间的消费link列表为：${Game.rooms[roomName].memory.consumeLinkList}</font>`);
-  }
+  },
+  // ==================== 日常操作 ====================
+  // 添加外矿房绑定
+  // 添加外部偷取
 }
 
 // 判断房间是否是自己的房间
