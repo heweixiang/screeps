@@ -337,6 +337,8 @@ const creepWrok = {
     });
     // 判断当前store标记
     if (creep.memory.store && creep.memory.store === true) {
+
+
       // 保证link中是空的
       if (creep.room.memory.storageLink) {
         // 如果storageLink中有能量则存入storage并继续取出
@@ -383,17 +385,17 @@ const creepWrok = {
           filltarget = null
         }
       }
-      // if (filltarget === null) {
-      //   // 获取该房间tower
-      //   const towers = creep.room.find(FIND_STRUCTURES, {
-      //     filter: (structure) => {
-      //       return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
-      //     }
-      //   });
-      //   if (towers.length > 0) {
-      //     filltarget = creep.pos.findClosestByRange(towers);
-      //   }
-      // }
+      if (filltarget === null) {
+        // 获取该房间tower
+        const towers = creep.room.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 650 && assigners.filter((assigner) => assigner.memory.filltarget === structure.id).length === 0;
+          }
+        });
+        if (towers.length > 0) {
+          filltarget = creep.pos.findClosestByRange(towers);
+        }
+      }
       if (filltarget === null) {
         // extensions
         const extensions = creep.room.find(FIND_STRUCTURES, {
@@ -453,6 +455,7 @@ const creepWrok = {
         return 'FILL';
       }
     } else {
+
       // 保证link中是空的
       if (creep.room.memory.storageLink) {
         // 如果storageLink中有能量则从storageLink中取出
@@ -783,6 +786,19 @@ const creepWrok = {
       creep.memory.building = false;
     }
     if (creep.memory.building === false) {
+      creep.memory.dontPullMe = true
+
+      // 去storage中取能量
+      // 到附近
+      if(creep.room.storage){
+        const storage = creep.room.storage;
+        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff' } });
+        }
+        return;
+
+      }
+
       // 如果房间有ruin,并且能量大于50
       const ruins = creep.room.find(FIND_RUINS, {
         filter: (ruin) => {
@@ -915,6 +931,12 @@ const creepWrok = {
           Game.Tools.RemoveHelpBuildRoom(creep.memory.bindRoom);
         }
       }
+      // 走到附
+      if(creep.pos.getRangeTo(buildTarget) > 2) {
+        creep.moveTo(buildTarget, { visualizePathStyle: { stroke: '#ffffff' } });
+        return;
+      }
+      creep.memory.dontPullMe = false
       // 开始建造
       if (creep.build(buildTarget) === ERR_NOT_IN_RANGE) {
         creep.moveTo(buildTarget, { visualizePathStyle: { stroke: '#ffffff' } });
