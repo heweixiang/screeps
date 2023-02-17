@@ -422,7 +422,7 @@ function createCreepForRCL1(Room, spawn) {
       }
     }
     // 如果建造爬爬数量小于1
-    if (builders.length < (constructionSites.length < 5 ? 1 : 2) + Game.Tools.GetCreepNum(Room, '建造')) {
+    if (builders.length < 2 + Game.Tools.GetCreepNum(Room, '建造')) {
       // 生成建造爬爬
       const body = Game.Config.creep.generateInitialWorker(Room);
       const name = 'TouchFish_建造' + Game.time;
@@ -433,7 +433,7 @@ function createCreepForRCL1(Room, spawn) {
     }
   }
   // 获取需要援建的房间
-  const HelpBuildRoom = Memory.HelpBuildRoom;
+  const HelpBuildRoom = Memory.HelpBuildRoom9|| [];
   // 如果有需要援建的房间
   if (HelpBuildRoom.length > 0) {
     // 遍历
@@ -480,7 +480,7 @@ function emergency(Room, spawn) {
   // 如果分配者数量小于2或者storage剩余能量小于10000
   if (assigners.length < 1 || storageEnergy < 10000) {
     // 四级了如果有Storge就需要有分配者
-    if (Room.storage) {
+    if (Room.storage) { 
       // 获取房间内的分配者数量
       const assignNum = Room.find(FIND_MY_CREEPS, {
         filter: (creep) => {
